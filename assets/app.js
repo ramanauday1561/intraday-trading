@@ -35,6 +35,14 @@ function banners() {
   if (m.mode === "demo") add("info", "Demo data", "Live sources were unreachable, so this is a synthetic market for demonstration only. Not tradable.");
   const age = (Date.now() - new Date(m.generated_at)) / 60000;
   if (m.mode === "live" && age > 30) add("medium", "Stale data", `Last analysis ran ${Math.round(age)} min ago.`);
+  const hl = m.health;
+  if (m.mode === "live" && hl) {
+    const bad = [];
+    if (hl.prices_ok < hl.universe) bad.push(`prices for ${hl.prices_ok}/${hl.universe} stocks`);
+    if (!hl.news_items) bad.push("no news fetched");
+    if (!hl.nse_derivatives) bad.push("NSE derivatives (GEX, OI, IV skew) unavailable");
+    add(bad.length ? "medium" : "info", "Live data check", bad.length ? "Partial: " + bad.join("; ") + "." : `All sources OK: ${hl.prices_ok} stocks, ${hl.news_items} headlines, NSE derivatives.`);
+  }
   const phases = { CLOSED: "Market closed — showing the last completed session.", MORATORIUM: "15-minute opening moratorium (until 09:30 IST). Execution disabled.",
     PRE_OPEN: "Pre-open call auction. Engine inactive until 09:30 IST.", LATE: "After 15:00 IST — no fresh entries." };
   if (phases[m.session_phase]) add("medium", "Session", phases[m.session_phase]);

@@ -113,6 +113,8 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=0.5):
         for src, url in newsmod.GENERAL_FEEDS:
             general += newsmod.fetch_feed(url, src)
     signals = []
+    health = {"prices_ok": len(stocks), "universe": len(UNIVERSE), "news_items": 0,
+              "nse_derivatives": bool(nse and nse.ok and (index_gex is not None)), "general_feed_items": len(general)}
     for sym, name, sector, sidx, mcap in UNIVERSE:
         m = stocks.get(sym)
         if not m:
@@ -131,6 +133,7 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=0.5):
                     opt["_rows"] = pr["options"]
         else:
             items, opt, fut = demomod.demo_news(sym, m["kind"], now), None, None
+        health["news_items"] += len(items)
         news = newsmod.analyse_symbol(sym, name, mcap, items, now=datetime.now(timezone.utc))
         st, sh, sd = idx_data.get(sidx, idx_data["^NSEI"])
         sec_chg = _chg(st, float(sd["close"].iloc[-1]))
@@ -156,7 +159,7 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=0.5):
     return {"schema_version": 1,
             "meta": {"generated_at": datetime.now(IST).isoformat(timespec="seconds"), "data_as_of": last_ts.isoformat(),
                      "mode": mode, "session_phase": phase, "execution_allowed": phase == "ACTIVE" or mode == "demo",
-                     "universe_size": len(UNIVERSE), "analysed": len(signals), "sources": sources,
+                     "health": health, "universe_size": len(UNIVERSE), "analysed": len(signals), "sources": sources,
                      "capital": capital, "risk_pct": risk_pct, "disclaimer": DISCLAIMER,
                      "notes": ["Hawkes branching ratio is a Fano-factor approximation on 5-minute bars.",
                                "GEX/IV-skew/OI need NSE derivatives data; when blocked these inputs are omitted and weights renormalised.",

@@ -19,6 +19,7 @@ def main():
     m = payload["meta"]
     print(f"mode={m['mode']} phase={m['session_phase']} analysed={m['analysed']} "
           f"actionable={sum(s['direction'] != 'NO_TRADE' for s in payload['signals'])} -> {a.out}")
+    print("data health:", m["health"])
 
 
 if __name__ == "__main__":
