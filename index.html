@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Intraday Quant Desk</title>
+<meta name="description" content="Quantitative intraday trade theses for NSE/BSE equities">
+<meta name="theme-color" content="#0b1220">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Intraday">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo">◢</span> Intraday Quant Desk</div>
+  <div class="top-actions">
+    <button id="installBtn" class="btn ghost" hidden>Install</button>
+    <button id="settingsBtn" class="btn ghost" aria-label="Risk settings">⚙</button>
+    <button id="refreshBtn" class="btn ghost" aria-label="Refresh">⟳</button>
+  </div>
+</header>
+<main>
+  <div id="banners"></div>
+  <section id="macro" class="macro" aria-label="Macro overlay"></section>
+  <nav class="chips" id="filters" aria-label="Filter">
+    <button data-f="ACTION" class="chip on">Actionable</button>
+    <button data-f="LONG" class="chip">Long</button>
+    <button data-f="SHORT" class="chip">Short</button>
+    <button data-f="ALL" class="chip">All</button>
+  </nav>
+  <section id="list" class="list" aria-live="polite"><div class="empty">Loading…</div></section>
+  <footer id="foot" class="foot"></footer>
+</main>
+
+<div id="sheet" class="sheet" hidden role="dialog" aria-modal="true">
+  <div class="sheet-bar"><button id="closeSheet" class="btn ghost">← Back</button><span id="sheetTitle"></span></div>
+  <div id="sheetBody" class="sheet-body"></div>
+</div>
+
+<dialog id="settings">
+  <form method="dialog">
+    <h3>Risk settings</h3>
+    <label>Capital (₹)<input id="capital" type="number" min="1000" step="1000" inputmode="numeric"></label>
+    <label>Risk per trade (%)<input id="riskPct" type="number" min="0.1" max="5" step="0.1" inputmode="decimal"></label>
+    <p class="muted">Quantity is recalculated on-device from the stop distance. Nothing leaves your phone.</p>
+    <menu><button class="btn" value="ok">Save</button></menu>
+  </form>
+</dialog>
+<div id="iosHint" class="ios-hint" hidden>To install: tap <b>Share</b> then <b>Add to Home Screen</b>. <button id="iosClose" class="btn ghost">Got it</button></div>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,3645 @@
+{
+ "schema_version": 1,
+ "meta": {
+  "generated_at": "2026-10-24T21:26:52+05:30",
+  "data_as_of": "2026-10-23T11:30:00+05:30",
+  "mode": "demo",
+  "session_phase": "ACTIVE",
+  "execution_allowed": true,
+  "universe_size": 28,
+  "analysed": 28,
+  "sources": [
+   "Yahoo Finance chart API (prices, India VIX)",
+   "Google News RSS + ET/Moneycontrol/Mint RSS",
+   "NSE public derivatives API (best effort)",
+   "FinBERT (ProsusAI/finbert) or finance lexicon",
+   "NumPy/pandas"
+  ],
+  "capital": 100000,
+  "risk_pct": 0.5,
+  "disclaimer": "Educational research output, not investment advice. Data from free public sources may be delayed or incomplete. Verify before trading; you are solely responsible for orders.",
+  "notes": [
+   "Hawkes branching ratio is a Fano-factor approximation on 5-minute bars.",
+   "GEX/IV-skew/OI need NSE derivatives data; when blocked these inputs are omitted and weights renormalised.",
+   "LPP bands are modelled, not transmitted; no orders are ever placed.",
+   "DEMO MODE: synthetic data - live sources unreachable."
+  ]
+ },
+ "macro": {
+  "nifty": {
+   "ltp": 23753.65,
+   "chg_pct": -0.02
+  },
+  "banknifty": {
+   "ltp": 51196.65,
+   "chg_pct": 3.15
+  },
+  "india_vix": 14.2,
+  "vix_chg_pct": -1.5,
+  "expected_daily_move_pct": 0.89,
+  "index_correlation": -0.05,
+  "regime": "TRANSITIONAL",
+  "weights": {
+   "fundamental": 0.2,
+   "price_action": 0.3,
+   "institutional": 0.4,
+   "macro": 0.1
+  },
+  "gex": {
+   "net_gex": -1.0,
+   "gex_norm": -0.2,
+   "call_wall": 23990.0,
+   "put_wall": 23520.0,
+   "gamma_flip": null,
+   "iv_skew": null,
+   "call_writing_otm": false,
+   "demo": true
+  }
+ },
+ "signals": [
+  {
+   "symbol": "ITC",
+   "name": "ITC",
+   "sector": "FMCG",
+   "direction": "LONG",
+   "bias": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 100,
+   "composite": 0.665,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 1909.53,
+    "prev_close": 1824.55,
+    "open": 1840.97,
+    "chg_pct": 4.66,
+    "gap_pct": 0.9,
+    "high": 1909.79,
+    "low": 1837.32,
+    "vwap": 1870.36,
+    "atr_daily": 31.02,
+    "atr_pct": 1.62,
+    "adx": 60.8,
+    "turnover_cr": 656.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.142,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.86,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.834,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.445,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "OTHER",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Strong growth outlook, brokerages upgrade stock",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.731791+00:00",
+      "sentiment": 0.95,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.666,
+    "vpin": 0.711,
+    "toxic": true,
+    "hawkes_buy": 0.3,
+    "hawkes_sell": 0.12,
+    "hawkes_surge": false,
+    "poc": 1882.01,
+    "vah": 1909.79,
+    "val": 1849.4,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 1909.53,
+    "stop": 1898.67,
+    "stop_distance": 10.86,
+    "stop_distance_pct": 0.57,
+    "trail_distance": 10.86,
+    "target": 1931.25,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 23,
+    "risk_amount": 250.0,
+    "invalidation_vwap": 1870.36,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (1870.36), OFI turns negative, or price falls back inside the Value Area (below VAH 1909.79).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 0.5,
+    "circuit": {
+     "upper": 2007.01,
+     "lower": 1642.1,
+     "dist_upper_pct": 5.1,
+     "dist_lower_pct": 14.01,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false,
+     "option": "ATM CE",
+     "premium": 17.31,
+     "reference": 17.14,
+     "lower": null,
+     "upper": null,
+     "entry_limit": 17.4,
+     "headroom_pct": null,
+     "modelled": true,
+     "valid": true
+    },
+    "warnings": [
+     {
+      "level": "high",
+      "code": "TOXIC_FLOW",
+      "message": "VPIN 0.71 indicates toxic flow; size halved."
+     }
+    ],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 61). Composite +0.66 [F +0.14 | P +0.86 | I +0.83 | M +0.45]. Flow: OFI +0.67, VPIN 0.71, Hawkes buy/sell 0.30/0.12; F&O: unavailable.  Macro aligned."
+  },
+  {
+   "symbol": "SUNPHARMA",
+   "name": "Sun Pharma",
+   "sector": "Pharma",
+   "direction": "SHORT",
+   "bias": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 85,
+   "composite": -0.507,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 585.39,
+    "prev_close": 602.18,
+    "open": 596.76,
+    "chg_pct": -2.79,
+    "gap_pct": -0.9,
+    "high": 596.86,
+    "low": 585.31,
+    "vwap": 590.28,
+    "atr_daily": 9.95,
+    "atr_pct": 1.7,
+    "adx": 12.4,
+    "turnover_cr": 239.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": -0.566,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.97,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": -0.37,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "USFDA",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "USFDA issues warning letter, observations at plant",
+      "source": "Economic Times",
+      "url": "",
+      "published": "2026-10-24T12:56:52.778457+00:00",
+      "sentiment": -0.8,
+      "tier": 1,
+      "event": "USFDA",
+      "momentum_probability": 0.85,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     },
+     {
+      "title": "Shares slump on regulatory concern",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.778457+00:00",
+      "sentiment": -0.8,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": -0.165,
+    "vpin": 0.462,
+    "toxic": false,
+    "hawkes_buy": 0.04,
+    "hawkes_sell": 0.18,
+    "hawkes_surge": false,
+    "poc": 587.81,
+    "vah": 593.01,
+    "val": 585.69,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 585.39,
+    "stop": 588.87,
+    "stop_distance": 3.48,
+    "stop_distance_pct": 0.59,
+    "trail_distance": 3.48,
+    "target": 578.43,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 143,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 590.28,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (590.28), OFI turns positive, or price falls back inside the Value Area (below VAH 593.01).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 662.4,
+     "lower": 541.96,
+     "dist_upper_pct": 13.16,
+     "dist_lower_pct": 7.42,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false,
+     "option": "ATM PE",
+     "premium": 5.39,
+     "reference": 5.3,
+     "lower": null,
+     "upper": null,
+     "entry_limit": 5.42,
+     "headroom_pct": null,
+     "modelled": true,
+     "valid": true
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 12). Composite -0.51 [F -0.57 | P -0.97 | I -0.37 | M +0.45]. Flow: OFI -0.16, VPIN 0.46, Hawkes buy/sell 0.04/0.18; F&O: unavailable. "
+  },
+  {
+   "symbol": "RELIANCE",
+   "name": "Reliance Industries",
+   "sector": "Energy",
+   "direction": "SHORT",
+   "bias": "SHORT",
+   "setup": "TRAP_FADE",
+   "conviction": 41,
+   "composite": -0.244,
+   "regime": "EVENT_DRIVEN",
+   "weights": {
+    "fundamental": 0.5,
+    "price_action": 0.1,
+    "institutional": 0.3,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 2619.54,
+    "prev_close": 2654.94,
+    "open": 2713.34,
+    "chg_pct": -1.33,
+    "gap_pct": 2.2,
+    "high": 2716.25,
+    "low": 2618.88,
+    "vwap": 2669.22,
+    "atr_daily": 44.54,
+    "atr_pct": 1.7,
+    "adx": 16.3,
+    "turnover_cr": 1068.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.5
+    },
+    "price_action": {
+     "score": -0.871,
+     "weight": 0.1
+    },
+    "institutional": {
+     "score": -0.673,
+     "weight": 0.3
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "EARNINGS",
+    "sue_proxy": 1.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Reliance Q2 net profit beats estimates, revenue surges",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.638548+00:00",
+      "sentiment": 0.95,
+      "tier": 1,
+      "event": "EARNINGS",
+      "momentum_probability": 0.85,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     },
+     {
+      "title": "Reliance bags record order worth Rs 9,000 crore, shares jump",
+      "source": "Economic Times",
+      "url": "",
+      "published": "2026-10-24T12:56:52.638548+00:00",
+      "sentiment": 0.95,
+      "tier": 2,
+      "event": "ORDER_WIN",
+      "momentum_probability": 0.6,
+      "materiality": 0.0,
+      "order_value_cr": 9000.0,
+      "mcap_ratio_pct": 0.47
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": -0.697,
+    "vpin": 0.639,
+    "toxic": true,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.03,
+    "hawkes_surge": false,
+    "poc": 2678.92,
+    "vah": 2716.25,
+    "val": 2648.09,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 2619.54,
+    "stop": 2635.13,
+    "stop_distance": 15.59,
+    "stop_distance_pct": 0.6,
+    "trail_distance": 15.59,
+    "target": 2588.35,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 16,
+    "risk_amount": 250.0,
+    "invalidation_vwap": 2669.22,
+    "invalidation_text": "Thesis invalidated if price reclaims VWAP (2669.22) with OFI turning positive, or trades above Value Area High (2716.25) on expanding volume.",
+    "gap_close_target": 2654.94
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 0.5,
+    "circuit": {
+     "upper": 2920.43,
+     "lower": 2389.44,
+     "dist_upper_pct": 11.49,
+     "dist_lower_pct": 8.78,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false,
+     "option": "ATM PE",
+     "premium": 24.74,
+     "reference": 24.58,
+     "lower": null,
+     "upper": null,
+     "entry_limit": 24.86,
+     "headroom_pct": null,
+     "modelled": true,
+     "valid": true
+    },
+    "warnings": [
+     {
+      "level": "high",
+      "code": "TOXIC_FLOW",
+      "message": "VPIN 0.64 indicates toxic flow; size halved."
+     }
+    ],
+    "blockers": []
+   },
+   "contradiction": {
+    "type": "DISTRIBUTION_TRAP",
+    "note": "Positive catalyst + gap-up met negative OFI and a VWAP breach: news used as exit liquidity. Fundamental pillar invalidated; targeting gap closure."
+   },
+   "thesis": "Event Driven regime (VIX 14.2, ADX 16). Composite -0.24 [F +0.00 | P -0.87 | I -0.67 | M +0.45]. Flow: OFI -0.70, VPIN 0.64, Hawkes buy/sell 0.00/0.03; F&O: unavailable. Positive catalyst + gap-up met negative OFI and a VWAP breach: news used as exit liquidity. Fundamental pillar invalidated; targeting gap closure."
+  },
+  {
+   "symbol": "TCS",
+   "name": "Tata Consultancy Services",
+   "sector": "IT",
+   "direction": "NO_TRADE",
+   "bias": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 60,
+   "composite": 0.543,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 2726.78,
+    "prev_close": 2613.4,
+    "open": 2636.92,
+    "chg_pct": 4.34,
+    "gap_pct": 0.9,
+    "high": 2729.04,
+    "low": 2634.44,
+    "vwap": 2684.2,
+    "atr_daily": 47.89,
+    "atr_pct": 1.76,
+    "adx": 14.0,
+    "turnover_cr": 1068.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.142,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.89,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.51,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.44,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "OTHER",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Strong growth outlook, brokerages upgrade stock",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.649936+00:00",
+      "sentiment": 0.95,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.401,
+    "vpin": 0.474,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 2686.47,
+    "vah": 2729.04,
+    "val": 2659.67,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 2726.78,
+    "stop": 2710.02,
+    "stop_distance": 16.76,
+    "stop_distance_pct": 0.61,
+    "trail_distance": 16.76,
+    "target": 2760.31,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 29,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 2684.2,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (2684.20), OFI turns negative, or price falls back inside the Value Area (below VAH 2729.04).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 2874.73,
+     "lower": 2352.06,
+     "dist_upper_pct": 5.43,
+     "dist_lower_pct": 13.74,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": [
+     {
+      "code": "HAWKES",
+      "message": "Breakout lacks self-exciting order flow (Hawkes branching ratio low)."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 14). Composite +0.54 [F +0.14 | P +0.89 | I +0.51 | M +0.44]. Flow: OFI +0.40, VPIN 0.47, Hawkes buy/sell 0.00/0.00; F&O: unavailable.  Macro aligned."
+  },
+  {
+   "symbol": "INFY",
+   "name": "Infosys",
+   "sector": "IT",
+   "direction": "NO_TRADE",
+   "bias": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 60,
+   "composite": 0.642,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 436.5,
+    "prev_close": 416.51,
+    "open": 420.26,
+    "chg_pct": 4.8,
+    "gap_pct": 0.9,
+    "high": 437.18,
+    "low": 419.63,
+    "vwap": 428.28,
+    "atr_daily": 7.19,
+    "atr_pct": 1.65,
+    "adx": 41.1,
+    "turnover_cr": 151.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.142,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.997,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.675,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.44,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "OTHER",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Strong growth outlook, brokerages upgrade stock",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.677731+00:00",
+      "sentiment": 0.95,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.589,
+    "vpin": 0.74,
+    "toxic": true,
+    "hawkes_buy": 0.04,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 420.51,
+    "vah": 434.25,
+    "val": 420.22,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 436.5,
+    "stop": 433.99,
+    "stop_distance": 2.52,
+    "stop_distance_pct": 0.58,
+    "trail_distance": 2.52,
+    "target": 441.54,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 99,
+    "risk_amount": 250.0,
+    "invalidation_vwap": 428.28,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (428.28), OFI turns negative, or price falls back inside the Value Area (below VAH 434.25).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 0.5,
+    "circuit": {
+     "upper": 458.16,
+     "lower": 374.86,
+     "dist_upper_pct": 4.96,
+     "dist_lower_pct": 14.12,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [
+     {
+      "level": "high",
+      "code": "TOXIC_FLOW",
+      "message": "VPIN 0.74 indicates toxic flow; size halved."
+     }
+    ],
+    "blockers": [
+     {
+      "code": "HAWKES",
+      "message": "Breakout lacks self-exciting order flow (Hawkes branching ratio low)."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 41). Composite +0.64 [F +0.14 | P +1.00 | I +0.68 | M +0.44]. Flow: OFI +0.59, VPIN 0.74, Hawkes buy/sell 0.04/0.00; F&O: unavailable.  Macro aligned."
+  },
+  {
+   "symbol": "CIPLA",
+   "name": "Cipla",
+   "sector": "Pharma",
+   "direction": "NO_TRADE",
+   "bias": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 60,
+   "composite": -0.618,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 2951.67,
+    "prev_close": 3092.13,
+    "open": 3064.3,
+    "chg_pct": -4.54,
+    "gap_pct": -0.9,
+    "high": 3065.07,
+    "low": 2940.64,
+    "vwap": 3001.56,
+    "atr_daily": 50.04,
+    "atr_pct": 1.7,
+    "adx": 26.6,
+    "turnover_cr": 1246.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": -0.566,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.733,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": -0.824,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "USFDA",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "USFDA issues warning letter, observations at plant",
+      "source": "Economic Times",
+      "url": "",
+      "published": "2026-10-24T12:56:52.796463+00:00",
+      "sentiment": -0.8,
+      "tier": 1,
+      "event": "USFDA",
+      "momentum_probability": 0.85,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     },
+     {
+      "title": "Shares slump on regulatory concern",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.796463+00:00",
+      "sentiment": -0.8,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": -0.362,
+    "vpin": 0.633,
+    "toxic": true,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.36,
+    "hawkes_surge": true,
+    "poc": 2946.86,
+    "vah": 3040.18,
+    "val": 2944.78,
+    "volume_expanding": false,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 2951.67,
+    "stop": 2969.18,
+    "stop_distance": 17.51,
+    "stop_distance_pct": 0.59,
+    "trail_distance": 17.51,
+    "target": 2916.64,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 14,
+    "risk_amount": 250.0,
+    "invalidation_vwap": 3001.56,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (3001.56), OFI turns positive, or price falls back inside the Value Area (below VAH 3040.18).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 0.5,
+    "circuit": {
+     "upper": 3401.34,
+     "lower": 2782.92,
+     "dist_upper_pct": 15.23,
+     "dist_lower_pct": 5.72,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [
+     {
+      "level": "high",
+      "code": "TOXIC_FLOW",
+      "message": "VPIN 0.63 indicates toxic flow; size halved."
+     }
+    ],
+    "blockers": [
+     {
+      "code": "STRUCTURE",
+      "message": "Short needs price < VWAP, < POC and breaking Value Area Low on expanding volume."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 27). Composite -0.62 [F -0.57 | P -0.73 | I -0.82 | M +0.45]. Flow: OFI -0.36, VPIN 0.63, Hawkes buy/sell 0.00/0.36; F&O: unavailable. "
+  },
+  {
+   "symbol": "HAL",
+   "name": "Hindustan Aeronautics",
+   "sector": "Defence",
+   "direction": "NO_TRADE",
+   "bias": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 60,
+   "composite": 0.639,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 1628.05,
+    "prev_close": 1528.37,
+    "open": 1555.88,
+    "chg_pct": 6.52,
+    "gap_pct": 1.8,
+    "high": 1628.64,
+    "low": 1554.69,
+    "vwap": 1590.71,
+    "atr_daily": 25.34,
+    "atr_pct": 1.56,
+    "adx": 36.0,
+    "turnover_cr": 543.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.403,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 1.0,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.636,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.038,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "ORDER_WIN",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "HAL wins Rs 30,000 crore defence contract; stock soars on strong order book",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.860513+00:00",
+      "sentiment": 0.95,
+      "tier": 2,
+      "event": "ORDER_WIN",
+      "momentum_probability": 0.6,
+      "materiality": 1.0,
+      "order_value_cr": 30000.0,
+      "mcap_ratio_pct": 10.0
+     },
+     {
+      "title": "HAL secures record order, analysts upgrade",
+      "source": "Economic Times",
+      "url": "",
+      "published": "2026-10-24T12:56:52.860513+00:00",
+      "sentiment": 0.95,
+      "tier": 2,
+      "event": "ORDER_WIN",
+      "momentum_probability": 0.6,
+      "materiality": 0.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.731,
+    "vpin": 0.723,
+    "toxic": true,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 1570.71,
+    "vah": 1621.24,
+    "val": 1567.01,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 1628.05,
+    "stop": 1619.18,
+    "stop_distance": 8.87,
+    "stop_distance_pct": 0.54,
+    "trail_distance": 8.87,
+    "target": 1645.79,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 28,
+    "risk_amount": 250.0,
+    "invalidation_vwap": 1590.71,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (1590.71), OFI turns negative, or price falls back inside the Value Area (below VAH 1621.24).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 0.5,
+    "circuit": {
+     "upper": 1681.2,
+     "lower": 1375.53,
+     "dist_upper_pct": 3.26,
+     "dist_lower_pct": 15.51,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [
+     {
+      "level": "high",
+      "code": "TOXIC_FLOW",
+      "message": "VPIN 0.72 indicates toxic flow; size halved."
+     }
+    ],
+    "blockers": [
+     {
+      "code": "HAWKES",
+      "message": "Breakout lacks self-exciting order flow (Hawkes branching ratio low)."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 36). Composite +0.64 [F +0.40 | P +1.00 | I +0.64 | M +0.04]. Flow: OFI +0.73, VPIN 0.72, Hawkes buy/sell 0.00/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "BEL",
+   "name": "Bharat Electronics",
+   "sector": "Defence",
+   "direction": "NO_TRADE",
+   "bias": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 60,
+   "composite": -0.662,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 2389.73,
+    "prev_close": 2497.73,
+    "open": 2475.25,
+    "chg_pct": -4.32,
+    "gap_pct": -0.9,
+    "high": 2475.27,
+    "low": 2387.65,
+    "vwap": 2436.9,
+    "atr_daily": 50.35,
+    "atr_pct": 2.11,
+    "adx": 29.2,
+    "turnover_cr": 1101.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": -0.566,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.994,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": -0.636,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.038,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "USFDA",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "USFDA issues warning letter, observations at plant",
+      "source": "Economic Times",
+      "url": "",
+      "published": "2026-10-24T12:56:52.870524+00:00",
+      "sentiment": -0.8,
+      "tier": 1,
+      "event": "USFDA",
+      "momentum_probability": 0.85,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     },
+     {
+      "title": "Shares slump on regulatory concern",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.870524+00:00",
+      "sentiment": -0.8,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": -0.678,
+    "vpin": 0.699,
+    "toxic": true,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 2394.95,
+    "vah": 2460.67,
+    "val": 2393.49,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 2389.73,
+    "stop": 2407.35,
+    "stop_distance": 17.62,
+    "stop_distance_pct": 0.74,
+    "trail_distance": 17.62,
+    "target": 2354.49,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 14,
+    "risk_amount": 250.0,
+    "invalidation_vwap": 2436.9,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (2436.90), OFI turns positive, or price falls back inside the Value Area (below VAH 2460.67).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 0.5,
+    "circuit": {
+     "upper": 2747.5,
+     "lower": 2247.95,
+     "dist_upper_pct": 14.97,
+     "dist_lower_pct": 5.93,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [
+     {
+      "level": "high",
+      "code": "TOXIC_FLOW",
+      "message": "VPIN 0.70 indicates toxic flow; size halved."
+     }
+    ],
+    "blockers": [
+     {
+      "code": "HAWKES",
+      "message": "Breakout lacks self-exciting order flow (Hawkes branching ratio low)."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 29). Composite -0.66 [F -0.57 | P -0.99 | I -0.64 | M +0.04]. Flow: OFI -0.68, VPIN 0.70, Hawkes buy/sell 0.00/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "DRREDDY",
+   "name": "Dr. Reddy's",
+   "sector": "Pharma",
+   "direction": "NO_TRADE",
+   "bias": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 54,
+   "composite": 0.476,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 3646.23,
+    "prev_close": 3441.48,
+    "open": 3472.45,
+    "chg_pct": 5.95,
+    "gap_pct": 0.9,
+    "high": 3661.97,
+    "low": 3470.27,
+    "vwap": 3573.47,
+    "atr_daily": 62.49,
+    "atr_pct": 1.71,
+    "adx": 22.1,
+    "turnover_cr": 1333.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.142,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.738,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.453,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "OTHER",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Strong growth outlook, brokerages upgrade stock",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.787623+00:00",
+      "sentiment": 0.95,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.356,
+    "vpin": 0.573,
+    "toxic": true,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 3652.38,
+    "vah": 3661.97,
+    "val": 3527.78,
+    "volume_expanding": false,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 3646.23,
+    "stop": 3624.36,
+    "stop_distance": 21.87,
+    "stop_distance_pct": 0.6,
+    "trail_distance": 21.87,
+    "target": 3689.97,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 11,
+    "risk_amount": 250.0,
+    "invalidation_vwap": 3573.47,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (3573.47), OFI turns negative, or price falls back inside the Value Area (below VAH 3661.97).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 0.5,
+    "circuit": {
+     "upper": 3785.63,
+     "lower": 3097.33,
+     "dist_upper_pct": 3.82,
+     "dist_lower_pct": 15.05,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [
+     {
+      "level": "high",
+      "code": "TOXIC_FLOW",
+      "message": "VPIN 0.57 indicates toxic flow; size halved."
+     }
+    ],
+    "blockers": [
+     {
+      "code": "STRUCTURE",
+      "message": "Long needs price > VWAP, > POC and breaking Value Area High on expanding volume."
+     },
+     {
+      "code": "HAWKES",
+      "message": "Breakout lacks self-exciting order flow (Hawkes branching ratio low)."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 22). Composite +0.48 [F +0.14 | P +0.74 | I +0.45 | M +0.45]. Flow: OFI +0.36, VPIN 0.57, Hawkes buy/sell 0.00/0.00; F&O: unavailable.  Macro aligned."
+  },
+  {
+   "symbol": "JSWSTEEL",
+   "name": "JSW Steel",
+   "sector": "Metals",
+   "direction": "NO_TRADE",
+   "bias": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 54,
+   "composite": -0.543,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 2386.81,
+    "prev_close": 2439.59,
+    "open": 2417.63,
+    "chg_pct": -2.16,
+    "gap_pct": -0.9,
+    "high": 2418.29,
+    "low": 2386.7,
+    "vwap": 2401.45,
+    "atr_daily": 43.91,
+    "atr_pct": 1.84,
+    "adx": 19.1,
+    "turnover_cr": 986.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": -0.566,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.943,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": -0.478,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "USFDA",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "USFDA issues warning letter, observations at plant",
+      "source": "Economic Times",
+      "url": "",
+      "published": "2026-10-24T12:56:52.814675+00:00",
+      "sentiment": -0.8,
+      "tier": 1,
+      "event": "USFDA",
+      "momentum_probability": 0.85,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     },
+     {
+      "title": "Shares slump on regulatory concern",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.814675+00:00",
+      "sentiment": -0.8,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": -0.526,
+    "vpin": 0.593,
+    "toxic": true,
+    "hawkes_buy": 0.29,
+    "hawkes_sell": 0.14,
+    "hawkes_surge": false,
+    "poc": 2398.81,
+    "vah": 2409.86,
+    "val": 2396.17,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 2386.81,
+    "stop": 2402.18,
+    "stop_distance": 15.37,
+    "stop_distance_pct": 0.64,
+    "trail_distance": 15.37,
+    "target": 2356.08,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 16,
+    "risk_amount": 250.0,
+    "invalidation_vwap": 2401.45,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (2401.45), OFI turns positive, or price falls back inside the Value Area (below VAH 2409.86).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 0.5,
+    "circuit": {
+     "upper": 2683.55,
+     "lower": 2195.63,
+     "dist_upper_pct": 12.43,
+     "dist_lower_pct": 8.01,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [
+     {
+      "level": "high",
+      "code": "TOXIC_FLOW",
+      "message": "VPIN 0.59 indicates toxic flow; size halved."
+     }
+    ],
+    "blockers": [
+     {
+      "code": "HAWKES",
+      "message": "Breakout lacks self-exciting order flow (Hawkes branching ratio low)."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 19). Composite -0.54 [F -0.57 | P -0.94 | I -0.48 | M +0.45]. Flow: OFI -0.53, VPIN 0.59, Hawkes buy/sell 0.29/0.14; F&O: unavailable. "
+  },
+  {
+   "symbol": "BHARTIARTL",
+   "name": "Bharti Airtel",
+   "sector": "Telecom",
+   "direction": "NO_TRADE",
+   "bias": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 53,
+   "composite": 0.533,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 418.43,
+    "prev_close": 391.24,
+    "open": 394.77,
+    "chg_pct": 6.95,
+    "gap_pct": 0.9,
+    "high": 418.5,
+    "low": 394.72,
+    "vwap": 406.64,
+    "atr_daily": 6.67,
+    "atr_pct": 1.59,
+    "adx": 16.7,
+    "turnover_cr": 152.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.142,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.819,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.636,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.038,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "OTHER",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Strong growth outlook, brokerages upgrade stock",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.722850+00:00",
+      "sentiment": 0.95,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.823,
+    "vpin": 0.81,
+    "toxic": true,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 413.35,
+    "vah": 418.5,
+    "val": 400.27,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 418.43,
+    "stop": 416.09,
+    "stop_distance": 2.33,
+    "stop_distance_pct": 0.56,
+    "trail_distance": 2.33,
+    "target": 423.1,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 107,
+    "risk_amount": 250.0,
+    "invalidation_vwap": 406.64,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (406.64), OFI turns negative, or price falls back inside the Value Area (below VAH 418.50).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 0.5,
+    "circuit": {
+     "upper": 430.37,
+     "lower": 352.12,
+     "dist_upper_pct": 2.85,
+     "dist_lower_pct": 15.85,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [
+     {
+      "level": "high",
+      "code": "TOXIC_FLOW",
+      "message": "VPIN 0.81 indicates toxic flow; size halved."
+     }
+    ],
+    "blockers": [
+     {
+      "code": "HAWKES",
+      "message": "Breakout lacks self-exciting order flow (Hawkes branching ratio low)."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 17). Composite +0.53 [F +0.14 | P +0.82 | I +0.64 | M +0.04]. Flow: OFI +0.82, VPIN 0.81, Hawkes buy/sell 0.00/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "AXISBANK",
+   "name": "Axis Bank",
+   "sector": "Banking",
+   "direction": "NO_TRADE",
+   "bias": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 47,
+   "composite": 0.414,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 557.38,
+    "prev_close": 534.12,
+    "open": 538.93,
+    "chg_pct": 4.35,
+    "gap_pct": 0.9,
+    "high": 558.36,
+    "low": 538.8,
+    "vwap": 549.86,
+    "atr_daily": 10.68,
+    "atr_pct": 1.92,
+    "adx": 24.0,
+    "turnover_cr": 235.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.142,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.745,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.294,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "OTHER",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Strong growth outlook, brokerages upgrade stock",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.695790+00:00",
+      "sentiment": 0.95,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.231,
+    "vpin": 0.434,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 557.38,
+    "vah": 558.36,
+    "val": 545.32,
+    "volume_expanding": false,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 557.38,
+    "stop": 553.65,
+    "stop_distance": 3.74,
+    "stop_distance_pct": 0.67,
+    "trail_distance": 3.74,
+    "target": 564.86,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 133,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 549.86,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (549.86), OFI turns negative, or price falls back inside the Value Area (below VAH 558.36).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 587.54,
+     "lower": 480.71,
+     "dist_upper_pct": 5.41,
+     "dist_lower_pct": 13.76,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": [
+     {
+      "code": "STRUCTURE",
+      "message": "Long needs price > VWAP, > POC and breaking Value Area High on expanding volume."
+     },
+     {
+      "code": "HAWKES",
+      "message": "Breakout lacks self-exciting order flow (Hawkes branching ratio low)."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 24). Composite +0.41 [F +0.14 | P +0.74 | I +0.29 | M +0.45]. Flow: OFI +0.23, VPIN 0.43, Hawkes buy/sell 0.00/0.00; F&O: unavailable.  Macro aligned."
+  },
+  {
+   "symbol": "KOTAKBANK",
+   "name": "Kotak Mahindra Bank",
+   "sector": "Banking",
+   "direction": "NO_TRADE",
+   "bias": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 35,
+   "composite": 0.285,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 3054.73,
+    "prev_close": 2962.36,
+    "open": 2989.02,
+    "chg_pct": 3.12,
+    "gap_pct": 0.9,
+    "high": 3060.18,
+    "low": 2985.45,
+    "vwap": 3030.68,
+    "atr_daily": 52.19,
+    "atr_pct": 1.71,
+    "adx": 15.3,
+    "turnover_cr": 1170.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.142,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.72,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": -0.009,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "OTHER",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Strong growth outlook, brokerages upgrade stock",
+      "source": "Moneycontrol",
+      "url": "",
+      "published": "2026-10-24T12:56:52.705216+00:00",
+      "sentiment": 0.95,
+      "tier": 3,
+      "event": "OTHER",
+      "momentum_probability": 0.15,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.121,
+    "vpin": 0.392,
+    "toxic": false,
+    "hawkes_buy": 0.1,
+    "hawkes_sell": 0.25,
+    "hawkes_surge": false,
+    "poc": 3056.45,
+    "vah": 3060.18,
+    "val": 3012.85,
+    "volume_expanding": false,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 3054.73,
+    "stop": 3036.46,
+    "stop_distance": 18.27,
+    "stop_distance_pct": 0.6,
+    "trail_distance": 18.27,
+    "target": 3091.26,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 27,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 3030.68,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (3030.68), OFI turns negative, or price falls back inside the Value Area (below VAH 3060.18).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 3258.59,
+     "lower": 2666.12,
+     "dist_upper_pct": 6.67,
+     "dist_lower_pct": 12.72,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": [
+     {
+      "code": "STRUCTURE",
+      "message": "Long needs price > VWAP, > POC and breaking Value Area High on expanding volume."
+     },
+     {
+      "code": "HAWKES",
+      "message": "Breakout lacks self-exciting order flow (Hawkes branching ratio low)."
+     }
+    ]
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 15). Composite +0.29 [F +0.14 | P +0.72 | I -0.01 | M +0.45]. Flow: OFI +0.12, VPIN 0.39, Hawkes buy/sell 0.10/0.25; F&O: unavailable.  Macro aligned."
+  },
+  {
+   "symbol": "LT",
+   "name": "Larsen & Toubro",
+   "sector": "Infrastructure",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 19,
+   "composite": 0.19,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 390.57,
+    "prev_close": 390.49,
+    "open": 390.68,
+    "chg_pct": 0.02,
+    "gap_pct": 0.05,
+    "high": 392.22,
+    "low": 389.1,
+    "vwap": 390.62,
+    "atr_daily": 6.75,
+    "atr_pct": 1.73,
+    "adx": 28.3,
+    "turnover_cr": 152.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.04,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.494,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.038,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.750480+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.131,
+    "vpin": 0.466,
+    "toxic": false,
+    "hawkes_buy": 0.3,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 390.82,
+    "vah": 392.22,
+    "val": 389.83,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 390.57,
+    "stop": 392.93,
+    "stop_distance": 2.36,
+    "stop_distance_pct": 0.6,
+    "trail_distance": 2.36,
+    "target": 385.84,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 211,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 390.62,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (390.62), OFI turns negative, or price falls back inside the Value Area (below VAH 392.22).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 429.53,
+     "lower": 351.44,
+     "dist_upper_pct": 9.98,
+     "dist_lower_pct": 10.02,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 28). Composite +0.19 [F +0.00 | P -0.04 | I +0.49 | M +0.04]. Flow: OFI +0.13, VPIN 0.47, Hawkes buy/sell 0.30/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "M&M",
+   "name": "Mahindra & Mahindra",
+   "sector": "Auto",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 19,
+   "composite": 0.186,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 1538.78,
+    "prev_close": 1538.8,
+    "open": 1539.57,
+    "chg_pct": -0.0,
+    "gap_pct": 0.05,
+    "high": 1546.78,
+    "low": 1533.47,
+    "vwap": 1539.39,
+    "atr_daily": 32.37,
+    "atr_pct": 2.1,
+    "adx": 19.9,
+    "turnover_cr": 607.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.038,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.381,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.769558+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.175,
+    "vpin": 0.372,
+    "toxic": false,
+    "hawkes_buy": 0.14,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 1538.57,
+    "vah": 1546.78,
+    "val": 1537.02,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 1538.78,
+    "stop": 1550.11,
+    "stop_distance": 11.33,
+    "stop_distance_pct": 0.74,
+    "trail_distance": 11.33,
+    "target": 1516.12,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 44,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 1539.39,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (1539.39), OFI turns negative, or price falls back inside the Value Area (below VAH 1546.78).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 1692.68,
+     "lower": 1384.92,
+     "dist_upper_pct": 10.0,
+     "dist_lower_pct": 10.0,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 20). Composite +0.19 [F +0.00 | P -0.04 | I +0.38 | M +0.45]. Flow: OFI +0.18, VPIN 0.37, Hawkes buy/sell 0.14/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "ICICIBANK",
+   "name": "ICICI Bank",
+   "sector": "Banking",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 18,
+   "composite": -0.179,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 418.16,
+    "prev_close": 418.36,
+    "open": 418.57,
+    "chg_pct": -0.05,
+    "gap_pct": 0.05,
+    "high": 420.33,
+    "low": 416.92,
+    "vwap": 418.62,
+    "atr_daily": 6.62,
+    "atr_pct": 1.58,
+    "adx": 23.4,
+    "turnover_cr": 170.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.313,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": -0.325,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.668808+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.03,
+    "vpin": 0.424,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.39,
+    "hawkes_surge": true,
+    "poc": 419.47,
+    "vah": 420.33,
+    "val": 418.05,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 418.16,
+    "stop": 420.47,
+    "stop_distance": 2.32,
+    "stop_distance_pct": 0.55,
+    "trail_distance": 2.32,
+    "target": 413.52,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 215,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 418.62,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (418.62), OFI turns negative, or price falls back inside the Value Area (below VAH 420.33).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 460.2,
+     "lower": 376.53,
+     "dist_upper_pct": 10.05,
+     "dist_lower_pct": 9.96,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 23). Composite -0.18 [F +0.00 | P -0.31 | I -0.33 | M +0.45]. Flow: OFI +0.03, VPIN 0.42, Hawkes buy/sell 0.00/0.39; F&O: unavailable. "
+  },
+  {
+   "symbol": "BAJFINANCE",
+   "name": "Bajaj Finance",
+   "sector": "Financials",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 14,
+   "composite": 0.142,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 3596.81,
+    "prev_close": 3597.63,
+    "open": 3599.42,
+    "chg_pct": -0.02,
+    "gap_pct": 0.05,
+    "high": 3614.02,
+    "low": 3584.98,
+    "vwap": 3599.61,
+    "atr_daily": 67.46,
+    "atr_pct": 1.88,
+    "adx": 15.6,
+    "turnover_cr": 1559.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.014,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.233,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.714186+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.134,
+    "vpin": 0.323,
+    "toxic": false,
+    "hawkes_buy": 0.06,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 3589.34,
+    "vah": 3605.31,
+    "val": 3588.85,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 3596.81,
+    "stop": 3620.42,
+    "stop_distance": 23.61,
+    "stop_distance_pct": 0.66,
+    "trail_distance": 23.61,
+    "target": 3549.59,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 21,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 3599.61,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (3599.61), OFI turns negative, or price falls back inside the Value Area (below VAH 3605.31).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 3957.39,
+     "lower": 3237.86,
+     "dist_upper_pct": 10.02,
+     "dist_lower_pct": 9.98,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 16). Composite +0.14 [F +0.00 | P +0.01 | I +0.23 | M +0.45]. Flow: OFI +0.13, VPIN 0.32, Hawkes buy/sell 0.06/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "SBIN",
+   "name": "State Bank of India",
+   "sector": "Banking",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 13,
+   "composite": 0.125,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 3347.74,
+    "prev_close": 3347.98,
+    "open": 3349.66,
+    "chg_pct": -0.01,
+    "gap_pct": 0.05,
+    "high": 3363.59,
+    "low": 3335.69,
+    "vwap": 3349.45,
+    "atr_daily": 59.47,
+    "atr_pct": 1.78,
+    "adx": 23.7,
+    "turnover_cr": 1456.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.037,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.174,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.686544+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.119,
+    "vpin": 0.428,
+    "toxic": false,
+    "hawkes_buy": 0.27,
+    "hawkes_sell": 0.25,
+    "hawkes_surge": false,
+    "poc": 3340.8,
+    "vah": 3356.15,
+    "val": 3339.41,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 3347.74,
+    "stop": 3368.55,
+    "stop_distance": 20.81,
+    "stop_distance_pct": 0.62,
+    "trail_distance": 20.81,
+    "target": 3306.11,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 24,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 3349.45,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (3349.45), OFI turns negative, or price falls back inside the Value Area (below VAH 3356.15).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 3682.78,
+     "lower": 3013.19,
+     "dist_upper_pct": 10.01,
+     "dist_lower_pct": 9.99,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 24). Composite +0.13 [F +0.00 | P +0.04 | I +0.17 | M +0.45]. Flow: OFI +0.12, VPIN 0.43, Hawkes buy/sell 0.27/0.25; F&O: unavailable. "
+  },
+  {
+   "symbol": "HINDUNILVR",
+   "name": "Hindustan Unilever",
+   "sector": "FMCG",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 12,
+   "composite": -0.12,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 3140.3,
+    "prev_close": 3145.41,
+    "open": 3146.98,
+    "chg_pct": -0.16,
+    "gap_pct": 0.05,
+    "high": 3159.29,
+    "low": 3133.91,
+    "vwap": 3145.66,
+    "atr_daily": 46.45,
+    "atr_pct": 1.48,
+    "adx": 35.7,
+    "turnover_cr": 1252.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.307,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": -0.18,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.445,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.741414+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": -0.051,
+    "vpin": 0.395,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.11,
+    "hawkes_surge": false,
+    "poc": 3141.1,
+    "vah": 3157.6,
+    "val": 3139.83,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 3140.3,
+    "stop": 3156.55,
+    "stop_distance": 16.26,
+    "stop_distance_pct": 0.52,
+    "trail_distance": 16.26,
+    "target": 3107.78,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 30,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 3145.66,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (3145.66), OFI turns negative, or price falls back inside the Value Area (below VAH 3157.60).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 3459.95,
+     "lower": 2830.87,
+     "dist_upper_pct": 10.18,
+     "dist_lower_pct": 9.85,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 36). Composite -0.12 [F +0.00 | P -0.31 | I -0.18 | M +0.45]. Flow: OFI -0.05, VPIN 0.40, Hawkes buy/sell 0.00/0.11; F&O: unavailable. "
+  },
+  {
+   "symbol": "NTPC",
+   "name": "NTPC",
+   "sector": "Power",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 12,
+   "composite": 0.117,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 613.07,
+    "prev_close": 612.85,
+    "open": 613.16,
+    "chg_pct": 0.04,
+    "gap_pct": 0.05,
+    "high": 615.54,
+    "low": 610.83,
+    "vwap": 613.17,
+    "atr_daily": 10.33,
+    "atr_pct": 1.68,
+    "adx": 17.9,
+    "turnover_cr": 249.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.12,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.193,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.038,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.843354+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.151,
+    "vpin": 0.342,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 611.53,
+    "vah": 614.28,
+    "val": 611.46,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 613.07,
+    "stop": 616.68,
+    "stop_distance": 3.61,
+    "stop_distance_pct": 0.59,
+    "trail_distance": 3.61,
+    "target": 605.84,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 138,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 613.17,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (613.17), OFI turns negative, or price falls back inside the Value Area (below VAH 614.28).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 674.14,
+     "lower": 551.57,
+     "dist_upper_pct": 9.96,
+     "dist_lower_pct": 10.03,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 18). Composite +0.12 [F +0.00 | P +0.12 | I +0.19 | M +0.04]. Flow: OFI +0.15, VPIN 0.34, Hawkes buy/sell 0.00/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "WIPRO",
+   "name": "Wipro",
+   "sector": "IT",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 8,
+   "composite": 0.085,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 3375.01,
+    "prev_close": 3377.09,
+    "open": 3378.78,
+    "chg_pct": -0.06,
+    "gap_pct": 0.05,
+    "high": 3391.03,
+    "low": 3364.56,
+    "vwap": 3377.4,
+    "atr_daily": 58.63,
+    "atr_pct": 1.74,
+    "adx": 17.3,
+    "turnover_cr": 1236.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.004,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.099,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.44,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.880046+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.078,
+    "vpin": 0.403,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 3367.64,
+    "vah": 3383.09,
+    "val": 3366.32,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 3375.01,
+    "stop": 3395.53,
+    "stop_distance": 20.52,
+    "stop_distance_pct": 0.61,
+    "trail_distance": 20.52,
+    "target": 3333.97,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 24,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 3377.4,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (3377.40), OFI turns negative, or price falls back inside the Value Area (below VAH 3383.09).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 3714.8,
+     "lower": 3039.38,
+     "dist_upper_pct": 10.07,
+     "dist_lower_pct": 9.94,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 17). Composite +0.08 [F +0.00 | P +0.00 | I +0.10 | M +0.44]. Flow: OFI +0.08, VPIN 0.40, Hawkes buy/sell 0.00/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "HDFCBANK",
+   "name": "HDFC Bank",
+   "sector": "Banking",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 7,
+   "composite": 0.072,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 376.56,
+    "prev_close": 376.58,
+    "open": 376.76,
+    "chg_pct": -0.01,
+    "gap_pct": 0.05,
+    "high": 378.25,
+    "low": 375.15,
+    "vwap": 376.7,
+    "atr_daily": 5.8,
+    "atr_pct": 1.54,
+    "adx": 44.4,
+    "turnover_cr": 153.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.022,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.052,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.659345+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.041,
+    "vpin": 0.441,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 375.92,
+    "vah": 377.73,
+    "val": 375.77,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 376.56,
+    "stop": 378.59,
+    "stop_distance": 2.03,
+    "stop_distance_pct": 0.54,
+    "trail_distance": 2.03,
+    "target": 372.49,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 246,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 376.7,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (376.70), OFI turns negative, or price falls back inside the Value Area (below VAH 377.73).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 414.23,
+     "lower": 338.92,
+     "dist_upper_pct": 10.01,
+     "dist_lower_pct": 10.0,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 44). Composite +0.07 [F +0.00 | P +0.02 | I +0.05 | M +0.45]. Flow: OFI +0.04, VPIN 0.44, Hawkes buy/sell 0.00/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "MARUTI",
+   "name": "Maruti Suzuki",
+   "sector": "Auto",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 7,
+   "composite": 0.074,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 1950.06,
+    "prev_close": 1951.18,
+    "open": 1952.15,
+    "chg_pct": -0.06,
+    "gap_pct": 0.05,
+    "high": 1960.77,
+    "low": 1943.9,
+    "vwap": 1951.64,
+    "atr_daily": 41.61,
+    "atr_pct": 2.13,
+    "adx": 52.0,
+    "turnover_cr": 825.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": 0.003,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.071,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.759732+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.056,
+    "vpin": 0.355,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 1946.43,
+    "vah": 1955.14,
+    "val": 1946.15,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 1950.06,
+    "stop": 1964.62,
+    "stop_distance": 14.57,
+    "stop_distance_pct": 0.75,
+    "trail_distance": 14.57,
+    "target": 1920.93,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 34,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 1951.64,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (1951.64), OFI turns negative, or price falls back inside the Value Area (below VAH 1955.14).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 2146.29,
+     "lower": 1756.06,
+     "dist_upper_pct": 10.06,
+     "dist_lower_pct": 9.95,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 52). Composite +0.07 [F +0.00 | P +0.00 | I +0.07 | M +0.45]. Flow: OFI +0.06, VPIN 0.36, Hawkes buy/sell 0.00/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "HCLTECH",
+   "name": "HCL Technologies",
+   "sector": "IT",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 6,
+   "composite": -0.056,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 3531.52,
+    "prev_close": 3536.33,
+    "open": 3538.1,
+    "chg_pct": -0.14,
+    "gap_pct": 0.05,
+    "high": 3553.47,
+    "low": 3523.29,
+    "vwap": 3538.04,
+    "atr_daily": 53.89,
+    "atr_pct": 1.53,
+    "adx": 23.6,
+    "turnover_cr": 1203.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.282,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": -0.039,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.44,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.888611+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": -0.03,
+    "vpin": 0.346,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 3529.83,
+    "vah": 3549.45,
+    "val": 3529.33,
+    "volume_expanding": false,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 3531.52,
+    "stop": 3550.38,
+    "stop_distance": 18.86,
+    "stop_distance_pct": 0.53,
+    "trail_distance": 18.86,
+    "target": 3493.8,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 26,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 3538.04,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (3538.04), OFI turns negative, or price falls back inside the Value Area (below VAH 3549.45).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 3889.96,
+     "lower": 3182.7,
+     "dist_upper_pct": 10.15,
+     "dist_lower_pct": 9.88,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 24). Composite -0.06 [F +0.00 | P -0.28 | I -0.04 | M +0.44]. Flow: OFI -0.03, VPIN 0.35, Hawkes buy/sell 0.00/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "TATASTEEL",
+   "name": "Tata Steel",
+   "sector": "Metals",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 3,
+   "composite": 0.035,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 1823.33,
+    "prev_close": 1822.87,
+    "open": 1823.79,
+    "chg_pct": 0.02,
+    "gap_pct": 0.05,
+    "high": 1831.05,
+    "low": 1816.33,
+    "vwap": 1823.48,
+    "atr_daily": 40.39,
+    "atr_pct": 2.22,
+    "adx": 28.7,
+    "turnover_cr": 727.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.054,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.015,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.805502+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.108,
+    "vpin": 0.383,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.11,
+    "hawkes_surge": false,
+    "poc": 1825.4,
+    "vah": 1831.05,
+    "val": 1820.74,
+    "volume_expanding": false,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 1823.33,
+    "stop": 1837.46,
+    "stop_distance": 14.14,
+    "stop_distance_pct": 0.78,
+    "trail_distance": 14.14,
+    "target": 1795.05,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 35,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 1823.48,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (1823.48), OFI turns negative, or price falls back inside the Value Area (below VAH 1831.05).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 2005.16,
+     "lower": 1640.59,
+     "dist_upper_pct": 9.97,
+     "dist_lower_pct": 10.02,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 29). Composite +0.03 [F +0.00 | P -0.05 | I +0.02 | M +0.45]. Flow: OFI +0.11, VPIN 0.38, Hawkes buy/sell 0.00/0.11; F&O: unavailable. "
+  },
+  {
+   "symbol": "HINDALCO",
+   "name": "Hindalco",
+   "sector": "Metals",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 0,
+   "composite": 0.001,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 1255.42,
+    "prev_close": 1256.11,
+    "open": 1256.74,
+    "chg_pct": -0.05,
+    "gap_pct": 0.05,
+    "high": 1262.26,
+    "low": 1251.24,
+    "vwap": 1256.38,
+    "atr_daily": 23.47,
+    "atr_pct": 1.87,
+    "adx": 18.0,
+    "turnover_cr": 461.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.152,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.006,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.824112+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.024,
+    "vpin": 0.42,
+    "toxic": false,
+    "hawkes_buy": 0.18,
+    "hawkes_sell": 0.21,
+    "hawkes_surge": false,
+    "poc": 1256.94,
+    "vah": 1262.26,
+    "val": 1254.55,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 1255.42,
+    "stop": 1263.64,
+    "stop_distance": 8.21,
+    "stop_distance_pct": 0.65,
+    "trail_distance": 8.21,
+    "target": 1239.0,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 60,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 1256.38,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (1256.38), OFI turns negative, or price falls back inside the Value Area (below VAH 1262.26).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 1381.73,
+     "lower": 1130.5,
+     "dist_upper_pct": 10.06,
+     "dist_lower_pct": 9.95,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 18). Composite +0.00 [F +0.00 | P -0.15 | I +0.01 | M +0.45]. Flow: OFI +0.02, VPIN 0.42, Hawkes buy/sell 0.18/0.21; F&O: unavailable. "
+  },
+  {
+   "symbol": "ONGC",
+   "name": "ONGC",
+   "sector": "Energy",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 0,
+   "composite": -0.002,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 3138.18,
+    "prev_close": 3140.37,
+    "open": 3141.94,
+    "chg_pct": -0.07,
+    "gap_pct": 0.05,
+    "high": 3156.33,
+    "low": 3128.72,
+    "vwap": 3141.54,
+    "atr_daily": 59.13,
+    "atr_pct": 1.88,
+    "adx": 18.8,
+    "turnover_cr": 1289.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.287,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.097,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.448,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.834044+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.077,
+    "vpin": 0.325,
+    "toxic": false,
+    "hawkes_buy": 0.0,
+    "hawkes_sell": 0.0,
+    "hawkes_surge": false,
+    "poc": 3150.35,
+    "vah": 3156.33,
+    "val": 3135.16,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 3138.18,
+    "stop": 3158.88,
+    "stop_distance": 20.7,
+    "stop_distance_pct": 0.66,
+    "trail_distance": 20.7,
+    "target": 3096.79,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 24,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 3141.54,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (3141.54), OFI turns negative, or price falls back inside the Value Area (below VAH 3156.33).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 3454.41,
+     "lower": 2826.34,
+     "dist_upper_pct": 10.08,
+     "dist_lower_pct": 9.94,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 19). Composite -0.00 [F +0.00 | P -0.29 | I +0.10 | M +0.45]. Flow: OFI +0.08, VPIN 0.33, Hawkes buy/sell 0.00/0.00; F&O: unavailable. "
+  },
+  {
+   "symbol": "POWERGRID",
+   "name": "Power Grid",
+   "sector": "Power",
+   "direction": "NO_TRADE",
+   "bias": "NO_TRADE",
+   "setup": "MOMENTUM",
+   "conviction": 0,
+   "composite": 0.003,
+   "regime": "TRANSITIONAL",
+   "weights": {
+    "fundamental": 0.2,
+    "price_action": 0.3,
+    "institutional": 0.4,
+    "macro": 0.1
+   },
+   "price": {
+    "ltp": 616.57,
+    "prev_close": 616.91,
+    "open": 617.22,
+    "chg_pct": -0.06,
+    "gap_pct": 0.05,
+    "high": 619.76,
+    "low": 614.51,
+    "vwap": 617.16,
+    "atr_daily": 10.52,
+    "atr_pct": 1.71,
+    "adx": 38.5,
+    "turnover_cr": 247.0
+   },
+   "pillars": {
+    "fundamental": {
+     "score": 0.0,
+     "weight": 0.2
+    },
+    "price_action": {
+     "score": -0.12,
+     "weight": 0.3
+    },
+    "institutional": {
+     "score": 0.087,
+     "weight": 0.4
+    },
+    "macro": {
+     "score": 0.038,
+     "weight": 0.1
+    }
+   },
+   "fundamental": {
+    "engine": "lexicon",
+    "event": "MOU",
+    "sue_proxy": 0.0,
+    "divergence": 0.0,
+    "headlines": [
+     {
+      "title": "Company signs MoU for partnership",
+      "source": "Livemint",
+      "url": "",
+      "published": "2026-10-24T12:56:52.851811+00:00",
+      "sentiment": 0.0,
+      "tier": 3,
+      "event": "MOU",
+      "momentum_probability": 0.25,
+      "materiality": 1.0,
+      "order_value_cr": null,
+      "mcap_ratio_pct": null
+     }
+    ]
+   },
+   "microstructure": {
+    "ofi": 0.088,
+    "vpin": 0.45,
+    "toxic": false,
+    "hawkes_buy": 0.06,
+    "hawkes_sell": 0.08,
+    "hawkes_surge": false,
+    "poc": 616.34,
+    "vah": 618.18,
+    "val": 615.38,
+    "volume_expanding": true,
+    "oi_quadrant": "UNAVAILABLE",
+    "fut_oi_chg_pct": null,
+    "iv_skew": null,
+    "call_writing_otm": false
+   },
+   "execution": {
+    "entry_trigger": 616.57,
+    "stop": 620.25,
+    "stop_distance": 3.68,
+    "stop_distance_pct": 0.6,
+    "trail_distance": 3.68,
+    "target": 609.2,
+    "rr": 2.0,
+    "risk_reward": "1:2",
+    "qty": 135,
+    "risk_amount": 500.0,
+    "invalidation_vwap": 617.16,
+    "invalidation_text": "Thesis invalidated if price closes back below VWAP (617.16), OFI turns negative, or price falls back inside the Value Area (below VAH 618.18).",
+    "gap_close_target": null
+   },
+   "risk": {
+    "vix": 14.2,
+    "expected_daily_move_pct": 0.89,
+    "size_multiplier": 1.0,
+    "circuit": {
+     "upper": 678.6,
+     "lower": 555.22,
+     "dist_upper_pct": 10.06,
+     "dist_lower_pct": 9.95,
+     "band_pct": 10.0
+    },
+    "lpp": {
+     "applicable": false
+    },
+    "warnings": [],
+    "blockers": []
+   },
+   "contradiction": null,
+   "thesis": "Transitional regime (VIX 14.2, ADX 39). Composite +0.00 [F +0.00 | P -0.12 | I +0.09 | M +0.04]. Flow: OFI +0.09, VPIN 0.45, Hawkes buy/sell 0.06/0.08; F&O: unavailable. "
+  }
+ ]
+}

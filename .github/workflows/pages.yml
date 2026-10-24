@@ -1,0 +1,50 @@
+name: Analyse & deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/10 3-10 * * 1-5"   # every 10 min, 08:30-16:00 IST on weekdays
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      USE_FINBERT: ${{ vars.USE_FINBERT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt pytest
+      - name: Install FinBERT (optional)
+        if: env.USE_FINBERT == '1'
+        run: pip install -r requirements-finbert.txt
+      - name: Unit tests
+        run: python -m pytest -q tests
+      - name: Run engine (live data, demo fallback)
+        run: python -m engine.run --out data/signals.json
+      - name: Assemble site
+        run: |
+          mkdir _site
+          cp -r index.html sw.js manifest.webmanifest .nojekyll assets icons data _site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
