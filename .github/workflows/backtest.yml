@@ -1,4 +1,4 @@
-name: Backtest (all Yahoo history, with and without news)
+name: Backtest (5-minute archive + 2-year hourly, with and without news)
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 300
     env:
       USE_FINBERT: ${{ vars.USE_FINBERT }}
       GH_TOKEN: ${{ github.token }}
@@ -31,26 +31,33 @@ jobs:
         if: env.USE_FINBERT == '1'
         run: pip install -r requirements-finbert.txt
       - run: python -m pytest -q tests
-      - name: Backtest
+      - name: Backtest 5-minute (60 sessions + archive)
         run: python -W ignore -m engine.backtest --out data/backtest.json | tail -40
+      - name: Backtest hourly (~2 years)
+        continue-on-error: true
+        run: python -W ignore -m engine.backtest --hourly --out data/backtest_hourly.json | tail -40
       - name: Summary
         if: always()
         run: |
           python - <<'PY'
-          import json
-          b = json.load(open("data/backtest.json"))
-          print("PERIOD", b["period"], "headlines", b["news_headlines"], "trades_using_news", b["trades_using_news"])
-          for k in ("with_news", "without_news"):
-              s = b[k]
-              print(k.upper(), {x: s.get(x) for x in ("trades","win_rate_pct","avg_r","avg_r_se","total_r","profit_factor","max_drawdown_r","net_pnl_risk1","return_pct_risk1","net_pnl_risk50","return_pct_risk50","worst_day_pct_risk50")})
-              print(k.upper(), "by_news", s.get("by_news"), "by_dir", s.get("by_direction"))
-          print("BLOCKERS", b["blocker_counts"])
+          import json, os
+          for f in ("data/backtest.json", "data/backtest_hourly.json"):
+              if not os.path.exists(f):
+                  print(f, "missing"); continue
+              b = json.load(open(f))
+              print("==", f, b["resolution"], b["period"], "headlines", b["news_headlines"], "trades_using_news", b["trades_using_news"])
+              for k in ("with_news", "without_news"):
+                  s = b[k]
+                  print(k.upper(), {x: s.get(x) for x in ("trades","win_rate_pct","avg_r","avg_r_se","total_r","profit_factor","max_drawdown_r","net_pnl_risk1","return_pct_risk1","net_pnl_risk50","return_pct_risk50")})
+                  print(k.upper(), "by_news", s.get("by_news"), "by_dir", s.get("by_direction"))
+              print("BLOCKERS", b["blocker_counts"])
           PY
       - name: Commit result and redeploy site
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/backtest.json
+          git add data/backtest.json data/backtest_hourly.json
           git diff --cached --quiet || git commit -m "Update backtest results"
+          git pull --rebase origin main
           git push
           gh workflow run pages.yml --ref main

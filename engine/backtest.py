@@ -29,7 +29,7 @@ NEUTRAL_NEWS = {"score": 0.0, "items": [], "event": None, "tier1_earnings": Fals
 RISK_LEVELS = (1.0, 50.0)
 
 
-def _frames(demo, date=None):
+def _frames(demo, hourly=False):
     syms = [u[0] for u in UNIVERSE]
     idx_syms = sorted(set(INDEX_SYMBOLS.values()) | {u[3] for u in UNIVERSE})
     out = {}
@@ -40,20 +40,23 @@ def _frames(demo, date=None):
             out[s] = (pd.concat([m["hist"], m["today"]]), m["daily"])
         return out
     from .market import fetch_many
-    i5 = fetch_many([s + ".NS" for s in syms] + idx_syms, "60d", "5m")
-    d1 = fetch_many([s + ".NS" for s in syms] + idx_syms, "1y", "1d")
-    for s in syms:
-        out[s] = (i5.get(s + ".NS"), d1.get(s + ".NS"))
-    for s in idx_syms:
-        out[s] = (i5.get(s), d1.get(s))
+    from . import archive
+    rng, itv = ("730d", "1h") if hourly else ("60d", "5m")
+    i5 = fetch_many([s + ".NS" for s in syms] + idx_syms, rng, itv)
+    d1 = fetch_many([s + ".NS" for s in syms] + idx_syms, "5y", "1d")
+    for key, ysym in [(s, s + ".NS") for s in syms] + [(s, s) for s in idx_syms]:
+        bars = i5.get(ysym)
+        if not hourly:  # 5-minute: union with the repo's growing archive
+            bars = archive.merge_bars(archive.load_bars(ysym), bars)
+        out[key] = (bars, d1.get(ysym))
     return out
 
 
-def _fetch_news(start, end, workers=4):
+def _fetch_news(start, end, window_days=7, workers=4):
     """Weekly windows per symbol -> list of items (each with its own publication timestamp)."""
     windows, d = [], start
     while d <= end:
-        windows.append((d, min(d + timedelta(days=7), end + timedelta(days=1)))); d += timedelta(days=7)
+        windows.append((d, min(d + timedelta(days=window_days), end + timedelta(days=1)))); d += timedelta(days=window_days)
     jobs = [(sym, name, a, b) for sym, name, *_ in UNIVERSE for a, b in windows]
     def one(j):
         sym, name, a, b = j
@@ -141,8 +144,10 @@ def _group(trades, key):
     return g
 
 
-def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=True):
-    frames = _frames(demo)
+def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True, hourly=False):
+    asof = asof or ((10, 15) if hourly else (10, 0))
+    bar_min, step, last_label = (60, 60, 13 * 60 + 15) if hourly else (5, 15, 14 * 60 + 30)
+    frames = _frames(demo, hourly)
     n5, nd_all = frames["^NSEI"]
     if n5 is None or nd_all is None:
         from . import market
@@ -151,7 +156,7 @@ def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=T
     by_day = lambda df: {d: g for d, g in df.groupby(df.index.date)} if df is not None else {}
     stocks5 = {s: by_day(frames[s][0]) for s, *_ in UNIVERSE if frames[s][0] is not None and frames[s][1] is not None}
     idx5 = {k: by_day(v[0]) for k, v in frames.items() if k not in stocks5}
-    all_days = sorted(d for d, g in idx5["^NSEI"].items() if len(g) >= 60)  # full sessions only
+    all_days = sorted(d for d, g in idx5["^NSEI"].items() if len(g) >= (6 if hourly else 60))  # full sessions only
     days = [d for d in all_days[1:]]  # need >=1 prior session for history
     if only_date:
         days = [d for d in days if d == only_date]
@@ -159,8 +164,12 @@ def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=T
             raise SystemExit(f"{only_date} not available in Yahoo 5-minute history.")
     news_items = {}
     if fetch_news and not demo:
-        news_items = _fetch_news(days[0] - timedelta(days=2), days[-1])
-        print("news headlines fetched:", sum(len(v) for v in news_items.values()))
+        from . import archive
+        news_items = _fetch_news(days[0] - timedelta(days=2), days[-1], 10 if hourly else 7)
+        for sym in list(news_items) + [u[0] for u in UNIVERSE]:  # add headlines archived live
+            merged = {i["title"]: i for i in news_items.get(sym, []) + archive.load_news(sym)}
+            news_items[sym] = list(merged.values())
+        print("news headlines available:", sum(len(v) for v in news_items.values()))
     vd = frames["^INDIAVIX"][1]
     trades = {"with_news": [], "without_news": []}
     blockers = defaultdict(int)
@@ -177,10 +186,10 @@ def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=T
         vix_day = idx5["^INDIAVIX"].get(date)
         base = datetime(date.year, date.month, date.day, tzinfo=IST)
         taken = {"with_news": set(), "without_news": set()}
-        for t_ in range(asof[0] * 60 + asof[1], 14 * 60 + 31, 15):
+        for t_ in range(asof[0] * 60 + asof[1], last_label + 1, step):
             cut = pd.Timestamp(base + timedelta(minutes=t_))
             ntc = nt[nt.index <= cut]
-            if len(ntc) < 3:
+            if len(ntc) < (2 if hourly else 3):
                 continue
             vix = float(vix_day[vix_day.index <= cut]["close"].iloc[-1]) if vix_day is not None and len(vix_day[vix_day.index <= cut]) else vix_prev
             nifty_chg = 100 * (float(ntc["close"].iloc[-1]) / float(nd["close"].iloc[-1]) - 1)
@@ -189,10 +198,10 @@ def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=T
                     continue
                 seen_all = stocks5[sym][date]
                 seen, later = seen_all[seen_all.index <= cut], seen_all[seen_all.index > cut]
-                if len(seen) < 3 or not len(prior_days):
+                if len(seen) < (2 if hourly else 3) or not len(prior_days):
                     continue
                 hist = pd.concat([stocks5[sym][d] for d in prior_days if d in stocks5[sym]])
-                if len(hist) < 30:
+                if len(hist) < (20 if hourly else 30):
                     continue
                 sec_chg = nifty_chg
                 s_day = idx5.get(sidx, {}).get(date)
@@ -201,7 +210,7 @@ def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=T
                     s_seen = s_day[s_day.index <= cut]; sd_prior = sd_[[d < date for d in sd_.index.date]]
                     if len(s_seen) and len(sd_prior):
                         sec_chg = 100 * (float(s_seen["close"].iloc[-1]) / float(sd_prior["close"].iloc[-1]) - 1)
-                nw = newsmod.analyse_symbol(sym, name, mcap, news_items.get(sym, []), now=cut.tz_convert("UTC").to_pydatetime()) \
+                nw = newsmod.analyse_symbol(sym, name, mcap, news_items.get(sym, []), now=(cut + timedelta(minutes=bar_min)).tz_convert("UTC").to_pydatetime()) \
                     if news_items.get(sym) else NEUTRAL_NEWS
                 for variant, nws in (("with_news", nw), ("without_news", NEUTRAL_NEWS)):
                     if sym in taken[variant] or (variant == "without_news" and nws is nw and False):
@@ -210,7 +219,8 @@ def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=T
                            "prev_close": float(sdaily[sym]["close"].iloc[-1]), "now": cut.to_pydatetime(), "phase": "ACTIVE", "vix": vix,
                            "vix_chg": 100 * (vix / vix_prev - 1), "index_corr": corr, "index_gex": None,
                            "nifty": float(ntc["close"].iloc[-1]), "nifty_open": float(nt["open"].iloc[0]), "nifty_chg": nifty_chg,
-                           "sector_chg": sec_chg, "news": nws, "options": None, "fut_oi_chg_pct": None, "capital": capital, "risk_pct": 50.0}
+                           "sector_chg": sec_chg, "news": nws, "options": None, "fut_oi_chg_pct": None, "capital": capital, "risk_pct": 50.0,
+                           "hourly": hourly}
                     sig = analyse_stock(ctx)
                     if variant == "with_news":
                         for bk in sig["risk"]["blockers"]:
@@ -228,7 +238,9 @@ def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=T
                             news_used += 1
         print(date, {k: len(v) for k, v in trades.items()}, flush=True)
     res = {"mode": "demo" if demo else "live", "period": {"from": days[0].isoformat(), "to": days[-1].isoformat(), "sessions": len(days)},
-           "scan": f"every 15 min {asof[0]:02d}:{asof[1]:02d}-14:30 IST, first signal per stock per day",
+           "resolution": "1h" if hourly else "5m",
+           "scan": (f"hourly bar closes {asof[0]:02d}:{asof[1]:02d}+{asof[0]+1:02d}:{asof[1]:02d} to {(last_label//60)+1:02d}:{last_label%60:02d} IST" if hourly
+                    else f"every 15 min {asof[0]:02d}:{asof[1]:02d}-14:30 IST") + ", first signal per stock per day",
            "capital": capital, "risk_levels_pct": list(RISK_LEVELS), "news_headlines": sum(len(v) for v in news_items.values()),
            "trades_using_news": news_used, "blocker_counts": dict(blockers)}
     for k in trades:
@@ -238,7 +250,7 @@ def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=T
         "Headlines come from Google News RSS filtered by each item's own publication time; its historical archive can be incomplete, so news coverage on old days is thinner than live.",
         "Sentiment uses a finance lexicon (not FinBERT) unless USE_FINBERT=1. Earnings surprise is a headline beat/miss proxy.",
         "NSE derivatives (GEX, OI, IV skew) and pre-open depth are not replayable; those inputs are omitted.",
-        "Yahoo serves only ~60 sessions of 5-minute data: a small sample. Treat avg R +/- its standard error, not the P&L, as the evidence.",
+        "5-minute run: Yahoo serves ~60 sessions plus whatever the daily archive job has saved since. Hourly run: ~2 years but coarse bars (stop/target ordering inside an hour is unknowable; stops win ties), weaker order-flow signals, and thin old headlines. Treat avg R +/- its standard error, not the P&L, as the evidence.",
         "Entry = next 5-min bar open; stop wins ties inside a bar; exit by 15:15; costs %.2f%% round trip; max one trade per stock per day." % COST_PCT,
         "Parameters were not tuned on this data, but the same rules produced these results, so beware over-reading any lucky streak.",
         "P&L at 50%% risk is shown only for comparison: it is capped at %dx notional and is not a recommended setting." % LEVERAGE]
@@ -248,15 +260,16 @@ def run(asof=(10, 0), capital=100000.0, demo=False, only_date=None, fetch_news=T
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date")
-    ap.add_argument("--time", default="10:00")
+    ap.add_argument("--time", default=None)
+    ap.add_argument("--hourly", action="store_true", help="1-hour bars, ~2 years of history")
     ap.add_argument("--capital", type=float, default=100000)
     ap.add_argument("--demo", action="store_true")
     ap.add_argument("--no-news-fetch", action="store_true")
     ap.add_argument("--out", default="data/backtest.json")
     a = ap.parse_args()
-    hh, mm = map(int, a.time.split(":"))
+    asof = tuple(map(int, a.time.split(":"))) if a.time else None
     only = datetime.strptime(a.date, "%Y-%m-%d").date() if a.date else None
-    res = run((hh, mm), a.capital, a.demo, only, not a.no_news_fetch)
+    res = run(asof, a.capital, a.demo, only, not a.no_news_fetch, a.hourly)
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
     with open(a.out, "w") as f:
         f.write(to_json(res))

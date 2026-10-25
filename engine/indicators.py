@@ -114,7 +114,7 @@ def _fano_branching(events, window):
     return float(min(max(1.0 - 1.0 / math.sqrt(fano), ac, 0.0), 0.95))
 
 
-def hawkes_branching(df_hist, df_today, thr=0.3):
+def hawkes_branching(df_hist, df_today, thr=0.3, base_w=6, cur_w=3, min_cur=12):
     """Fano-factor / autocorrelation estimate of the Hawkes branching ratio for aggressive buy / sell bars.
 
     Returns dict(buy, sell, base_buy, base_sell, surge_buy, surge_sell). A surge means the
@@ -125,15 +125,15 @@ def hawkes_branching(df_hist, df_today, thr=0.3):
     h, t = imb(df_hist), imb(df_today)
     res = {}
     for side, sign in (("buy", 1), ("sell", -1)):
-        base = _fano_branching((sign * h > thr).astype(int), 6)
-        cur = _fano_branching((sign * t > thr).astype(int), 3) if len(t) >= 12 else base
+        base = _fano_branching((sign * h > thr).astype(int), base_w)
+        cur = _fano_branching((sign * t > thr).astype(int), cur_w) if len(t) >= min_cur else base
         res[side] = cur
         res["base_" + side] = base
         res["surge_" + side] = bool(cur > 0.35 and cur > base * 1.25)
     return res
 
 
-def volume_expanding(df, recent=3):
-    if len(df) < recent + 6:
+def volume_expanding(df, recent=3, min_prior=6):
+    if len(df) < recent + min_prior:
         return False
     return bool(df["volume"].iloc[-recent:].mean() > 1.2 * df["volume"].iloc[:-recent].mean())

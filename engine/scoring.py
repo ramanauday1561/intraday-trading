@@ -2,6 +2,7 @@
 import math
 
 import numpy as np
+import pandas as pd
 
 from . import indicators as ind
 from . import lpp as lppmod
@@ -61,10 +62,12 @@ def analyse_stock(c):
     vw = ind.vwap(today)
     atr_d = ind.atr(daily)
     adx_v = ind.adx(daily)
-    poc, val_, vah = ind.volume_profile(today)
-    ofi_v, vpin_v = ind.ofi(today), ind.vpin(today)
-    hk = ind.hawkes_branching(hist, today)
-    vol_exp = ind.volume_expanding(today)
+    hr = bool(c.get("hourly"))  # coarse hourly bars: shorter windows, flow measured on recent multi-day context
+    ctx_bars = pd.concat([hist.tail(21), today]) if hr else today
+    poc, val_, vah = ind.volume_profile(today, bins=12 if hr else 30)
+    ofi_v, vpin_v = (ind.ofi(ctx_bars, window=2) if hr else ind.ofi(today)), ind.vpin(ctx_bars)
+    hk = ind.hawkes_branching(hist, today, base_w=3, cur_w=2, min_cur=3) if hr else ind.hawkes_branching(hist, today)
+    vol_exp = ind.volume_expanding(today, recent=1, min_prior=2) if hr else ind.volume_expanding(today)
     sig_d = daily_sigma_pct(vix)
     turnover_cr = float((daily["close"] * daily["volume"]).tail(20).mean() / 1e7)
     opt, fut_oi = c.get("options"), c.get("fut_oi_chg_pct")

@@ -124,3 +124,22 @@ def test_news_is_point_in_time():
     only_future = news.analyse_symbol("X", "X Ltd", 100000, [future], now=now)
     assert only_future["items"] == [] and only_future["score"] == 0.0
     assert news.analyse_symbol("X", "X Ltd", 100000, [future, past], now=now)["items"][0]["title"].startswith("X wins USFDA")
+
+
+def test_archive_roundtrip_and_merge(tmp_path, monkeypatch):
+    import importlib
+    monkeypatch.setenv("ARCHIVE_DIR", str(tmp_path))
+    from engine import archive
+    importlib.reload(archive)
+    idx = pd.date_range("2025-01-06 09:15", periods=4, freq="5min", tz=IST)
+    a = pd.DataFrame({"open": 1.0, "high": 2.0, "low": 0.5, "close": [1, 1.1, 1.2, 1.3], "volume": 10}, index=idx)
+    archive.save_bars("X.NS", a.iloc[:3])
+    merged = archive.merge_bars(archive.load_bars("X.NS"), a.iloc[2:])
+    assert len(merged) == 4 and merged.index.is_monotonic_increasing
+    archive.save_bars("X.NS", merged)
+    assert archive.load_bars("X.NS")["close"].iloc[-1] == 1.3
+    from datetime import timezone
+    ts = datetime(2025, 1, 6, tzinfo=timezone.utc)
+    assert archive.save_news("X", [{"title": "a", "source": "s", "url": "", "ts": ts}]) == 1
+    assert archive.save_news("X", [{"title": "a", "source": "s", "url": "", "ts": ts}, {"title": "b", "source": "s", "url": "", "ts": ts}]) == 2
+    assert archive.load_news("X")[0]["ts"] == ts

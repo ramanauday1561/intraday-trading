@@ -41,7 +41,15 @@ def _yahoo_http(symbol, rng, interval):
 def _yahoo_yfinance(symbol, rng, interval):
     try:
         import yfinance as yf  # open-source client; manages Yahoo cookies/crumb
-        df = yf.Ticker(symbol).history(period=rng, interval=interval, auto_adjust=False)
+        import re as _re
+        from datetime import datetime as _dt, timedelta as _td
+        m = _re.fullmatch(r"(\d+)d", rng)
+        if m and int(m.group(1)) > 5:  # explicit window: avoids relying on yfinance accepting arbitrary period strings
+            days = int(m.group(1)) - 1
+            df = yf.Ticker(symbol).history(start=_dt.utcnow() - _td(days=days), end=_dt.utcnow() + _td(days=1),
+                                           interval=interval, auto_adjust=False)
+        else:
+            df = yf.Ticker(symbol).history(period=rng, interval=interval, auto_adjust=False)
         if df is None or df.empty:
             _note(symbol, "yfinance_empty")
             return None

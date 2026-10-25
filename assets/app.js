@@ -60,11 +60,14 @@ function macro() {
 
 async function backtest() {
   const el = $("list");
-  if (state.bt === undefined) {
-    try { const r = await fetch(`data/backtest.json?t=${Date.now()}`, { cache: "no-store" }); state.bt = r.ok ? await r.json() : null; } catch { state.bt = null; }
+  state.btKey = state.btKey || "backtest"; state.bts = state.bts || {};
+  if (state.bts[state.btKey] === undefined) {
+    try { const r = await fetch(`data/${state.btKey}.json?t=${Date.now()}`, { cache: "no-store" }); state.bts[state.btKey] = r.ok ? await r.json() : null; } catch { state.bts[state.btKey] = null; }
   }
-  const b = state.bt;
-  if (!b || !b.with_news) return el.replaceChildren(h("div", { class: "empty" }, "No backtest yet. Run the “Backtest” workflow in GitHub Actions."));
+  const b = state.bts[state.btKey];
+  const switcher = h("nav", { class: "chips" }, [["backtest", "5-minute"], ["backtest_hourly", "Hourly (2 yr)"]].map(([k, t]) =>
+    h("button", { class: "chip" + (state.btKey === k ? " on" : ""), onclick: () => { state.btKey = k; backtest(); } }, t)));
+  if (!b || !b.with_news) return el.replaceChildren(switcher, h("div", { class: "empty" }, "Not available yet. Run the “Backtest” workflow in GitHub Actions."));
   const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
   const pct = (n) => (n == null ? "—" : sgn(n, 1) + "%");
   const block = (title, S) => S.trades ? h("div", {},
@@ -76,8 +79,8 @@ async function backtest() {
     h("div", { class: "sub" }, `Worst day: ${pct(S.worst_day_pct_risk1)} @1% · ${pct(S.worst_day_pct_risk50)} @50%`)) : h("div", { class: "empty" }, title + ": no trades");
   const split = (title, obj) => h("div", { class: "box" }, h("b", {}, title), Object.entries(obj || {}).map(([k, v]) =>
     h("div", { class: "hl" }, `${label(k)}: ${v.trades} trades · win ${v.win_rate_pct}% · avg ${sgn(v.avg_r, 2)}R`)));
-  el.replaceChildren(
-    h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `Backtest ${b.period.from} → ${b.period.to} · ${b.period.sessions} sessions · ${b.mode}`),
+  el.replaceChildren(switcher,
+    h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `${b.resolution} backtest ${b.period.from} → ${b.period.to} · ${b.period.sessions} sessions · ${b.mode}`),
       `${b.scan}. ${b.news_headlines} headlines replayed point-in-time; ${b.trades_using_news} trades had a material news signal.`),
     block("With news", b.with_news), block("Price & flow only (no news)", b.without_news),
     h("h4", {}, "Where the edge (or lack of it) comes from"),
