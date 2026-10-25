@@ -148,7 +148,7 @@ def _group(trades, key):
     return g
 
 
-def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True, hourly=False, after=None):
+def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True, hourly=False, after=None, diag=False):
     asof = asof or ((10, 15) if hourly else (10, 0))
     bar_min, step, last_label = (60, 60, 13 * 60 + 15) if hourly else (5, 15, 14 * 60 + 30)
     frames = _frames(demo, hourly)
@@ -157,6 +157,18 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
         from . import market
         print("data fetch errors:", {k: len(v) for k, v in market.ERRORS.items()})
         raise SystemExit("No Nifty data (Yahoo unreachable).")
+    if diag:
+        from . import market
+        for key in ("^NSEI", "RELIANCE"):
+            df = frames[key][0]
+            if df is None:
+                print("diag", key, "no 5m data"); continue
+            cnt = df.groupby(df.index.date).size()
+            print(f"diag {key}: {cnt.index[0]}..{cnt.index[-1]} sessions={len(cnt)} full(>=60 bars)={int((cnt >= 60).sum())}")
+            print("diag bars/day first 8:", dict(list(cnt.items())[:8]))
+            print("diag days with <60 bars:", {str(d): int(n) for d, n in cnt.items() if n < 60})
+        print("diag fetch errors:", {k: len(v) for k, v in market.ERRORS.items()})
+        raise SystemExit(0)
     by_day = lambda df: {d: g for d, g in df.groupby(df.index.date)} if df is not None else {}
     stocks5 = {s: by_day(frames[s][0]) for s, *_ in UNIVERSE if frames[s][0] is not None and frames[s][1] is not None}
     idx5 = {k: by_day(v[0]) for k, v in frames.items() if k not in stocks5}
@@ -278,13 +290,14 @@ def main():
     ap.add_argument("--capital", type=float, default=100000)
     ap.add_argument("--demo", action="store_true")
     ap.add_argument("--no-news-fetch", action="store_true")
+    ap.add_argument("--diag", action="store_true", help="print data-span diagnostics and exit")
     ap.add_argument("--after", help="forward test: only sessions after this date (YYYY-MM-DD)")
     ap.add_argument("--out", default="data/backtest.json")
     a = ap.parse_args()
     asof = tuple(map(int, a.time.split(":"))) if a.time else None
     only = datetime.strptime(a.date, "%Y-%m-%d").date() if a.date else None
     after = datetime.strptime(a.after, "%Y-%m-%d").date() if a.after else None
-    res = run(asof, a.capital, a.demo, only, not a.no_news_fetch, a.hourly, after)
+    res = run(asof, a.capital, a.demo, only, not a.no_news_fetch, a.hourly, after, a.diag)
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
     with open(a.out, "w") as f:
         f.write(to_json(res))
