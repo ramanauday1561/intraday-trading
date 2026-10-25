@@ -2,6 +2,7 @@
 import argparse
 import os
 
+from . import market
 from .pipeline import build, to_json
 
 
@@ -20,6 +21,8 @@ def main():
     print(f"mode={m['mode']} phase={m['session_phase']} analysed={m['analysed']} "
           f"actionable={sum(s['direction'] != 'NO_TRADE' for s in payload['signals'])} -> {a.out}")
     print("data health:", m["health"])
+    if market.ERRORS:
+        print("data fetch errors:", {k: f"{len(v)} symbols, e.g. {v[:3]}" for k, v in market.ERRORS.items()})
 
 
 if __name__ == "__main__":

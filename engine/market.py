@@ -14,18 +14,50 @@ from .config import IST, RISK_FREE
 UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36"}
 
 
-def yahoo(symbol, rng, interval):
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol)}?range={rng}&interval={interval}"
+ERRORS = {}
+
+
+def _note(sym, msg):
+    ERRORS.setdefault(msg, []).append(sym)
+
+
+def _yahoo_http(symbol, rng, interval):
+    for host in ("query1", "query2"):
+        url = f"https://{host}.finance.yahoo.com/v8/finance/chart/{quote(symbol)}?range={rng}&interval={interval}"
+        try:
+            r = requests.get(url, headers=UA, timeout=20)
+            if r.status_code != 200:
+                _note(symbol, f"http_{r.status_code}")
+                continue
+            res = r.json()["chart"]["result"][0]
+            q = res["indicators"]["quote"][0]
+            df = pd.DataFrame(q, index=pd.to_datetime(res["timestamp"], unit="s", utc=True).tz_convert(IST))
+            return df[["open", "high", "low", "close", "volume"]].dropna()
+        except (requests.RequestException, KeyError, IndexError, TypeError, ValueError) as e:
+            _note(symbol, type(e).__name__)
+    return None
+
+
+def _yahoo_yfinance(symbol, rng, interval):
     try:
-        r = requests.get(url, headers=UA, timeout=20)
-        r.raise_for_status()
-        res = r.json()["chart"]["result"][0]
-        q = res["indicators"]["quote"][0]
-        df = pd.DataFrame(q, index=pd.to_datetime(res["timestamp"], unit="s", utc=True).tz_convert(IST))
-        df = df[["open", "high", "low", "close", "volume"]].dropna()
-        return df if len(df) else None
-    except (requests.RequestException, KeyError, IndexError, TypeError, ValueError):
+        import yfinance as yf  # open-source client; manages Yahoo cookies/crumb
+        df = yf.Ticker(symbol).history(period=rng, interval=interval, auto_adjust=False)
+        if df is None or df.empty:
+            _note(symbol, "yfinance_empty")
+            return None
+        df = df.rename(columns=str.lower)[["open", "high", "low", "close", "volume"]].dropna()
+        df.index = df.index.tz_convert(IST) if df.index.tz is not None else df.index.tz_localize("UTC").tz_convert(IST)
+        return df
+    except Exception as e:  # noqa: BLE001
+        _note(symbol, "yfinance_" + type(e).__name__)
         return None
+
+
+def yahoo(symbol, rng, interval):
+    df = _yahoo_http(symbol, rng, interval)
+    if df is None or not len(df):
+        df = _yahoo_yfinance(symbol, rng, interval)
+    return df if df is not None and len(df) else None
 
 
 def fetch_many(symbols, rng, interval, workers=8):

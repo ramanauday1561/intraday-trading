@@ -73,6 +73,8 @@ def run(date, asof=(9, 30), capital=100000.0, risk_pct=50.0, demo=False):
     frames = _frames(date, demo)
     nifty5, nifty_d = frames["^NSEI"]
     if nifty5 is None or nifty_d is None:
+        from . import market
+        print("data fetch errors:", {k: len(v) for k, v in market.ERRORS.items()})
         raise SystemExit("No Nifty data for that date (Yahoo unreachable or date outside 5-minute history).")
     cut = pd.Timestamp(datetime(date.year, date.month, date.day, *asof, tzinfo=IST))
 
