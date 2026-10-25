@@ -20,6 +20,7 @@ import pandas as pd
 
 from . import demo as demomod
 from . import news as newsmod
+from . import evaluate
 from .config import COST_PCT, INDEX_SYMBOLS, IST, LEVERAGE, UNIVERSE
 from .pipeline import _index_corr, to_json
 from .scoring import analyse_stock
@@ -89,7 +90,8 @@ def simulate(sig, bars_after, exit_hhmm=(15, 15)):
             exit_px, reason = target, "TARGET"; break
     per_share = (exit_px - entry) if long_ else (entry - exit_px)
     qty = sig["execution"]["qty"]
-    return {"symbol": sig["symbol"], "direction": sig["direction"], "setup": sig["setup"], "conviction": sig["conviction"],
+    cost_ps = entry * COST_PCT / 100
+    return {"cost_r": round(cost_ps / sd, 3), "net_r": round((per_share - cost_ps) / sd, 3), "symbol": sig["symbol"], "direction": sig["direction"], "setup": sig["setup"], "conviction": sig["conviction"],
             "regime": sig["regime"], "entry": round(entry, 2), "stop": round(stop, 2), "target": round(target, 2),
             "exit": round(exit_px, 2), "reason": reason, "qty": qty, "stop_distance": sd, "size_mult": sig["risk"]["size_multiplier"],
             "r_multiple": round(per_share / sd, 3), "per_share": per_share,
@@ -121,6 +123,8 @@ def _stats(trades, capital, days):
            "win_rate_pct": round(100 * len(win) / len(r), 1), "avg_r": round(float(r.mean()), 3), "total_r": round(float(r.sum()), 1),
            "profit_factor": round(float(win.sum() / -loss.sum()), 2) if loss.sum() < 0 else None,
            "max_drawdown_r": round(mdd_r, 1), "daily_r_sharpe": round(float(day_r.mean() / day_r.std() * math.sqrt(252)), 2) if len(day_r) > 2 and day_r.std() > 0 else None,
+           "avg_net_r": round(float(np.mean([t["net_r"] for t in trades])), 3), "total_net_r": round(float(sum(t["net_r"] for t in trades)), 1),
+           "avg_cost_r": round(float(np.mean([t["cost_r"] for t in trades])), 3),
            "avg_r_se": round(float(r.std(ddof=1) / math.sqrt(len(r))), 3) if len(r) > 1 else None}
     for x in RISK_LEVELS:
         pn = [daily[k][f"pnl_{int(x)}"] for k in sorted(daily)]
@@ -185,7 +189,6 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
         vix_prev = float(vd["close"][[d < date for d in vd.index.date]].iloc[-1]) if vd is not None and len(vd[[d < date for d in vd.index.date]]) else 14.0
         vix_day = idx5["^INDIAVIX"].get(date)
         base = datetime(date.year, date.month, date.day, tzinfo=IST)
-        taken = {"with_news": set(), "without_news": set()}
         for t_ in range(asof[0] * 60 + asof[1], last_label + 1, step):
             cut = pd.Timestamp(base + timedelta(minutes=t_))
             ntc = nt[nt.index <= cut]
@@ -213,8 +216,6 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
                 nw = newsmod.analyse_symbol(sym, name, mcap, news_items.get(sym, []), now=(cut + timedelta(minutes=bar_min)).tz_convert("UTC").to_pydatetime()) \
                     if news_items.get(sym) else NEUTRAL_NEWS
                 for variant, nws in (("with_news", nw), ("without_news", NEUTRAL_NEWS)):
-                    if sym in taken[variant] or (variant == "without_news" and nws is nw and False):
-                        continue
                     ctx = {"symbol": sym, "name": name, "sector": sector, "today": seen, "hist": hist, "daily": sdaily[sym],
                            "prev_close": float(sdaily[sym]["close"].iloc[-1]), "now": cut.to_pydatetime(), "phase": "ACTIVE", "vix": vix,
                            "vix_chg": 100 * (vix / vix_prev - 1), "index_corr": corr, "index_gex": None,
@@ -233,10 +234,11 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
                                    "news_bucket": "news_aligned" if (abs(nws["score"]) > 0.2 and (nws["score"] > 0) == (tr["direction"] == "LONG"))
                                    else "news_opposed" if abs(nws["score"]) > 0.2 else "no_news",
                                    "contradiction": (sig["contradiction"] or {}).get("type")})
-                        trades[variant].append(tr); taken[variant].add(sym)
-                        if variant == "with_news" and abs(nws["score"]) > 0.2:
-                            news_used += 1
+                        trades[variant].append(tr)
         print(date, {k: len(v) for k, v in trades.items()}, flush=True)
+    cands = trades
+    trades = {k: evaluate.apply_filters(v) for k, v in cands.items()}  # baseline: first signal per stock per day
+    news_used = sum(abs(t["news_score"]) > 0.2 for t in trades["with_news"])
     res = {"mode": "demo" if demo else "live", "period": {"from": days[0].isoformat(), "to": days[-1].isoformat(), "sessions": len(days)},
            "resolution": "1h" if hourly else "5m",
            "scan": (f"hourly bar closes {asof[0]:02d}:{asof[1]:02d}+{asof[0]+1:02d}:{asof[1]:02d} to {(last_label//60)+1:02d}:{last_label%60:02d} IST" if hourly
@@ -245,6 +247,9 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
            "trades_using_news": news_used, "blocker_counts": dict(blockers)}
     for k in trades:
         res[k] = _stats(trades[k], capital, len(days))
+    for k in cands:
+        res[k]["walk_forward"] = evaluate.walk_forward(cands[k], days)
+        res[k]["candidates"] = len(cands[k])
     res["trades"] = [{kk: vv for kk, vv in t.items() if kk not in ("per_share",)} for t in sorted(trades["with_news"], key=lambda t: (t["date"], t["signal_time"]))][-400:]
     res["caveats"] = [
         "Headlines come from Google News RSS filtered by each item's own publication time; its historical archive can be incomplete, so news coverage on old days is thinner than live.",
@@ -252,7 +257,7 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
         "NSE derivatives (GEX, OI, IV skew) and pre-open depth are not replayable; those inputs are omitted.",
         "5-minute run: Yahoo serves ~60 sessions plus whatever the daily archive job has saved since. Hourly run: ~2 years but coarse bars (stop/target ordering inside an hour is unknowable; stops win ties), weaker order-flow signals, and thin old headlines. Treat avg R +/- its standard error, not the P&L, as the evidence.",
         "Entry = next 5-min bar open; stop wins ties inside a bar; exit by 15:15; costs %.2f%% round trip; max one trade per stock per day." % COST_PCT,
-        "Parameters were not tuned on this data, but the same rules produced these results, so beware over-reading any lucky streak.",
+        "avg R is BEFORE costs; avg net R and all P&L figures include them. Walk-forward: filters are chosen on the first 60% of sessions and judged once on the last 40%; every config tried is listed (multiple-testing disclosure). EDGE_SUPPORTED requires the 95% session-bootstrap CI of net R to exclude zero.",
         "P&L at 50%% risk is shown only for comparison: it is capped at %dx notional and is not a recommended setting." % LEVERAGE]
     return res
 
@@ -275,8 +280,11 @@ def main():
         f.write(to_json(res))
     for k in ("with_news", "without_news"):
         s = res[k]
-        print(k, {x: s.get(x) for x in ("trades", "win_rate_pct", "avg_r", "avg_r_se", "total_r", "profit_factor", "max_drawdown_r",
-                                         "net_pnl_risk1", "return_pct_risk1", "net_pnl_risk50", "return_pct_risk50")})
+        print(k, {x: s.get(x) for x in ("trades", "win_rate_pct", "avg_r", "avg_net_r", "avg_cost_r", "profit_factor", "net_pnl_risk1", "return_pct_risk1")})
+        wf = s.get("walk_forward")
+        if wf and wf["selected"]:
+            print("  walk-forward selected:", wf["selected"]["config"], "train", wf["selected"]["train"], "TEST", wf["selected"]["test"], wf["selected"]["test_ci95"], wf["selected"]["verdict"])
+            print("  baseline test:", wf["baseline_test"], wf["baseline_test_ci95"])
 
 
 if __name__ == "__main__":

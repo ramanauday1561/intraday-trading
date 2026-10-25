@@ -143,3 +143,31 @@ def test_archive_roundtrip_and_merge(tmp_path, monkeypatch):
     assert archive.save_news("X", [{"title": "a", "source": "s", "url": "", "ts": ts}]) == 1
     assert archive.save_news("X", [{"title": "a", "source": "s", "url": "", "ts": ts}, {"title": "b", "source": "s", "url": "", "ts": ts}]) == 2
     assert archive.load_news("X")[0]["ts"] == ts
+
+
+def _cand(date, time, sym, conv, net_r, cost_r=0.1):
+    return {"date": date, "signal_time": time, "symbol": sym, "conviction": conv, "net_r": net_r, "cost_r": cost_r}
+
+
+def test_filters_select_first_signal_per_stock_and_cap_per_day():
+    from engine import evaluate as ev
+    c = [_cand("2025-01-06", "10:00", "A", 40, -1), _cand("2025-01-06", "10:15", "A", 90, 2),
+         _cand("2025-01-06", "10:15", "B", 70, 1, cost_r=0.5), _cand("2025-01-06", "10:30", "C", 70, 1)]
+    assert [t["symbol"] for t in ev.apply_filters(c)] == ["A", "B", "C"]            # baseline: first per stock
+    assert [t["symbol"] for t in ev.apply_filters(c, conv_min=65)] == ["A", "B", "C"]  # A re-qualifies at 10:15
+    assert [t["symbol"] for t in ev.apply_filters(c, max_cost_r=0.25)] == ["A", "C"]
+    assert len(ev.apply_filters(c, max_per_day=2)) == 2
+
+
+def test_walk_forward_is_chronological_and_flags_no_edge():
+    import numpy as np
+    from datetime import date, timedelta
+    from engine import evaluate as ev
+    rng = np.random.default_rng(1)
+    days = [date(2025, 1, 6) + timedelta(days=i) for i in range(40)]
+    cands = [_cand(d.isoformat(), "10:00", f"S{k}", 50 + 10 * (k % 4), float(rng.normal(-0.05, 1.0))) for d in days for k in range(5)]
+    wf = ev.walk_forward(cands, days)
+    assert wf["train_sessions"][1] < wf["test_sessions"][0] and wf["configs_tried"] == 24
+    assert wf["selected"]["verdict"] in ("NO_EDGE_DEMONSTRATED", "POSITIVE_BUT_NOT_SIGNIFICANT")  # pure noise must not look like an edge
+    lo, hi = wf["selected"]["test_ci95"]
+    assert lo < hi

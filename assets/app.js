@@ -73,16 +73,35 @@ async function backtest() {
   const block = (title, S) => S.trades ? h("div", {},
     h("h4", {}, title),
     h("div", { class: "macro" }, tile("Trades", S.trades), tile("Win rate", S.win_rate_pct + "%"),
-      tile("Avg R ± SE", `${sgn(S.avg_r, 2)} ± ${fmt(S.avg_r_se)}`, cls(S.avg_r)), tile("Profit factor", S.profit_factor ?? "—"),
-      tile("Total R", sgn(S.total_r, 1), cls(S.total_r)), tile("Max drawdown", fmt(S.max_drawdown_r, 1) + "R"),
+      tile("Avg R gross ± SE", `${sgn(S.avg_r, 2)} ± ${fmt(S.avg_r_se)}`, cls(S.avg_r)), tile("Profit factor", S.profit_factor ?? "—"),
+      tile("Avg R after costs", sgn(S.avg_net_r, 3), cls(S.avg_net_r)), tile("Avg cost / trade", fmt(S.avg_cost_r, 3) + "R"),
       tile("Return @1% risk", pct(S.return_pct_risk1), cls(S.return_pct_risk1)), tile("Return @50% risk", pct(S.return_pct_risk50), cls(S.return_pct_risk50))),
     h("div", { class: "sub" }, `Worst day: ${pct(S.worst_day_pct_risk1)} @1% · ${pct(S.worst_day_pct_risk50)} @50%`)) : h("div", { class: "empty" }, title + ": no trades");
+  const m = (x) => (x && x.trades ? `${x.trades} trades · win ${x.win_rate_pct}% · avg net ${sgn(x.avg_net_r, 3)}R · PF ${x.profit_factor ?? "—"}` : "no trades");
+  const cfg = (c) => `conviction ≥ ${c.min_conviction}, cost ≤ ${c.max_cost_r ?? "any"}R, max ${c.max_per_day ?? "∞"}/day`;
+  const verdicts = { NO_EDGE_DEMONSTRATED: ["dn", "No edge demonstrated out-of-sample"], POSITIVE_BUT_NOT_SIGNIFICANT: ["", "Positive but not statistically significant"], EDGE_SUPPORTED_OUT_OF_SAMPLE: ["up", "Edge supported out-of-sample (CI excludes 0)"] };
+  const wfBlock = (title, S) => {
+    const w = S.walk_forward;
+    if (!w) return null;
+    const sel = w.selected;
+    return h("div", {}, h("h4", {}, `Walk-forward · ${title}`),
+      h("div", { class: "box" },
+        h("div", { class: "hl" }, `Train ${w.train_sessions[0]} → ${w.train_sessions[1]} (${w.train_sessions[2]} sessions) · Test ${w.test_sessions[0]} → ${w.test_sessions[1]} (${w.test_sessions[2]})`),
+        sel ? [h("div", { class: "hl" }, h("b", {}, "Chosen on train: "), cfg(sel.config)),
+          h("div", { class: "hl" }, "Train: " + m(sel.train)),
+          h("div", { class: "hl" }, h("b", {}, "Test (unseen): "), m(sel.test), sel.test_ci95 ? ` · 95% CI ${sgn(sel.test_ci95[0], 3)}…${sgn(sel.test_ci95[1], 3)}R` : ""),
+          h("div", { class: "hl " + verdicts[sel.verdict][0] }, h("b", {}, verdicts[sel.verdict][1]))]
+          : h("div", { class: "hl" }, "No config had enough training trades to be eligible."),
+        h("div", { class: "hl mu" }, `Baseline (no filters) on test: ${m(w.baseline_test)}${w.baseline_test_ci95 ? ` · CI ${sgn(w.baseline_test_ci95[0], 3)}…${sgn(w.baseline_test_ci95[1], 3)}R` : ""}`),
+        h("div", { class: "hl mu" }, `${w.configs_tried} filter configs were tried; best-of-many selection flatters train results, so judge the TEST line.`)));
+  };
   const split = (title, obj) => h("div", { class: "box" }, h("b", {}, title), Object.entries(obj || {}).map(([k, v]) =>
     h("div", { class: "hl" }, `${label(k)}: ${v.trades} trades · win ${v.win_rate_pct}% · avg ${sgn(v.avg_r, 2)}R`)));
   el.replaceChildren(switcher,
     h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `${b.resolution} backtest ${b.period.from} → ${b.period.to} · ${b.period.sessions} sessions · ${b.mode}`),
       `${b.scan}. ${b.news_headlines} headlines replayed point-in-time; ${b.trades_using_news} trades had a material news signal.`),
     block("With news", b.with_news), block("Price & flow only (no news)", b.without_news),
+    wfBlock("with news", b.with_news), wfBlock("no news", b.without_news),
     h("h4", {}, "Where the edge (or lack of it) comes from"),
     split("News alignment (with-news run)", b.with_news.by_news), split("Direction", b.with_news.by_direction), split("Setup", b.with_news.by_setup), split("Regime", b.with_news.by_regime),
     h("h4", {}, "Latest trades"),
