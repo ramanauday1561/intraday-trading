@@ -6,10 +6,6 @@ on:
   schedule:
     - cron: "*/10 3-10 * * 1-5"   # every 10 min, 08:30-16:00 IST on weekdays
   workflow_dispatch:
-    inputs:
-      backtest_date:
-        description: "Backtest date (YYYY-MM-DD, must be a past trading day within ~30 days)"
-        required: false
 
 permissions:
   contents: read
@@ -42,11 +38,6 @@ jobs:
         run: python -m pytest -q tests
       - name: Run engine (live data, demo fallback)
         run: python -W ignore -m engine.run --out data/signals.json
-      - name: Backtest (causal scan 10:00-14:30 IST)
-        continue-on-error: true
-        env:
-          BT_DATE: ${{ inputs.backtest_date || vars.BACKTEST_DATE || '2026-10-23' }}
-        run: python -W ignore -m engine.backtest --date "$BT_DATE" --time 10:00 --out data/backtest.json
       - name: Assemble site
         run: |
           mkdir _site

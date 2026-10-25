@@ -37,7 +37,20 @@ def lexicon_scores(text):
     return {"positive": conf * p / tot, "negative": conf * n / tot, "neutral": 1 - conf}
 
 
+_cache = {}
+
+
 def analyse(texts):
+    """Cached wrapper: backtests re-score the same headlines at many timestamps."""
+    texts = list(texts)
+    miss = [t for t in dict.fromkeys(texts) if t not in _cache]
+    if miss:
+        for t, r in zip(miss, _analyse(miss)):
+            _cache[t] = r
+    return [_cache[t] for t in texts]
+
+
+def _analyse(texts):
     """Return list of dicts: probs + score (= P(pos) - P(neg)) and engine used."""
     if os.environ.get("USE_FINBERT") == "1":
         try:

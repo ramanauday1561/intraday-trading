@@ -64,18 +64,28 @@ async function backtest() {
     try { const r = await fetch(`data/backtest.json?t=${Date.now()}`, { cache: "no-store" }); state.bt = r.ok ? await r.json() : null; } catch { state.bt = null; }
   }
   const b = state.bt;
-  if (!b) return el.replaceChildren(h("div", { class: "empty" }, "No backtest available yet. Run the workflow with a backtest date."));
-  const S = b.summary, t = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
+  if (!b || !b.with_news) return el.replaceChildren(h("div", { class: "empty" }, "No backtest yet. Run the “Backtest” workflow in GitHub Actions."));
+  const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
+  const pct = (n) => (n == null ? "—" : sgn(n, 1) + "%");
+  const block = (title, S) => S.trades ? h("div", {},
+    h("h4", {}, title),
+    h("div", { class: "macro" }, tile("Trades", S.trades), tile("Win rate", S.win_rate_pct + "%"),
+      tile("Avg R ± SE", `${sgn(S.avg_r, 2)} ± ${fmt(S.avg_r_se)}`, cls(S.avg_r)), tile("Profit factor", S.profit_factor ?? "—"),
+      tile("Total R", sgn(S.total_r, 1), cls(S.total_r)), tile("Max drawdown", fmt(S.max_drawdown_r, 1) + "R"),
+      tile("Return @1% risk", pct(S.return_pct_risk1), cls(S.return_pct_risk1)), tile("Return @50% risk", pct(S.return_pct_risk50), cls(S.return_pct_risk50))),
+    h("div", { class: "sub" }, `Worst day: ${pct(S.worst_day_pct_risk1)} @1% · ${pct(S.worst_day_pct_risk50)} @50%`)) : h("div", { class: "empty" }, title + ": no trades");
+  const split = (title, obj) => h("div", { class: "box" }, h("b", {}, title), Object.entries(obj || {}).map(([k, v]) =>
+    h("div", { class: "hl" }, `${label(k)}: ${v.trades} trades · win ${v.win_rate_pct}% · avg ${sgn(v.avg_r, 2)}R`)));
   el.replaceChildren(
-    h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `Backtest ${b.date} · ${b.scan} · ${b.mode}`),
-      `Capital ₹${fmt(b.capital, 0)} · risk ${b.risk_pct}% per trade · prev VIX ${b.vix_open_prev_close}`),
-    h("div", { class: "macro" }, t("Net P&L", "₹" + fmt(S.net_pnl, 0), cls(S.net_pnl)), t("Return", sgn(S.net_return_pct_on_capital) + "%", cls(S.net_return_pct_on_capital)),
-      t("Trades / skipped", `${S.trades} / ${S.no_trade}`), t("Win rate · avg R", S.trades ? `${S.win_rate_pct}% · ${S.avg_r}R` : "—")),
-    ...b.trades.map((x) => h("div", { class: "card " + x.direction },
-      h("div", { class: "row" }, h("span", { class: "sym" }, x.symbol), h("span", {}, h("span", { class: "pill " + x.direction }, x.direction), " ", h("span", { class: "sub" }, x.reason))),
-      h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `${x.signal_time} in ${fmt(x.entry)} → out ${fmt(x.exit)} · ${x.qty} sh`),
-        h("span", { class: cls(x.net_pnl) }, `₹${fmt(x.net_pnl, 0)} (${sgn(x.r_multiple)}R)`)))),
-    S.trades ? null : h("div", { class: "empty" }, "No trades that day. Blocker counts: " + JSON.stringify((b.signals[0] || {}).blocker_counts || {})),
+    h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `Backtest ${b.period.from} → ${b.period.to} · ${b.period.sessions} sessions · ${b.mode}`),
+      `${b.scan}. ${b.news_headlines} headlines replayed point-in-time; ${b.trades_using_news} trades had a material news signal.`),
+    block("With news", b.with_news), block("Price & flow only (no news)", b.without_news),
+    h("h4", {}, "Where the edge (or lack of it) comes from"),
+    split("News alignment (with-news run)", b.with_news.by_news), split("Direction", b.with_news.by_direction), split("Setup", b.with_news.by_setup), split("Regime", b.with_news.by_regime),
+    h("h4", {}, "Latest trades"),
+    ...(b.trades || []).slice(-25).reverse().map((x) => h("div", { class: "card " + x.direction },
+      h("div", { class: "row" }, h("span", { class: "sym" }, x.symbol), h("span", {}, h("span", { class: "pill " + x.direction }, x.direction), " ", h("span", { class: "sub" }, `${x.reason} · ${label(x.news_bucket)}`))),
+      h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `${x.date} ${x.signal_time} · ${fmt(x.entry)} → ${fmt(x.exit)}`), h("span", { class: cls(x.r_multiple) }, `${sgn(x.r_multiple, 2)}R`)))),
     h("h4", {}, "Read this before trusting it"), h("div", { class: "box" }, b.caveats.map((c) => h("div", { class: "hl" }, c))));
 }
 

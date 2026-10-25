@@ -100,8 +100,8 @@ def _bars(rows):
 
 def test_backtest_simulation_rules():
     from engine.backtest import simulate
-    sig = {"symbol": "X", "direction": "LONG", "setup": "MOMENTUM", "conviction": 50,
-           "execution": {"stop_distance": 2.0, "rr": 2.0, "qty": 10}}
+    sig = {"symbol": "X", "direction": "LONG", "setup": "MOMENTUM", "conviction": 50, "regime": "TRENDING",
+           "risk": {"size_multiplier": 1.0}, "execution": {"stop_distance": 2.0, "rr": 2.0, "qty": 10}}
     tgt = simulate(sig, _bars([(100, 101, 99.5, 100.5, 1), (100.5, 105, 100, 104, 1), (104, 104, 103, 103, 1)]))
     assert tgt["reason"] == "TARGET" and tgt["r_multiple"] == 2.0
     both = simulate(sig, _bars([(100, 106, 97, 100, 1), (100, 100, 100, 100, 1)]))
@@ -114,3 +114,13 @@ def test_leverage_cap_limits_qty():
     payload = build(now=datetime(2025, 1, 6, 11, 30, tzinfo=IST), force_demo=True, capital=100000, risk_pct=50)
     for x in payload["signals"]:
         assert x["execution"]["qty"] * x["price"]["ltp"] <= 100000 * 5 + x["price"]["ltp"]
+
+
+def test_news_is_point_in_time():
+    from datetime import timedelta, timezone
+    now = datetime.now(timezone.utc)
+    future = {"title": "X bags order worth Rs 9,000 crore", "source": "a", "url": "", "ts": now + timedelta(hours=1)}
+    past = dict(future, title="X wins USFDA approval, strong growth", ts=now - timedelta(hours=1))
+    only_future = news.analyse_symbol("X", "X Ltd", 100000, [future], now=now)
+    assert only_future["items"] == [] and only_future["score"] == 0.0
+    assert news.analyse_symbol("X", "X Ltd", 100000, [future, past], now=now)["items"][0]["title"].startswith("X wins USFDA")

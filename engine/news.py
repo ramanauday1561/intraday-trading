@@ -54,6 +54,12 @@ def fetch_symbol_news(name, symbol):
     return fetch_feed(f"https://news.google.com/rss/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en", "Google News")
 
 
+def fetch_symbol_news_range(name, symbol, start, end):
+    """Google News RSS restricted to [start, end) dates (after:/before: operators) for historical replay."""
+    q = quote_plus(f'"{name}" OR {symbol} NSE after:{start.isoformat()} before:{end.isoformat()}')
+    return fetch_feed(f"https://news.google.com/rss/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en", "Google News")
+
+
 def classify(title):
     t = title.lower()
     for tier, event, prob, rx in TAXONOMY:
@@ -76,7 +82,7 @@ def order_value_cr(title):
 def analyse_symbol(symbol, name, mcap_cr, items, now=None):
     """Aggregate headline-level signals into the fundamental pillar for one symbol."""
     now = now or datetime.now(timezone.utc)
-    items = [i for i in items if now - i["ts"] <= timedelta(hours=36)]
+    items = [i for i in items if timedelta(0) <= now - i["ts"] <= timedelta(hours=36)]  # never use future headlines
     seen, uniq = set(), []
     for i in items:
         k = re.sub(r"\W+", "", i["title"].lower())[:60]
