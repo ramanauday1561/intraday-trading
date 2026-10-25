@@ -1,0 +1,27 @@
+{
+ "mode": "live",
+ "resolution": "5m",
+ "period": null,
+ "forward_after": "2026-10-25",
+ "hypothesis": {
+  "in_sample": false,
+  "min_trades_required": 100,
+  "opposed": {
+   "trades": 0
+  },
+  "opposed_ci95": null,
+  "other_trades": {
+   "trades": 0
+  },
+  "verdict": "INSUFFICIENT_DATA"
+ },
+ "with_news": {
+  "trades": 0
+ },
+ "without_news": {
+  "trades": 0
+ },
+ "caveats": [
+  "No sessions after the pre-registration date are available yet; the daily archive job will supply them."
+ ]
+}
