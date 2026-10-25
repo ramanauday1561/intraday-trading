@@ -67,15 +67,15 @@ async function backtest() {
   if (!b) return el.replaceChildren(h("div", { class: "empty" }, "No backtest available yet. Run the workflow with a backtest date."));
   const S = b.summary, t = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
   el.replaceChildren(
-    h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `Backtest ${b.date} · signals as of ${b.asof} · ${b.mode}`),
-      `Capital ₹${fmt(b.capital, 0)} · risk ${b.risk_pct}% per trade · VIX ${b.vix}`),
+    h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `Backtest ${b.date} · ${b.scan} · ${b.mode}`),
+      `Capital ₹${fmt(b.capital, 0)} · risk ${b.risk_pct}% per trade · prev VIX ${b.vix_open_prev_close}`),
     h("div", { class: "macro" }, t("Net P&L", "₹" + fmt(S.net_pnl, 0), cls(S.net_pnl)), t("Return", sgn(S.net_return_pct_on_capital) + "%", cls(S.net_return_pct_on_capital)),
       t("Trades / skipped", `${S.trades} / ${S.no_trade}`), t("Win rate · avg R", S.trades ? `${S.win_rate_pct}% · ${S.avg_r}R` : "—")),
     ...b.trades.map((x) => h("div", { class: "card " + x.direction },
       h("div", { class: "row" }, h("span", { class: "sym" }, x.symbol), h("span", {}, h("span", { class: "pill " + x.direction }, x.direction), " ", h("span", { class: "sub" }, x.reason))),
-      h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `in ${fmt(x.entry)} → out ${fmt(x.exit)} · ${x.qty} sh`),
+      h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `${x.signal_time} in ${fmt(x.entry)} → out ${fmt(x.exit)} · ${x.qty} sh`),
         h("span", { class: cls(x.net_pnl) }, `₹${fmt(x.net_pnl, 0)} (${sgn(x.r_multiple)}R)`)))),
-    S.trades ? null : h("div", { class: "empty" }, "The engine took no trades that day (all setups blocked or neutral)."),
+    S.trades ? null : h("div", { class: "empty" }, "No trades that day. Blocker counts: " + JSON.stringify((b.signals[0] || {}).blocker_counts || {})),
     h("h4", {}, "Read this before trusting it"), h("div", { class: "box" }, b.caveats.map((c) => h("div", { class: "hl" }, c))));
 }
 

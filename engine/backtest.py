@@ -1,4 +1,4 @@
-"""Causal single-day replay: python -m engine.backtest --date 2026-10-23 --time 09:30
+"""Causal single-day replay: python -m engine.backtest --date 2026-10-23 --time 10:00
 
 At the as-of time only bars up to that moment are visible to the engine. Entry is the NEXT bar's
 open (no look-ahead); stop/target are walked bar by bar (stop wins ties); anything still open
@@ -96,41 +96,53 @@ def run(date, asof=(9, 30), capital=100000.0, risk_pct=50.0, demo=False):
         if len(t) > 6 and len(dd) >= 20 and len(h) > 30:
             stocks[sym] = (t, h, dd)
     corr = _index_corr({s: v[2] for s, v in stocks.items()}, nd)
-    vt = frames["^INDIAVIX"][0]
-    vix_bars = vt[[d == date for d in vt.index.date]] if vt is not None else None
-    vix = float(vix_bars[vix_bars.index <= cut]["close"].iloc[-1]) if vix_bars is not None and len(vix_bars[vix_bars.index <= cut]) else 14.0
-    vix_prev = float(frames["^INDIAVIX"][1]["close"][[d < date for d in frames["^INDIAVIX"][1].index.date]].iloc[-1]) if frames["^INDIAVIX"][1] is not None else vix
-    ntc = nt[nt.index <= cut]
-    nifty_chg = 100 * (float(ntc["close"].iloc[-1]) / float(nd["close"].iloc[-1]) - 1)
-    trades, skipped, all_sigs = [], 0, []
-    for sym, name, sector, sidx, mcap in UNIVERSE:
-        if sym not in stocks:
+    vt, vd = frames["^INDIAVIX"]
+    vix_day = vt[[d == date for d in vt.index.date]] if vt is not None else None
+    vix_prev = float(vd["close"][[d < date for d in vd.index.date]].iloc[-1]) if vd is not None else 14.0
+    # Scan every 15 min from `asof` to 14:30; each stock takes its FIRST valid signal of the day.
+    base = datetime(date.year, date.month, date.day, tzinfo=IST)
+    cuts, t_ = [], asof[0] * 60 + asof[1]
+    while t_ <= 14 * 60 + 30:
+        cuts.append(pd.Timestamp(base + pd.Timedelta(minutes=t_))); t_ += 15
+    trades, taken, blockers, n_eval = [], set(), {}, 0
+    for cut in cuts:
+        ntc = nt[nt.index <= cut]
+        if len(ntc) < 3:
             continue
-        t, h, dd = stocks[sym]
-        seen = t[t.index <= cut]
-        later = t[t.index > cut]
-        st = frames.get(sidx, (None, None))
-        sec_chg = nifty_chg
-        if st[0] is not None and st[1] is not None:
-            s_t, _, s_d = split(*st)
-            s_seen = s_t[s_t.index <= cut]
-            if len(s_seen) and len(s_d):
-                sec_chg = 100 * (float(s_seen["close"].iloc[-1]) / float(s_d["close"].iloc[-1]) - 1)
-        ctx = {"symbol": sym, "name": name, "sector": sector, "today": seen, "hist": h, "daily": dd,
-               "prev_close": float(dd["close"].iloc[-1]), "now": cut.to_pydatetime(), "phase": "ACTIVE", "vix": vix,
-               "vix_chg": 100 * (vix / vix_prev - 1), "index_corr": corr, "index_gex": None,
-               "nifty": float(ntc["close"].iloc[-1]), "nifty_open": float(nt["open"].iloc[0]), "nifty_chg": nifty_chg,
-               "sector_chg": sec_chg, "news": NEUTRAL_NEWS, "options": None, "fut_oi_chg_pct": None,
-               "capital": capital, "risk_pct": risk_pct}
-        sig = analyse_stock(ctx)
-        all_sigs.append({"symbol": sym, "direction": sig["direction"], "bias": sig["bias"], "conviction": sig["conviction"],
-                         "blockers": [b["code"] for b in sig["risk"]["blockers"]]})
-        if sig["direction"] == "NO_TRADE":
-            skipped += 1
-            continue
-        tr = simulate(sig, later)
-        if tr:
-            trades.append(tr)
+        vix = float(vix_day[vix_day.index <= cut]["close"].iloc[-1]) if vix_day is not None and len(vix_day[vix_day.index <= cut]) else 14.0
+        nifty_chg = 100 * (float(ntc["close"].iloc[-1]) / float(nd["close"].iloc[-1]) - 1)
+        for sym, name, sector, sidx, mcap in UNIVERSE:
+            if sym not in stocks or sym in taken:
+                continue
+            t, h, dd = stocks[sym]
+            seen, later = t[t.index <= cut], t[t.index > cut]
+            if len(seen) < 3:
+                continue
+            sec_chg = nifty_chg
+            st = frames.get(sidx, (None, None))
+            if st[0] is not None and st[1] is not None:
+                s_t, _, s_d = split(*st)
+                s_seen = s_t[s_t.index <= cut]
+                if len(s_seen) and len(s_d):
+                    sec_chg = 100 * (float(s_seen["close"].iloc[-1]) / float(s_d["close"].iloc[-1]) - 1)
+            ctx = {"symbol": sym, "name": name, "sector": sector, "today": seen, "hist": h, "daily": dd,
+                   "prev_close": float(dd["close"].iloc[-1]), "now": cut.to_pydatetime(), "phase": "ACTIVE", "vix": vix,
+                   "vix_chg": 100 * (vix / vix_prev - 1), "index_corr": corr, "index_gex": None,
+                   "nifty": float(ntc["close"].iloc[-1]), "nifty_open": float(nt["open"].iloc[0]), "nifty_chg": nifty_chg,
+                   "sector_chg": sec_chg, "news": NEUTRAL_NEWS, "options": None, "fut_oi_chg_pct": None,
+                   "capital": capital, "risk_pct": risk_pct}
+            sig = analyse_stock(ctx)
+            n_eval += 1
+            for bk in sig["risk"]["blockers"]:
+                blockers[bk["code"]] = blockers.get(bk["code"], 0) + 1
+            if sig["direction"] == "NO_TRADE":
+                continue
+            tr = simulate(sig, later)
+            if tr:
+                tr["signal_time"] = cut.strftime("%H:%M")
+                trades.append(tr); taken.add(sym)
+    skipped = len(stocks) - len(taken)
+    all_sigs = [{"evaluations": n_eval, "blocker_counts": blockers, "stocks": len(stocks)}]
     net = sum(t["net_pnl"] for t in trades)
     wins = [t for t in trades if t["net_pnl"] > 0]
     eq, peak, mdd = capital, capital, 0.0
@@ -142,7 +154,7 @@ def run(date, asof=(9, 30), capital=100000.0, risk_pct=50.0, demo=False):
                "worst_trade": min((t["net_pnl"] for t in trades), default=0), "best_trade": max((t["net_pnl"] for t in trades), default=0),
                "max_drawdown_pct": round(mdd, 1)}
     return {"date": date.isoformat(), "asof": f"{asof[0]:02d}:{asof[1]:02d} IST", "mode": "demo" if demo else "live",
-            "capital": capital, "risk_pct": risk_pct, "vix": round(vix, 2), "nifty_chg_at_asof_pct": round(nifty_chg, 2),
+            "capital": capital, "risk_pct": risk_pct, "vix_open_prev_close": round(vix_prev, 2), "scan": f"every 15 min {asof[0]:02d}:{asof[1]:02d}-14:30, first signal per stock",
             "summary": summary, "trades": sorted(trades, key=lambda t: -t["conviction"]), "signals": all_sigs,
             "caveats": ["News/fundamental pillar is neutral: free feeds cannot be replayed point-in-time.",
                         "NSE derivatives (GEX, OI, IV skew) are not replayable; those inputs are omitted.",
@@ -154,7 +166,7 @@ def run(date, asof=(9, 30), capital=100000.0, risk_pct=50.0, demo=False):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True)
-    ap.add_argument("--time", default="09:30")
+    ap.add_argument("--time", default="10:00")
     ap.add_argument("--capital", type=float, default=100000)
     ap.add_argument("--risk-pct", type=float, default=50.0)
     ap.add_argument("--demo", action="store_true")
