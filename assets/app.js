@@ -25,7 +25,7 @@ const label = (s) => String(s || "").replace(/_/g, " ").toLowerCase().replace(/^
 function qty(s) {
   const risk = (state.capital ?? state.data.meta.capital) * ((state.riskPct ?? state.data.meta.risk_pct) / 100) * s.risk.size_multiplier;
   const d = s.execution.stop_distance;
-  return d > 0 ? { q: Math.floor(risk / d), risk } : { q: 0, risk };
+  return d > 0 ? (() => { const cap = (state.capital ?? state.data.meta.capital) * 5; const qq = Math.min(Math.floor(risk / d), Math.floor(cap / s.price.ltp)); return { q: qq, risk: qq * d }; })() : { q: 0, risk };
 }
 
 function banners() {
@@ -58,7 +58,29 @@ function macro() {
     t("Regime", label(M.regime), `F${w.fundamental * 100 | 0} P${w.price_action * 100 | 0} I${w.institutional * 100 | 0} M${w.macro * 100 | 0}`));
 }
 
+async function backtest() {
+  const el = $("list");
+  if (state.bt === undefined) {
+    try { const r = await fetch(`data/backtest.json?t=${Date.now()}`, { cache: "no-store" }); state.bt = r.ok ? await r.json() : null; } catch { state.bt = null; }
+  }
+  const b = state.bt;
+  if (!b) return el.replaceChildren(h("div", { class: "empty" }, "No backtest available yet. Run the workflow with a backtest date."));
+  const S = b.summary, t = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
+  el.replaceChildren(
+    h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `Backtest ${b.date} · signals as of ${b.asof} · ${b.mode}`),
+      `Capital ₹${fmt(b.capital, 0)} · risk ${b.risk_pct}% per trade · VIX ${b.vix}`),
+    h("div", { class: "macro" }, t("Net P&L", "₹" + fmt(S.net_pnl, 0), cls(S.net_pnl)), t("Return", sgn(S.net_return_pct_on_capital) + "%", cls(S.net_return_pct_on_capital)),
+      t("Trades / skipped", `${S.trades} / ${S.no_trade}`), t("Win rate · avg R", S.trades ? `${S.win_rate_pct}% · ${S.avg_r}R` : "—")),
+    ...b.trades.map((x) => h("div", { class: "card " + x.direction },
+      h("div", { class: "row" }, h("span", { class: "sym" }, x.symbol), h("span", {}, h("span", { class: "pill " + x.direction }, x.direction), " ", h("span", { class: "sub" }, x.reason))),
+      h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `in ${fmt(x.entry)} → out ${fmt(x.exit)} · ${x.qty} sh`),
+        h("span", { class: cls(x.net_pnl) }, `₹${fmt(x.net_pnl, 0)} (${sgn(x.r_multiple)}R)`)))),
+    S.trades ? null : h("div", { class: "empty" }, "The engine took no trades that day (all setups blocked or neutral)."),
+    h("h4", {}, "Read this before trusting it"), h("div", { class: "box" }, b.caveats.map((c) => h("div", { class: "hl" }, c))));
+}
+
 function list() {
+  if (state.filter === "BACKTEST") return backtest();
   const f = state.filter, rows = state.data.signals.filter((s) => f === "ALL" || (f === "ACTION" ? s.direction !== "NO_TRADE" : s.direction === f));
   const el = $("list");
   if (!rows.length) return el.replaceChildren(h("div", { class: "empty" }, f === "ACTION" ? "No actionable setups right now. Capital preserved." : "Nothing here."));
@@ -155,7 +177,7 @@ window.addEventListener("popstate", closeSheet);
 $("settingsBtn").onclick = () => { $("capital").value = state.capital ?? state.data?.meta.capital ?? 100000; $("riskPct").value = state.riskPct ?? state.data?.meta.risk_pct ?? 0.5; $("settings").showModal(); };
 $("settings").addEventListener("close", () => {
   const c = parseFloat($("capital").value), r = parseFloat($("riskPct").value);
-  if (c > 0 && r > 0 && r <= 5) { state.capital = c; state.riskPct = r; store.set("capital", c); store.set("riskPct", r); }
+  if (c > 0 && r > 0 && r <= 100) { state.capital = c; state.riskPct = r; store.set("capital", c); store.set("riskPct", r); }
 });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
 setInterval(() => { if (!document.hidden) load(); }, 120000);

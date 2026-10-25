@@ -91,3 +91,26 @@ def test_demo_payload_schema_and_json_safe():
             e = x["execution"]
             assert math.isclose(abs(e["target"] - e["entry_trigger"]) / e["stop_distance"], e["rr"], rel_tol=0.02)
             assert e["qty"] >= 0
+
+
+def _bars(rows):
+    idx = pd.date_range("2025-01-06 10:35", periods=len(rows), freq="5min", tz=IST)
+    return pd.DataFrame(rows, columns=["open", "high", "low", "close", "volume"], index=idx)
+
+
+def test_backtest_simulation_rules():
+    from engine.backtest import simulate
+    sig = {"symbol": "X", "direction": "LONG", "setup": "MOMENTUM", "conviction": 50,
+           "execution": {"stop_distance": 2.0, "rr": 2.0, "qty": 10}}
+    tgt = simulate(sig, _bars([(100, 101, 99.5, 100.5, 1), (100.5, 105, 100, 104, 1), (104, 104, 103, 103, 1)]))
+    assert tgt["reason"] == "TARGET" and tgt["r_multiple"] == 2.0
+    both = simulate(sig, _bars([(100, 106, 97, 100, 1), (100, 100, 100, 100, 1)]))
+    assert both["reason"] == "STOP" and both["r_multiple"] == -1.0  # stop wins ties
+    short = dict(sig, direction="SHORT")
+    assert simulate(short, _bars([(100, 103, 99, 101, 1), (101, 101, 101, 101, 1)]))["reason"] == "STOP"
+
+
+def test_leverage_cap_limits_qty():
+    payload = build(now=datetime(2025, 1, 6, 11, 30, tzinfo=IST), force_demo=True, capital=100000, risk_pct=50)
+    for x in payload["signals"]:
+        assert x["execution"]["qty"] * x["price"]["ltp"] <= 100000 * 5 + x["price"]["ltp"]

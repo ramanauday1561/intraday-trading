@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "meta": {
-  "generated_at": "2026-10-24T21:38:13+05:30",
+  "generated_at": "2026-10-25T08:37:08+05:30",
   "data_as_of": "2026-10-23T11:30:00+05:30",
   "mode": "demo",
   "session_phase": "ACTIVE",
@@ -23,7 +23,7 @@
    "NumPy/pandas"
   ],
   "capital": 100000,
-  "risk_pct": 0.5,
+  "risk_pct": 50.0,
   "disclaimer": "Educational research output, not investment advice. Data from free public sources may be delayed or incomplete. Verify before trading; you are solely responsible for orders.",
   "notes": [
    "Hawkes branching ratio is a Fano-factor approximation on 5-minute bars.",
@@ -122,7 +122,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.115704+00:00",
+      "published": "2026-10-25T00:07:08.624496+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -158,8 +158,8 @@
     "target": 1931.25,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 23,
-    "risk_amount": 250.0,
+    "qty": 261,
+    "risk_amount": 2834.0,
     "invalidation_vwap": 1870.36,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (1870.36), OFI turns negative, or price falls back inside the Value Area (below VAH 1909.79).",
     "gap_close_target": null
@@ -192,6 +192,11 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.71 indicates toxic flow; size halved."
+     },
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": []
@@ -257,7 +262,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-24T13:08:13.171823+00:00",
+      "published": "2026-10-25T00:07:08.701020+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -270,7 +275,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.171823+00:00",
+      "published": "2026-10-25T00:07:08.701020+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -306,8 +311,8 @@
     "target": 578.43,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 143,
-    "risk_amount": 500.0,
+    "qty": 854,
+    "risk_amount": 2973.0,
     "invalidation_vwap": 590.28,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (590.28), OFI turns positive, or price falls back inside the Value Area (below VAH 593.01).",
     "gap_close_target": null
@@ -335,7 +340,13 @@
      "modelled": true,
      "valid": true
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -399,7 +410,7 @@
       "title": "Reliance Q2 net profit beats estimates, revenue surges",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.003430+00:00",
+      "published": "2026-10-25T00:07:08.454746+00:00",
       "sentiment": 0.95,
       "tier": 1,
       "event": "EARNINGS",
@@ -412,7 +423,7 @@
       "title": "Reliance bags record order worth Rs 9,000 crore, shares jump",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-24T13:08:13.003430+00:00",
+      "published": "2026-10-25T00:07:08.454746+00:00",
       "sentiment": 0.95,
       "tier": 2,
       "event": "ORDER_WIN",
@@ -448,8 +459,8 @@
     "target": 2588.35,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 16,
-    "risk_amount": 250.0,
+    "qty": 190,
+    "risk_amount": 2962.0,
     "invalidation_vwap": 2669.22,
     "invalidation_text": "Thesis invalidated if price reclaims VWAP (2669.22) with OFI turning positive, or trades above Value Area High (2716.25) on expanding volume.",
     "gap_close_target": 2654.94
@@ -482,6 +493,11 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.64 indicates toxic flow; size halved."
+     },
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": []
@@ -550,7 +566,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.018085+00:00",
+      "published": "2026-10-25T00:07:08.476279+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -586,8 +602,8 @@
     "target": 2760.31,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 29,
-    "risk_amount": 500.0,
+    "qty": 183,
+    "risk_amount": 3067.0,
     "invalidation_vwap": 2684.2,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (2684.20), OFI turns negative, or price falls back inside the Value Area (below VAH 2729.04).",
     "gap_close_target": null
@@ -606,7 +622,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": [
      {
       "code": "HAWKES",
@@ -675,7 +697,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.049334+00:00",
+      "published": "2026-10-25T00:07:08.529356+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -711,8 +733,8 @@
     "target": 441.54,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 99,
-    "risk_amount": 250.0,
+    "qty": 1145,
+    "risk_amount": 2881.0,
     "invalidation_vwap": 428.28,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (428.28), OFI turns negative, or price falls back inside the Value Area (below VAH 434.25).",
     "gap_close_target": null
@@ -736,6 +758,11 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.74 indicates toxic flow; size halved."
+     },
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -806,7 +833,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-24T13:08:13.193987+00:00",
+      "published": "2026-10-25T00:07:08.738635+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -819,7 +846,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.193987+00:00",
+      "published": "2026-10-25T00:07:08.738635+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -855,8 +882,8 @@
     "target": 2916.64,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 14,
-    "risk_amount": 250.0,
+    "qty": 169,
+    "risk_amount": 2960.0,
     "invalidation_vwap": 3001.56,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3001.56), OFI turns positive, or price falls back inside the Value Area (below VAH 3040.18).",
     "gap_close_target": null
@@ -880,6 +907,11 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.63 indicates toxic flow; size halved."
+     },
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -950,7 +982,7 @@
       "title": "HAL wins Rs 30,000 crore defence contract; stock soars on strong order book",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.270420+00:00",
+      "published": "2026-10-25T00:07:08.861405+00:00",
       "sentiment": 0.95,
       "tier": 2,
       "event": "ORDER_WIN",
@@ -963,7 +995,7 @@
       "title": "HAL secures record order, analysts upgrade",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-24T13:08:13.270420+00:00",
+      "published": "2026-10-25T00:07:08.861405+00:00",
       "sentiment": 0.95,
       "tier": 2,
       "event": "ORDER_WIN",
@@ -999,8 +1031,8 @@
     "target": 1645.79,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 28,
-    "risk_amount": 250.0,
+    "qty": 307,
+    "risk_amount": 2723.0,
     "invalidation_vwap": 1590.71,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (1590.71), OFI turns negative, or price falls back inside the Value Area (below VAH 1621.24).",
     "gap_close_target": null
@@ -1024,6 +1056,11 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.72 indicates toxic flow; size halved."
+     },
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1094,7 +1131,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-24T13:08:13.279542+00:00",
+      "published": "2026-10-25T00:07:08.879141+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -1107,7 +1144,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.279542+00:00",
+      "published": "2026-10-25T00:07:08.879141+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -1143,8 +1180,8 @@
     "target": 2354.49,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 14,
-    "risk_amount": 250.0,
+    "qty": 209,
+    "risk_amount": 3683.0,
     "invalidation_vwap": 2436.9,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (2436.90), OFI turns positive, or price falls back inside the Value Area (below VAH 2460.67).",
     "gap_close_target": null
@@ -1168,6 +1205,11 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.70 indicates toxic flow; size halved."
+     },
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1238,7 +1280,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.183987+00:00",
+      "published": "2026-10-25T00:07:08.718493+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1274,8 +1316,8 @@
     "target": 3689.97,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 11,
-    "risk_amount": 250.0,
+    "qty": 137,
+    "risk_amount": 2996.0,
     "invalidation_vwap": 3573.47,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3573.47), OFI turns negative, or price falls back inside the Value Area (below VAH 3661.97).",
     "gap_close_target": null
@@ -1299,6 +1341,11 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.57 indicates toxic flow; size halved."
+     },
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1373,7 +1420,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-24T13:08:13.217348+00:00",
+      "published": "2026-10-25T00:07:08.772475+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -1386,7 +1433,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.217348+00:00",
+      "published": "2026-10-25T00:07:08.772475+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -1422,8 +1469,8 @@
     "target": 2356.08,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 16,
-    "risk_amount": 250.0,
+    "qty": 209,
+    "risk_amount": 3212.0,
     "invalidation_vwap": 2401.45,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (2401.45), OFI turns positive, or price falls back inside the Value Area (below VAH 2409.86).",
     "gap_close_target": null
@@ -1447,6 +1494,11 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.59 indicates toxic flow; size halved."
+     },
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1517,7 +1569,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.104159+00:00",
+      "published": "2026-10-25T00:07:08.608112+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1553,8 +1605,8 @@
     "target": 423.1,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 107,
-    "risk_amount": 250.0,
+    "qty": 1194,
+    "risk_amount": 2787.0,
     "invalidation_vwap": 406.64,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (406.64), OFI turns negative, or price falls back inside the Value Area (below VAH 418.50).",
     "gap_close_target": null
@@ -1578,6 +1630,11 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.81 indicates toxic flow; size halved."
+     },
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1648,7 +1705,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.072891+00:00",
+      "published": "2026-10-25T00:07:08.563466+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1684,8 +1741,8 @@
     "target": 564.86,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 133,
-    "risk_amount": 500.0,
+    "qty": 897,
+    "risk_amount": 3353.0,
     "invalidation_vwap": 549.86,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (549.86), OFI turns negative, or price falls back inside the Value Area (below VAH 558.36).",
     "gap_close_target": null
@@ -1704,7 +1761,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": [
      {
       "code": "STRUCTURE",
@@ -1777,7 +1840,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-24T13:08:13.084111+00:00",
+      "published": "2026-10-25T00:07:08.582968+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1813,8 +1876,8 @@
     "target": 3091.26,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 27,
-    "risk_amount": 500.0,
+    "qty": 163,
+    "risk_amount": 2977.0,
     "invalidation_vwap": 3030.68,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3030.68), OFI turns negative, or price falls back inside the Value Area (below VAH 3060.18).",
     "gap_close_target": null
@@ -1833,7 +1896,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": [
      {
       "code": "STRUCTURE",
@@ -1906,7 +1975,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.140056+00:00",
+      "published": "2026-10-25T00:07:08.655483+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -1942,8 +2011,8 @@
     "target": 385.84,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 211,
-    "risk_amount": 500.0,
+    "qty": 1280,
+    "risk_amount": 3024.0,
     "invalidation_vwap": 390.62,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (390.62), OFI turns negative, or price falls back inside the Value Area (below VAH 392.22).",
     "gap_close_target": null
@@ -1962,7 +2031,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -2026,7 +2101,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.161669+00:00",
+      "published": "2026-10-25T00:07:08.689467+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2062,8 +2137,8 @@
     "target": 1516.12,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 44,
-    "risk_amount": 500.0,
+    "qty": 324,
+    "risk_amount": 3670.0,
     "invalidation_vwap": 1539.39,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (1539.39), OFI turns negative, or price falls back inside the Value Area (below VAH 1546.78).",
     "gap_close_target": null
@@ -2082,7 +2157,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -2146,7 +2227,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.039798+00:00",
+      "published": "2026-10-25T00:07:08.511615+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2182,8 +2263,8 @@
     "target": 413.52,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 215,
-    "risk_amount": 500.0,
+    "qty": 1195,
+    "risk_amount": 2768.0,
     "invalidation_vwap": 418.62,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (418.62), OFI turns negative, or price falls back inside the Value Area (below VAH 420.33).",
     "gap_close_target": null
@@ -2202,7 +2283,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -2266,7 +2353,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.094253+00:00",
+      "published": "2026-10-25T00:07:08.596831+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2302,8 +2389,8 @@
     "target": 3549.59,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 21,
-    "risk_amount": 500.0,
+    "qty": 139,
+    "risk_amount": 3282.0,
     "invalidation_vwap": 3599.61,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3599.61), OFI turns negative, or price falls back inside the Value Area (below VAH 3605.31).",
     "gap_close_target": null
@@ -2322,7 +2409,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -2386,7 +2479,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.061135+00:00",
+      "published": "2026-10-25T00:07:08.545371+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2422,8 +2515,8 @@
     "target": 3306.11,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 24,
-    "risk_amount": 500.0,
+    "qty": 149,
+    "risk_amount": 3101.0,
     "invalidation_vwap": 3349.45,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3349.45), OFI turns negative, or price falls back inside the Value Area (below VAH 3356.15).",
     "gap_close_target": null
@@ -2442,7 +2535,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -2506,7 +2605,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.127688+00:00",
+      "published": "2026-10-25T00:07:08.641350+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2542,8 +2641,8 @@
     "target": 3107.78,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 30,
-    "risk_amount": 500.0,
+    "qty": 159,
+    "risk_amount": 2585.0,
     "invalidation_vwap": 3145.66,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3145.66), OFI turns negative, or price falls back inside the Value Area (below VAH 3157.60).",
     "gap_close_target": null
@@ -2562,7 +2661,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -2626,7 +2731,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.251737+00:00",
+      "published": "2026-10-25T00:07:08.826077+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2662,8 +2767,8 @@
     "target": 605.84,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 138,
-    "risk_amount": 500.0,
+    "qty": 815,
+    "risk_amount": 2945.0,
     "invalidation_vwap": 613.17,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (613.17), OFI turns negative, or price falls back inside the Value Area (below VAH 614.28).",
     "gap_close_target": null
@@ -2682,7 +2787,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -2746,7 +2857,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.288933+00:00",
+      "published": "2026-10-25T00:07:08.898039+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2782,8 +2893,8 @@
     "target": 3333.97,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 24,
-    "risk_amount": 500.0,
+    "qty": 148,
+    "risk_amount": 3037.0,
     "invalidation_vwap": 3377.4,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3377.40), OFI turns negative, or price falls back inside the Value Area (below VAH 3383.09).",
     "gap_close_target": null
@@ -2802,7 +2913,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -2866,7 +2983,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.030373+00:00",
+      "published": "2026-10-25T00:07:08.494670+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2902,8 +3019,8 @@
     "target": 372.49,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 246,
-    "risk_amount": 500.0,
+    "qty": 1327,
+    "risk_amount": 2695.0,
     "invalidation_vwap": 376.7,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (376.70), OFI turns negative, or price falls back inside the Value Area (below VAH 377.73).",
     "gap_close_target": null
@@ -2922,7 +3039,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -2986,7 +3109,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.151650+00:00",
+      "published": "2026-10-25T00:07:08.672086+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3022,8 +3145,8 @@
     "target": 1920.93,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 34,
-    "risk_amount": 500.0,
+    "qty": 256,
+    "risk_amount": 3729.0,
     "invalidation_vwap": 1951.64,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (1951.64), OFI turns negative, or price falls back inside the Value Area (below VAH 1955.14).",
     "gap_close_target": null
@@ -3042,7 +3165,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -3106,7 +3235,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.297774+00:00",
+      "published": "2026-10-25T00:07:08.912916+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3142,8 +3271,8 @@
     "target": 3493.8,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 26,
-    "risk_amount": 500.0,
+    "qty": 141,
+    "risk_amount": 2659.0,
     "invalidation_vwap": 3538.04,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3538.04), OFI turns negative, or price falls back inside the Value Area (below VAH 3549.45).",
     "gap_close_target": null
@@ -3162,7 +3291,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -3226,7 +3361,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.205191+00:00",
+      "published": "2026-10-25T00:07:08.758044+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3262,8 +3397,8 @@
     "target": 1795.05,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 35,
-    "risk_amount": 500.0,
+    "qty": 274,
+    "risk_amount": 3873.0,
     "invalidation_vwap": 1823.48,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (1823.48), OFI turns negative, or price falls back inside the Value Area (below VAH 1831.05).",
     "gap_close_target": null
@@ -3282,7 +3417,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -3346,7 +3487,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.230305+00:00",
+      "published": "2026-10-25T00:07:08.789166+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3382,8 +3523,8 @@
     "target": 1239.0,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 60,
-    "risk_amount": 500.0,
+    "qty": 398,
+    "risk_amount": 3269.0,
     "invalidation_vwap": 1256.38,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (1256.38), OFI turns negative, or price falls back inside the Value Area (below VAH 1262.26).",
     "gap_close_target": null
@@ -3402,7 +3543,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -3466,7 +3613,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.242118+00:00",
+      "published": "2026-10-25T00:07:08.807510+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3502,8 +3649,8 @@
     "target": 3096.79,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 24,
-    "risk_amount": 500.0,
+    "qty": 159,
+    "risk_amount": 3291.0,
     "invalidation_vwap": 3141.54,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3141.54), OFI turns negative, or price falls back inside the Value Area (below VAH 3156.33).",
     "gap_close_target": null
@@ -3522,7 +3669,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,
@@ -3586,7 +3739,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-24T13:08:13.261088+00:00",
+      "published": "2026-10-25T00:07:08.844167+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3622,8 +3775,8 @@
     "target": 609.2,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 135,
-    "risk_amount": 500.0,
+    "qty": 810,
+    "risk_amount": 2983.0,
     "invalidation_vwap": 617.16,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (617.16), OFI turns negative, or price falls back inside the Value Area (below VAH 618.18).",
     "gap_close_target": null
@@ -3642,7 +3795,13 @@
     "lpp": {
      "applicable": false
     },
-    "warnings": [],
+    "warnings": [
+     {
+      "level": "high",
+      "code": "LEVERAGE_CAP",
+      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
+     }
+    ],
     "blockers": []
    },
    "contradiction": null,

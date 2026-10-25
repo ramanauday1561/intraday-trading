@@ -33,6 +33,7 @@
     <button data-f="LONG" class="chip">Long</button>
     <button data-f="SHORT" class="chip">Short</button>
     <button data-f="ALL" class="chip">All</button>
+    <button data-f="BACKTEST" class="chip">Backtest</button>
   </nav>
   <section id="list" class="list" aria-live="polite"><div class="empty">Loading…</div></section>
   <footer id="foot" class="foot"></footer>
@@ -47,7 +48,7 @@
   <form method="dialog">
     <h3>Risk settings</h3>
     <label>Capital (₹)<input id="capital" type="number" min="1000" step="1000" inputmode="numeric"></label>
-    <label>Risk per trade (%)<input id="riskPct" type="number" min="0.1" max="5" step="0.1" inputmode="decimal"></label>
+    <label>Risk per trade (%)<input id="riskPct" type="number" min="0.1" max="100" step="0.1" inputmode="decimal"></label>
     <p class="muted">Quantity is recalculated on-device from the stop distance. Nothing leaves your phone.</p>
     <menu><button class="btn" value="ok">Save</button></menu>
   </form>

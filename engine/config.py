@@ -39,6 +39,8 @@ DEFAULT_BAND_PCT = 10.0         # F&O stocks: dynamic bands; 10% default
 LPP_PCT = 0.40
 LPP_MIN_PREMIUM = 50.0
 RISK_FREE = 0.065
+LEVERAGE = 5.0                  # intraday (MIS) leverage cap on position notional
+COST_PCT = 0.06                 # assumed round-trip brokerage+taxes+slippage, % of notional
 
 # Approximate market caps (INR crore) for order-value materiality. Static: refresh periodically.
 # (symbol, name, sector, sector_index, mcap_cr)

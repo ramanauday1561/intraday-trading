@@ -10,7 +10,7 @@ def main():
     ap.add_argument("--demo", action="store_true", help="force synthetic data")
     ap.add_argument("--out", default="data/signals.json")
     ap.add_argument("--capital", type=float, default=100000)
-    ap.add_argument("--risk-pct", type=float, default=0.5)
+    ap.add_argument("--risk-pct", type=float, default=50.0)
     a = ap.parse_args()
     payload = build(force_demo=a.demo, capital=a.capital, risk_pct=a.risk_pct)
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)

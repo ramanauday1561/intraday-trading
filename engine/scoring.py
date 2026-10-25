@@ -5,7 +5,7 @@ import numpy as np
 
 from . import indicators as ind
 from . import lpp as lppmod
-from .config import (CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, REGIME_WEIGHTS,
+from .config import (LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, REGIME_WEIGHTS,
                      SCORE_THRESHOLD, VPIN_TOXIC)
 from .market import oi_quadrant
 
@@ -190,6 +190,9 @@ def analyse_stock(c):
     capital, risk_pct = c["capital"], c["risk_pct"]
     risk_amt = capital * risk_pct / 100
     qty = int(risk_amt * size_mult / stop_dist) if stop_dist > 0 else 0
+    if qty * ltp > capital * LEVERAGE:
+        qty = int(capital * LEVERAGE / ltp)
+        warnings.append({"level": "high", "code": "LEVERAGE_CAP", "message": f"Size capped at {LEVERAGE:.0f}x capital notional; actual risk is below the risk setting."})
 
     # ---- LPP on the proposed ATM option (modelled) ----
     lpp = {"applicable": False}
@@ -246,7 +249,7 @@ def analyse_stock(c):
                            "call_writing_otm": bool(opt and opt["call_writing_otm"])},
         "execution": {"entry_trigger": round(entry, 2), "stop": round(stop, 2), "stop_distance": round(stop_dist, 2),
                       "stop_distance_pct": round(100 * stop_dist / ltp, 2), "trail_distance": round(stop_dist, 2),
-                      "target": round(t1, 2), "rr": rr, "risk_reward": f"1:{rr:.0f}", "qty": qty, "risk_amount": round(risk_amt * size_mult, 0),
+                      "target": round(t1, 2), "rr": rr, "risk_reward": f"1:{rr:.0f}", "qty": qty, "risk_amount": round(qty * stop_dist, 0),
                       "invalidation_vwap": round(vw, 2), "invalidation_text": inval,
                       "gap_close_target": round(prev_close, 2) if setup == "TRAP_FADE" else None},
         "risk": {"vix": round(vix, 2), "expected_daily_move_pct": round(sig_d, 2), "size_multiplier": size_mult,
