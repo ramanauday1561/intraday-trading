@@ -148,7 +148,7 @@ def _group(trades, key):
     return g
 
 
-def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True, hourly=False):
+def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True, hourly=False, after=None):
     asof = asof or ((10, 15) if hourly else (10, 0))
     bar_min, step, last_label = (60, 60, 13 * 60 + 15) if hourly else (5, 15, 14 * 60 + 30)
     frames = _frames(demo, hourly)
@@ -162,6 +162,12 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
     idx5 = {k: by_day(v[0]) for k, v in frames.items() if k not in stocks5}
     all_days = sorted(d for d, g in idx5["^NSEI"].items() if len(g) >= (6 if hourly else 60))  # full sessions only
     days = [d for d in all_days[1:]]  # need >=1 prior session for history
+    if after:  # forward test: only sessions strictly after the pre-registration date
+        days = [d for d in days if d > after]
+        if not days:
+            return {"mode": "demo" if demo else "live", "resolution": "1h" if hourly else "5m", "period": None, "forward_after": after.isoformat(),
+                    "hypothesis": evaluate.hypothesis_report([], False), "with_news": {"trades": 0}, "without_news": {"trades": 0},
+                    "caveats": ["No sessions after the pre-registration date are available yet; the daily archive job will supply them."]}
     if only_date:
         days = [d for d in days if d == only_date]
         if not days:
@@ -250,6 +256,8 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
     for k in cands:
         res[k]["walk_forward"] = evaluate.walk_forward(cands[k], days)
         res[k]["candidates"] = len(cands[k])
+    res["hypothesis"] = evaluate.hypothesis_report(trades["with_news"], after is None)
+    res["forward_after"] = after.isoformat() if after else None
     res["trades"] = [{kk: vv for kk, vv in t.items() if kk not in ("per_share",)} for t in sorted(trades["with_news"], key=lambda t: (t["date"], t["signal_time"]))][-400:]
     res["caveats"] = [
         "Headlines come from Google News RSS filtered by each item's own publication time; its historical archive can be incomplete, so news coverage on old days is thinner than live.",
@@ -270,16 +278,21 @@ def main():
     ap.add_argument("--capital", type=float, default=100000)
     ap.add_argument("--demo", action="store_true")
     ap.add_argument("--no-news-fetch", action="store_true")
+    ap.add_argument("--after", help="forward test: only sessions after this date (YYYY-MM-DD)")
     ap.add_argument("--out", default="data/backtest.json")
     a = ap.parse_args()
     asof = tuple(map(int, a.time.split(":"))) if a.time else None
     only = datetime.strptime(a.date, "%Y-%m-%d").date() if a.date else None
-    res = run(asof, a.capital, a.demo, only, not a.no_news_fetch, a.hourly)
+    after = datetime.strptime(a.after, "%Y-%m-%d").date() if a.after else None
+    res = run(asof, a.capital, a.demo, only, not a.no_news_fetch, a.hourly, after)
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
     with open(a.out, "w") as f:
         f.write(to_json(res))
+    print("hypothesis H1:", res["hypothesis"])
     for k in ("with_news", "without_news"):
         s = res[k]
+        if not s.get("trades"):
+            continue
         print(k, {x: s.get(x) for x in ("trades", "win_rate_pct", "avg_r", "avg_net_r", "avg_cost_r", "profit_factor", "net_pnl_risk1", "return_pct_risk1")})
         wf = s.get("walk_forward")
         if wf and wf["selected"]:

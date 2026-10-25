@@ -36,6 +36,9 @@ jobs:
       - name: Backtest hourly (~2 years)
         continue-on-error: true
         run: python -W ignore -m engine.backtest --hourly --out data/backtest_hourly.json | tail -40
+      - name: Forward test of pre-registered hypothesis H1 (sessions after 2026-10-25)
+        continue-on-error: true
+        run: python -W ignore -m engine.backtest --after 2026-10-25 --out data/forward_test.json | tail -12
       - name: Summary
         if: always()
         run: |
@@ -56,7 +59,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/backtest.json data/backtest_hourly.json
+          git add data/backtest.json data/backtest_hourly.json data/forward_test.json
           git diff --cached --quiet || git commit -m "Update backtest results"
           git pull --rebase origin main
           git push

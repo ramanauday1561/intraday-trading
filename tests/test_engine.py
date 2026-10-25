@@ -171,3 +171,13 @@ def test_walk_forward_is_chronological_and_flags_no_edge():
     assert wf["selected"]["verdict"] in ("NO_EDGE_DEMONSTRATED", "POSITIVE_BUT_NOT_SIGNIFICANT")  # pure noise must not look like an edge
     lo, hi = wf["selected"]["test_ci95"]
     assert lo < hi
+
+
+def test_hypothesis_verdict_rules():
+    from engine import evaluate as ev
+    mk = lambda n, r: [{"date": f"2026-11-{1 + i % 28:02d}", "net_r": r, "news_bucket": "news_opposed"} for i in range(n)]
+    assert ev.hypothesis_report(mk(50, 1.0), False)["verdict"] == "INSUFFICIENT_DATA"
+    assert ev.hypothesis_report(mk(120, 0.0), False)["verdict"] == "NOT_SUPPORTED"
+    good = [dict(t, net_r=0.5 + (i % 3) * 0.1) for i, t in enumerate(mk(120, 0))]
+    assert ev.hypothesis_report(good, False)["verdict"] == "SUPPORTED"
+    assert ev.hypothesis_report(good, True)["verdict"].startswith("IN_SAMPLE")

@@ -95,3 +95,22 @@ def walk_forward(cands, sessions):
             verdict = "POSITIVE_BUT_NOT_SIGNIFICANT"
         out["selected"] = {"config": best["config"], "train": best["train"], "test": best["test"], "test_ci95": ci, "verdict": verdict}
     return out
+
+
+HYPOTHESIS_MIN_TRADES = 100
+
+
+def hypothesis_report(trades, in_sample):
+    """Pre-registered hypothesis H1 (see preregistration.md): trades that OPPOSE a material news signal
+    (|score| > 0.2) have mean net R > 0. SUPPORTED needs >=100 trades and a 95% session-bootstrap CI above 0."""
+    opp = [t for t in trades if t.get("news_bucket") == "news_opposed"]
+    rest = [t for t in trades if t.get("news_bucket") != "news_opposed"]
+    ci = bootstrap_ci(opp)
+    if in_sample:
+        verdict = "IN_SAMPLE_DEVELOPMENT_DATA_NOT_A_TEST"
+    elif len(opp) < HYPOTHESIS_MIN_TRADES:
+        verdict = "INSUFFICIENT_DATA"
+    else:
+        verdict = "SUPPORTED" if ci and ci[0] > 0 else "NOT_SUPPORTED"
+    return {"in_sample": in_sample, "min_trades_required": HYPOTHESIS_MIN_TRADES, "opposed": metrics(opp), "opposed_ci95": ci,
+            "other_trades": metrics(rest), "verdict": verdict}

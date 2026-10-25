@@ -44,7 +44,7 @@ def _yahoo_yfinance(symbol, rng, interval):
         import re as _re
         from datetime import datetime as _dt, timedelta as _td
         m = _re.fullmatch(r"(\d+)d", rng)
-        if m and int(m.group(1)) > 5:  # explicit window: avoids relying on yfinance accepting arbitrary period strings
+        if m and int(m.group(1)) > 60:  # beyond Yahoo's 5-minute window (e.g. 730d hourly): explicit dates; '60d' stays a period, which reaches further back
             days = int(m.group(1)) - 1
             df = yf.Ticker(symbol).history(start=_dt.utcnow() - _td(days=days), end=_dt.utcnow() + _td(days=1),
                                            interval=interval, auto_adjust=False)

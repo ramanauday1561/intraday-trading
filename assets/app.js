@@ -65,8 +65,22 @@ async function backtest() {
     try { const r = await fetch(`data/${state.btKey}.json?t=${Date.now()}`, { cache: "no-store" }); state.bts[state.btKey] = r.ok ? await r.json() : null; } catch { state.bts[state.btKey] = null; }
   }
   const b = state.bts[state.btKey];
-  const switcher = h("nav", { class: "chips" }, [["backtest", "5-minute"], ["backtest_hourly", "Hourly (2 yr)"]].map(([k, t]) =>
+  const switcher = h("nav", { class: "chips" }, [["backtest", "5-minute"], ["backtest_hourly", "Hourly (2 yr)"], ["forward_test", "Forward test"]].map(([k, t]) =>
     h("button", { class: "chip" + (state.btKey === k ? " on" : ""), onclick: () => { state.btKey = k; backtest(); } }, t)));
+  if (state.btKey === "forward_test" && b && b.hypothesis) {
+    const H = b.hypothesis, mm = (x) => (x && x.trades ? `${x.trades} trades · win ${x.win_rate_pct}% · avg net ${sgn(x.avg_net_r, 3)}R` : "no trades yet");
+    const vmap = { INSUFFICIENT_DATA: ["", "Insufficient data — no conclusion yet"], SUPPORTED: ["up", "H1 supported out-of-sample"], NOT_SUPPORTED: ["dn", "H1 not supported"] };
+    const v = vmap[H.verdict] || ["", H.verdict];
+    return el.replaceChildren(switcher,
+      h("div", { class: "banner info" }, h("b", {}, "Pre-registered hypothesis H1"),
+        "Trades that oppose a material news signal have mean net R > 0 after costs. Registered 2026-10-25; only sessions after that date count. See preregistration.md in the repo."),
+      h("div", { class: "box" },
+        h("div", { class: "hl" }, b.period ? `Forward sessions: ${b.period.from} → ${b.period.to} (${b.period.sessions})` : "No forward sessions yet — data accumulates daily."),
+        h("div", { class: "hl" }, h("b", {}, "Opposed-news trades: "), mm(H.opposed), H.opposed_ci95 ? ` · 95% CI ${sgn(H.opposed_ci95[0], 3)}…${sgn(H.opposed_ci95[1], 3)}R` : ""),
+        h("div", { class: "hl" }, `Needs ≥ ${H.min_trades_required} trades before any verdict.`),
+        h("div", { class: "hl mu" }, "All other trades: " + mm(H.other_trades)),
+        h("div", { class: "hl " + v[0] }, h("b", {}, v[1]))));
+  }
   if (!b || !b.with_news) return el.replaceChildren(switcher, h("div", { class: "empty" }, "Not available yet. Run the “Backtest” workflow in GitHub Actions."));
   const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
   const pct = (n) => (n == null ? "—" : sgn(n, 1) + "%");
