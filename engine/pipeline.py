@@ -51,7 +51,7 @@ def _load_live(now):
     return i5, d1
 
 
-def build(now=None, force_demo=False, capital=100000.0, risk_pct=50.0):
+def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0):
     now = (now or datetime.now(IST)).astimezone(IST)
     live = None if force_demo else _load_live(now)
     mode = "live" if live else "demo"

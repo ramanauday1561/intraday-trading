@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "meta": {
-  "generated_at": "2026-10-25T08:37:08+05:30",
+  "generated_at": "2026-10-25T20:14:22+05:30",
   "data_as_of": "2026-10-23T11:30:00+05:30",
   "mode": "demo",
   "session_phase": "ACTIVE",
@@ -23,7 +23,7 @@
    "NumPy/pandas"
   ],
   "capital": 100000,
-  "risk_pct": 50.0,
+  "risk_pct": 5.0,
   "disclaimer": "Educational research output, not investment advice. Data from free public sources may be delayed or incomplete. Verify before trading; you are solely responsible for orders.",
   "notes": [
    "Hawkes branching ratio is a Fano-factor approximation on 5-minute bars.",
@@ -122,7 +122,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.624496+00:00",
+      "published": "2026-10-25T11:44:22.086245+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -158,8 +158,8 @@
     "target": 1931.25,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 261,
-    "risk_amount": 2834.0,
+    "qty": 230,
+    "risk_amount": 2497.0,
     "invalidation_vwap": 1870.36,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (1870.36), OFI turns negative, or price falls back inside the Value Area (below VAH 1909.79).",
     "gap_close_target": null
@@ -192,11 +192,6 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.71 indicates toxic flow; size halved."
-     },
-     {
-      "level": "high",
-      "code": "LEVERAGE_CAP",
-      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": []
@@ -262,7 +257,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T00:07:08.701020+00:00",
+      "published": "2026-10-25T11:44:22.122364+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -275,7 +270,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.701020+00:00",
+      "published": "2026-10-25T11:44:22.122364+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -410,7 +405,7 @@
       "title": "Reliance Q2 net profit beats estimates, revenue surges",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.454746+00:00",
+      "published": "2026-10-25T11:44:21.996354+00:00",
       "sentiment": 0.95,
       "tier": 1,
       "event": "EARNINGS",
@@ -423,7 +418,7 @@
       "title": "Reliance bags record order worth Rs 9,000 crore, shares jump",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T00:07:08.454746+00:00",
+      "published": "2026-10-25T11:44:21.996354+00:00",
       "sentiment": 0.95,
       "tier": 2,
       "event": "ORDER_WIN",
@@ -459,8 +454,8 @@
     "target": 2588.35,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 190,
-    "risk_amount": 2962.0,
+    "qty": 160,
+    "risk_amount": 2494.0,
     "invalidation_vwap": 2669.22,
     "invalidation_text": "Thesis invalidated if price reclaims VWAP (2669.22) with OFI turning positive, or trades above Value Area High (2716.25) on expanding volume.",
     "gap_close_target": 2654.94
@@ -493,11 +488,6 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.64 indicates toxic flow; size halved."
-     },
-     {
-      "level": "high",
-      "code": "LEVERAGE_CAP",
-      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": []
@@ -566,7 +556,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.476279+00:00",
+      "published": "2026-10-25T11:44:22.007896+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -697,7 +687,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.529356+00:00",
+      "published": "2026-10-25T11:44:22.034465+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -733,8 +723,8 @@
     "target": 441.54,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 1145,
-    "risk_amount": 2881.0,
+    "qty": 993,
+    "risk_amount": 2498.0,
     "invalidation_vwap": 428.28,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (428.28), OFI turns negative, or price falls back inside the Value Area (below VAH 434.25).",
     "gap_close_target": null
@@ -758,11 +748,6 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.74 indicates toxic flow; size halved."
-     },
-     {
-      "level": "high",
-      "code": "LEVERAGE_CAP",
-      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -833,7 +818,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T00:07:08.738635+00:00",
+      "published": "2026-10-25T11:44:22.135869+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -846,7 +831,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.738635+00:00",
+      "published": "2026-10-25T11:44:22.135869+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -882,8 +867,8 @@
     "target": 2916.64,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 169,
-    "risk_amount": 2960.0,
+    "qty": 142,
+    "risk_amount": 2487.0,
     "invalidation_vwap": 3001.56,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3001.56), OFI turns positive, or price falls back inside the Value Area (below VAH 3040.18).",
     "gap_close_target": null
@@ -907,11 +892,6 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.63 indicates toxic flow; size halved."
-     },
-     {
-      "level": "high",
-      "code": "LEVERAGE_CAP",
-      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -982,7 +962,7 @@
       "title": "HAL wins Rs 30,000 crore defence contract; stock soars on strong order book",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.861405+00:00",
+      "published": "2026-10-25T11:44:22.182129+00:00",
       "sentiment": 0.95,
       "tier": 2,
       "event": "ORDER_WIN",
@@ -995,7 +975,7 @@
       "title": "HAL secures record order, analysts upgrade",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T00:07:08.861405+00:00",
+      "published": "2026-10-25T11:44:22.182129+00:00",
       "sentiment": 0.95,
       "tier": 2,
       "event": "ORDER_WIN",
@@ -1031,8 +1011,8 @@
     "target": 1645.79,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 307,
-    "risk_amount": 2723.0,
+    "qty": 281,
+    "risk_amount": 2493.0,
     "invalidation_vwap": 1590.71,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (1590.71), OFI turns negative, or price falls back inside the Value Area (below VAH 1621.24).",
     "gap_close_target": null
@@ -1056,11 +1036,6 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.72 indicates toxic flow; size halved."
-     },
-     {
-      "level": "high",
-      "code": "LEVERAGE_CAP",
-      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1131,7 +1106,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T00:07:08.879141+00:00",
+      "published": "2026-10-25T11:44:22.189273+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -1144,7 +1119,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.879141+00:00",
+      "published": "2026-10-25T11:44:22.189273+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -1180,8 +1155,8 @@
     "target": 2354.49,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 209,
-    "risk_amount": 3683.0,
+    "qty": 141,
+    "risk_amount": 2485.0,
     "invalidation_vwap": 2436.9,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (2436.90), OFI turns positive, or price falls back inside the Value Area (below VAH 2460.67).",
     "gap_close_target": null
@@ -1205,11 +1180,6 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.70 indicates toxic flow; size halved."
-     },
-     {
-      "level": "high",
-      "code": "LEVERAGE_CAP",
-      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1280,7 +1250,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.718493+00:00",
+      "published": "2026-10-25T11:44:22.129370+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1316,8 +1286,8 @@
     "target": 3689.97,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 137,
-    "risk_amount": 2996.0,
+    "qty": 114,
+    "risk_amount": 2493.0,
     "invalidation_vwap": 3573.47,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (3573.47), OFI turns negative, or price falls back inside the Value Area (below VAH 3661.97).",
     "gap_close_target": null
@@ -1341,11 +1311,6 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.57 indicates toxic flow; size halved."
-     },
-     {
-      "level": "high",
-      "code": "LEVERAGE_CAP",
-      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1420,7 +1385,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T00:07:08.772475+00:00",
+      "published": "2026-10-25T11:44:22.149164+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -1433,7 +1398,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.772475+00:00",
+      "published": "2026-10-25T11:44:22.149164+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -1469,8 +1434,8 @@
     "target": 2356.08,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 209,
-    "risk_amount": 3212.0,
+    "qty": 162,
+    "risk_amount": 2490.0,
     "invalidation_vwap": 2401.45,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (2401.45), OFI turns positive, or price falls back inside the Value Area (below VAH 2409.86).",
     "gap_close_target": null
@@ -1494,11 +1459,6 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.59 indicates toxic flow; size halved."
-     },
-     {
-      "level": "high",
-      "code": "LEVERAGE_CAP",
-      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1569,7 +1529,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.608112+00:00",
+      "published": "2026-10-25T11:44:22.077967+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1605,8 +1565,8 @@
     "target": 423.1,
     "rr": 2.0,
     "risk_reward": "1:2",
-    "qty": 1194,
-    "risk_amount": 2787.0,
+    "qty": 1070,
+    "risk_amount": 2498.0,
     "invalidation_vwap": 406.64,
     "invalidation_text": "Thesis invalidated if price closes back below VWAP (406.64), OFI turns negative, or price falls back inside the Value Area (below VAH 418.50).",
     "gap_close_target": null
@@ -1630,11 +1590,6 @@
       "level": "high",
       "code": "TOXIC_FLOW",
       "message": "VPIN 0.81 indicates toxic flow; size halved."
-     },
-     {
-      "level": "high",
-      "code": "LEVERAGE_CAP",
-      "message": "Size capped at 5x capital notional; actual risk is below the risk setting."
      }
     ],
     "blockers": [
@@ -1705,7 +1660,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.563466+00:00",
+      "published": "2026-10-25T11:44:22.052112+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1840,7 +1795,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T00:07:08.582968+00:00",
+      "published": "2026-10-25T11:44:22.060705+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1975,7 +1930,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.655483+00:00",
+      "published": "2026-10-25T11:44:22.102427+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2101,7 +2056,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.689467+00:00",
+      "published": "2026-10-25T11:44:22.115650+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2227,7 +2182,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.511615+00:00",
+      "published": "2026-10-25T11:44:22.026204+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2353,7 +2308,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.596831+00:00",
+      "published": "2026-10-25T11:44:22.069430+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2479,7 +2434,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.545371+00:00",
+      "published": "2026-10-25T11:44:22.043108+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2605,7 +2560,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.641350+00:00",
+      "published": "2026-10-25T11:44:22.095132+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2731,7 +2686,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.826077+00:00",
+      "published": "2026-10-25T11:44:22.169241+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2857,7 +2812,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.898039+00:00",
+      "published": "2026-10-25T11:44:22.196278+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2983,7 +2938,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.494670+00:00",
+      "published": "2026-10-25T11:44:22.017420+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3109,7 +3064,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.672086+00:00",
+      "published": "2026-10-25T11:44:22.109131+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3235,7 +3190,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.912916+00:00",
+      "published": "2026-10-25T11:44:22.203054+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3361,7 +3316,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.758044+00:00",
+      "published": "2026-10-25T11:44:22.142627+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3487,7 +3442,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.789166+00:00",
+      "published": "2026-10-25T11:44:22.155471+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3613,7 +3568,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.807510+00:00",
+      "published": "2026-10-25T11:44:22.162222+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3739,7 +3694,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T00:07:08.844167+00:00",
+      "published": "2026-10-25T11:44:22.175555+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",

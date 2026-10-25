@@ -27,7 +27,7 @@ from .scoring import analyse_stock
 
 NEUTRAL_NEWS = {"score": 0.0, "items": [], "event": None, "tier1_earnings": False, "positive_catalyst": 0.0,
                 "sue_proxy": 0.0, "divergence": 0.0, "engine": "none"}
-RISK_LEVELS = (1.0, 50.0)
+RISK_LEVELS = (1.0, 5.0, 50.0)
 
 
 def _frames(demo, hourly=False):
@@ -266,7 +266,7 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
         "5-minute run: Yahoo serves ~60 sessions plus whatever the daily archive job has saved since. Hourly run: ~2 years but coarse bars (stop/target ordering inside an hour is unknowable; stops win ties), weaker order-flow signals, and thin old headlines. Treat avg R +/- its standard error, not the P&L, as the evidence.",
         "Entry = next 5-min bar open; stop wins ties inside a bar; exit by 15:15; costs %.2f%% round trip; max one trade per stock per day." % COST_PCT,
         "avg R is BEFORE costs; avg net R and all P&L figures include them. Walk-forward: filters are chosen on the first 60% of sessions and judged once on the last 40%; every config tried is listed (multiple-testing disclosure). EDGE_SUPPORTED requires the 95% session-bootstrap CI of net R to exclude zero.",
-        "P&L at 50%% risk is shown only for comparison: it is capped at %dx notional and is not a recommended setting." % LEVERAGE]
+        "P&L is shown at 1%%, 5%% (app default) and 50%% risk per trade; all are capped at %dx notional, and 50%% is for comparison only." % LEVERAGE]
     return res
 
 
@@ -293,7 +293,7 @@ def main():
         s = res[k]
         if not s.get("trades"):
             continue
-        print(k, {x: s.get(x) for x in ("trades", "win_rate_pct", "avg_r", "avg_net_r", "avg_cost_r", "profit_factor", "net_pnl_risk1", "return_pct_risk1")})
+        print(k, {x: s.get(x) for x in ("trades", "win_rate_pct", "avg_r", "avg_net_r", "avg_cost_r", "profit_factor", "net_pnl_risk1", "return_pct_risk1", "return_pct_risk5")})
         wf = s.get("walk_forward")
         if wf and wf["selected"]:
             print("  walk-forward selected:", wf["selected"]["config"], "train", wf["selected"]["train"], "TEST", wf["selected"]["test"], wf["selected"]["test_ci95"], wf["selected"]["verdict"])

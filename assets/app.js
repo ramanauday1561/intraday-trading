@@ -89,8 +89,8 @@ async function backtest() {
     h("div", { class: "macro" }, tile("Trades", S.trades), tile("Win rate", S.win_rate_pct + "%"),
       tile("Avg R gross ± SE", `${sgn(S.avg_r, 2)} ± ${fmt(S.avg_r_se)}`, cls(S.avg_r)), tile("Profit factor", S.profit_factor ?? "—"),
       tile("Avg R after costs", sgn(S.avg_net_r, 3), cls(S.avg_net_r)), tile("Avg cost / trade", fmt(S.avg_cost_r, 3) + "R"),
-      tile("Return @1% risk", pct(S.return_pct_risk1), cls(S.return_pct_risk1)), tile("Return @50% risk", pct(S.return_pct_risk50), cls(S.return_pct_risk50))),
-    h("div", { class: "sub" }, `Worst day: ${pct(S.worst_day_pct_risk1)} @1% · ${pct(S.worst_day_pct_risk50)} @50%`)) : h("div", { class: "empty" }, title + ": no trades");
+      tile("Return @1% risk", pct(S.return_pct_risk1), cls(S.return_pct_risk1)), tile("Return @5% risk", pct(S.return_pct_risk5), cls(S.return_pct_risk5))),
+    h("div", { class: "sub" }, `Worst day: ${pct(S.worst_day_pct_risk1)} @1% · ${pct(S.worst_day_pct_risk5)} @5%`)) : h("div", { class: "empty" }, title + ": no trades");
   const m = (x) => (x && x.trades ? `${x.trades} trades · win ${x.win_rate_pct}% · avg net ${sgn(x.avg_net_r, 3)}R · PF ${x.profit_factor ?? "—"}` : "no trades");
   const cfg = (c) => `conviction ≥ ${c.min_conviction}, cost ≤ ${c.max_cost_r ?? "any"}R, max ${c.max_per_day ?? "∞"}/day`;
   const verdicts = { NO_EDGE_DEMONSTRATED: ["dn", "No edge demonstrated out-of-sample"], POSITIVE_BUT_NOT_SIGNIFICANT: ["", "Positive but not statistically significant"], EDGE_SUPPORTED_OUT_OF_SAMPLE: ["up", "Edge supported out-of-sample (CI excludes 0)"] };

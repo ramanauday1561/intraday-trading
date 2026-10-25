@@ -51,7 +51,7 @@ jobs:
               print("==", f, b["resolution"], b["period"], "headlines", b["news_headlines"], "trades_using_news", b["trades_using_news"])
               for k in ("with_news", "without_news"):
                   s = b[k]
-                  print(k.upper(), {x: s.get(x) for x in ("trades","win_rate_pct","avg_r","avg_r_se","total_r","profit_factor","max_drawdown_r","net_pnl_risk1","return_pct_risk1","net_pnl_risk50","return_pct_risk50")})
+                  print(k.upper(), {x: s.get(x) for x in ("trades","win_rate_pct","avg_r","avg_r_se","total_r","profit_factor","max_drawdown_r","net_pnl_risk1","return_pct_risk1","net_pnl_risk5","return_pct_risk5")})
                   print(k.upper(), "by_news", s.get("by_news"), "by_dir", s.get("by_direction"))
               print("BLOCKERS", b["blocker_counts"])
           PY
