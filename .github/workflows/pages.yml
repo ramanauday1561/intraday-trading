@@ -41,12 +41,12 @@ jobs:
       - name: Unit tests
         run: python -m pytest -q tests
       - name: Run engine (live data, demo fallback)
-        run: python -m engine.run --out data/signals.json
+        run: python -W ignore -m engine.run --out data/signals.json
       - name: Backtest (causal scan 10:00-14:30 IST)
         continue-on-error: true
         env:
           BT_DATE: ${{ inputs.backtest_date || vars.BACKTEST_DATE || '2026-10-23' }}
-        run: python -m engine.backtest --date "$BT_DATE" --time 10:00 --out data/backtest.json
+        run: python -W ignore -m engine.backtest --date "$BT_DATE" --time 10:00 --out data/backtest.json
       - name: Assemble site
         run: |
           mkdir _site
@@ -57,3 +57,22 @@ jobs:
           path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Print results (compact)
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          try:
+              s = json.load(open("data/signals.json"))
+              print("SIGNALS mode:", s["meta"]["mode"], "health:", s["meta"].get("health"))
+          except Exception as e:
+              print("SIGNALS unreadable:", e)
+          try:
+              b = json.load(open("data/backtest.json"))
+              print("BACKTEST", b["date"], b["mode"], b["scan"], "summary:", b["summary"])
+              print("BACKTEST blockers:", b["signals"][0])
+              for t in b["trades"]:
+                  print("TRADE", t["symbol"], t["direction"], t["signal_time"], t["entry"], "->", t["exit"], t["reason"], "qty", t["qty"], "R", t["r_multiple"], "net", t["net_pnl"])
+          except Exception as e:
+              print("BACKTEST unreadable:", e)
+          PY
