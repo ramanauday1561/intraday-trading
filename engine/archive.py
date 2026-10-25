@@ -93,6 +93,9 @@ def update():
             continue
         old = load_bars(s)
         merged = merge_bars(old, new)
+        if s in ("^NSEI", "RELIANCE.NS"):  # diagnostics: how far back does each source reach?
+            span = lambda d: "none" if d is None else f"{d.index[0].date()}..{d.index[-1].date()} ({len(set(d.index.date))} sessions)"
+            print(f"diag {s}: fetched {span(new)} | archive before {span(old)} | merged {span(merged)}")
         added += len(merged) - (0 if old is None else len(old))
         save_bars(s, merged)
     general = []
