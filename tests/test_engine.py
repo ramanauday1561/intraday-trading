@@ -181,3 +181,15 @@ def test_hypothesis_verdict_rules():
     good = [dict(t, net_r=0.5 + (i % 3) * 0.1) for i, t in enumerate(mk(120, 0))]
     assert ev.hypothesis_report(good, False)["verdict"] == "SUPPORTED"
     assert ev.hypothesis_report(good, True)["verdict"].startswith("IN_SAMPLE")
+
+
+def test_option_idea_strike_and_expiry():
+    from datetime import date
+    from engine import options_idea as oi
+    assert oi.atm_strike(1238.0) == 1240 and oi.atm_strike(188.6) == 187.5 and oi.atm_strike(11169) == 11200
+    assert oi.last_tuesday(2026, 10) == date(2026, 10, 27)
+    assert oi.monthly_expiry(date(2026, 10, 12)) == date(2026, 10, 27)
+    assert oi.monthly_expiry(date(2026, 10, 26)) == date(2026, 11, 24)  # 1 day left -> roll to next month
+    i = oi.idea("SHORT", 1748.1, date(2026, 10, 12), 40.0, 10.0, 2.0)
+    assert i["action"] == "BUY PE" and i["strike"] == 1750 and i["premium_stop_est"] == 35.0 and i["premium_target_est"] == 50.0
+    assert oi.idea("NO_TRADE", 100, date(2026, 10, 12), 1, 1, 2) is None

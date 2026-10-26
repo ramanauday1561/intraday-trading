@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "meta": {
-  "generated_at": "2026-10-25T20:14:22+05:30",
-  "data_as_of": "2026-10-23T11:30:00+05:30",
+  "generated_at": "2026-10-26T23:29:44+05:30",
+  "data_as_of": "2026-10-26T11:30:00+05:30",
   "mode": "demo",
   "session_phase": "ACTIVE",
   "execution_allowed": true,
@@ -122,7 +122,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.086245+00:00",
+      "published": "2026-10-26T14:59:44.228877+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -150,6 +150,17 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": {
+     "action": "BUY CE",
+     "strike": 1910,
+     "type": "CE",
+     "expiry": "2026-11-24",
+     "days_to_expiry": 29,
+     "premium_est": 35.24,
+     "premium_stop_est": 29.81,
+     "premium_target_est": 46.1,
+     "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+    },
     "entry_trigger": 1909.53,
     "stop": 1898.67,
     "stop_distance": 10.86,
@@ -178,11 +189,11 @@
     "lpp": {
      "applicable": false,
      "option": "ATM CE",
-     "premium": 17.31,
-     "reference": 17.14,
+     "premium": 35.24,
+     "reference": 35.07,
      "lower": null,
      "upper": null,
-     "entry_limit": 17.4,
+     "entry_limit": 35.42,
      "headroom_pct": null,
      "modelled": true,
      "valid": true
@@ -257,7 +268,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T11:44:22.122364+00:00",
+      "published": "2026-10-26T14:59:44.277213+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -270,7 +281,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.122364+00:00",
+      "published": "2026-10-26T14:59:44.277213+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -298,6 +309,17 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": {
+     "action": "BUY PE",
+     "strike": 585,
+     "type": "PE",
+     "expiry": "2026-11-24",
+     "days_to_expiry": 29,
+     "premium_est": 10.98,
+     "premium_stop_est": 9.24,
+     "premium_target_est": 14.46,
+     "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+    },
     "entry_trigger": 585.39,
     "stop": 588.87,
     "stop_distance": 3.48,
@@ -326,11 +348,11 @@
     "lpp": {
      "applicable": false,
      "option": "ATM PE",
-     "premium": 5.39,
-     "reference": 5.3,
+     "premium": 10.98,
+     "reference": 10.89,
      "lower": null,
      "upper": null,
-     "entry_limit": 5.42,
+     "entry_limit": 11.04,
      "headroom_pct": null,
      "modelled": true,
      "valid": true
@@ -405,7 +427,7 @@
       "title": "Reliance Q2 net profit beats estimates, revenue surges",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:21.996354+00:00",
+      "published": "2026-10-26T14:59:44.139348+00:00",
       "sentiment": 0.95,
       "tier": 1,
       "event": "EARNINGS",
@@ -418,7 +440,7 @@
       "title": "Reliance bags record order worth Rs 9,000 crore, shares jump",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T11:44:21.996354+00:00",
+      "published": "2026-10-26T14:59:44.139348+00:00",
       "sentiment": 0.95,
       "tier": 2,
       "event": "ORDER_WIN",
@@ -446,6 +468,17 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": {
+     "action": "BUY PE",
+     "strike": 2620,
+     "type": "PE",
+     "expiry": "2026-11-24",
+     "days_to_expiry": 29,
+     "premium_est": 50.35,
+     "premium_stop_est": 42.56,
+     "premium_target_est": 65.94,
+     "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+    },
     "entry_trigger": 2619.54,
     "stop": 2635.13,
     "stop_distance": 15.59,
@@ -472,14 +505,14 @@
      "band_pct": 10.0
     },
     "lpp": {
-     "applicable": false,
+     "applicable": true,
      "option": "ATM PE",
-     "premium": 24.74,
-     "reference": 24.58,
-     "lower": null,
-     "upper": null,
-     "entry_limit": 24.86,
-     "headroom_pct": null,
+     "premium": 50.35,
+     "reference": 50.19,
+     "lower": 30.11,
+     "upper": 70.27,
+     "entry_limit": 50.6,
+     "headroom_pct": 97.9,
      "modelled": true,
      "valid": true
     },
@@ -556,7 +589,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.007896+00:00",
+      "published": "2026-10-26T14:59:44.151301+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -584,6 +617,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 2726.78,
     "stop": 2710.02,
     "stop_distance": 16.76,
@@ -687,7 +721,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.034465+00:00",
+      "published": "2026-10-26T14:59:44.178766+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -715,6 +749,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 436.5,
     "stop": 433.99,
     "stop_distance": 2.52,
@@ -818,7 +853,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T11:44:22.135869+00:00",
+      "published": "2026-10-26T14:59:44.298131+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -831,7 +866,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.135869+00:00",
+      "published": "2026-10-26T14:59:44.298131+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -859,6 +894,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 2951.67,
     "stop": 2969.18,
     "stop_distance": 17.51,
@@ -962,7 +998,7 @@
       "title": "HAL wins Rs 30,000 crore defence contract; stock soars on strong order book",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.182129+00:00",
+      "published": "2026-10-26T14:59:44.373532+00:00",
       "sentiment": 0.95,
       "tier": 2,
       "event": "ORDER_WIN",
@@ -975,7 +1011,7 @@
       "title": "HAL secures record order, analysts upgrade",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T11:44:22.182129+00:00",
+      "published": "2026-10-26T14:59:44.373532+00:00",
       "sentiment": 0.95,
       "tier": 2,
       "event": "ORDER_WIN",
@@ -1003,6 +1039,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 1628.05,
     "stop": 1619.18,
     "stop_distance": 8.87,
@@ -1106,7 +1143,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T11:44:22.189273+00:00",
+      "published": "2026-10-26T14:59:44.382427+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -1119,7 +1156,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.189273+00:00",
+      "published": "2026-10-26T14:59:44.382427+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -1147,6 +1184,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 2389.73,
     "stop": 2407.35,
     "stop_distance": 17.62,
@@ -1250,7 +1288,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.129370+00:00",
+      "published": "2026-10-26T14:59:44.288863+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1278,6 +1316,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 3646.23,
     "stop": 3624.36,
     "stop_distance": 21.87,
@@ -1385,7 +1424,7 @@
       "title": "USFDA issues warning letter, observations at plant",
       "source": "Economic Times",
       "url": "",
-      "published": "2026-10-25T11:44:22.149164+00:00",
+      "published": "2026-10-26T14:59:44.316792+00:00",
       "sentiment": -0.8,
       "tier": 1,
       "event": "USFDA",
@@ -1398,7 +1437,7 @@
       "title": "Shares slump on regulatory concern",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.149164+00:00",
+      "published": "2026-10-26T14:59:44.316792+00:00",
       "sentiment": -0.8,
       "tier": 3,
       "event": "OTHER",
@@ -1426,6 +1465,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 2386.81,
     "stop": 2402.18,
     "stop_distance": 15.37,
@@ -1529,7 +1569,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.077967+00:00",
+      "published": "2026-10-26T14:59:44.219356+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1557,6 +1597,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 418.43,
     "stop": 416.09,
     "stop_distance": 2.33,
@@ -1660,7 +1701,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.052112+00:00",
+      "published": "2026-10-26T14:59:44.195437+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1688,6 +1729,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 557.38,
     "stop": 553.65,
     "stop_distance": 3.74,
@@ -1795,7 +1837,7 @@
       "title": "Strong growth outlook, brokerages upgrade stock",
       "source": "Moneycontrol",
       "url": "",
-      "published": "2026-10-25T11:44:22.060705+00:00",
+      "published": "2026-10-26T14:59:44.203603+00:00",
       "sentiment": 0.95,
       "tier": 3,
       "event": "OTHER",
@@ -1823,6 +1865,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 3054.73,
     "stop": 3036.46,
     "stop_distance": 18.27,
@@ -1930,7 +1973,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.102427+00:00",
+      "published": "2026-10-26T14:59:44.246417+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -1958,6 +2001,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 390.57,
     "stop": 392.93,
     "stop_distance": 2.36,
@@ -2056,7 +2100,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.115650+00:00",
+      "published": "2026-10-26T14:59:44.267617+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2084,6 +2128,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 1538.78,
     "stop": 1550.11,
     "stop_distance": 11.33,
@@ -2182,7 +2227,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.026204+00:00",
+      "published": "2026-10-26T14:59:44.169319+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2210,6 +2255,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 418.16,
     "stop": 420.47,
     "stop_distance": 2.32,
@@ -2308,7 +2354,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.069430+00:00",
+      "published": "2026-10-26T14:59:44.211877+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2336,6 +2382,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 3596.81,
     "stop": 3620.42,
     "stop_distance": 23.61,
@@ -2434,7 +2481,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.043108+00:00",
+      "published": "2026-10-26T14:59:44.186740+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2462,6 +2509,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 3347.74,
     "stop": 3368.55,
     "stop_distance": 20.81,
@@ -2560,7 +2608,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.095132+00:00",
+      "published": "2026-10-26T14:59:44.237219+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2588,6 +2636,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 3140.3,
     "stop": 3156.55,
     "stop_distance": 16.26,
@@ -2686,7 +2735,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.169241+00:00",
+      "published": "2026-10-26T14:59:44.350187+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2714,6 +2763,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 613.07,
     "stop": 616.68,
     "stop_distance": 3.61,
@@ -2812,7 +2862,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.196278+00:00",
+      "published": "2026-10-26T14:59:44.392264+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2840,6 +2890,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 3375.01,
     "stop": 3395.53,
     "stop_distance": 20.52,
@@ -2938,7 +2989,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.017420+00:00",
+      "published": "2026-10-26T14:59:44.159573+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -2966,6 +3017,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 376.56,
     "stop": 378.59,
     "stop_distance": 2.03,
@@ -3064,7 +3116,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.109131+00:00",
+      "published": "2026-10-26T14:59:44.255687+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3092,6 +3144,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 1950.06,
     "stop": 1964.62,
     "stop_distance": 14.57,
@@ -3190,7 +3243,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.203054+00:00",
+      "published": "2026-10-26T14:59:44.399966+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3218,6 +3271,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 3531.52,
     "stop": 3550.38,
     "stop_distance": 18.86,
@@ -3316,7 +3370,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.142627+00:00",
+      "published": "2026-10-26T14:59:44.308021+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3344,6 +3398,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 1823.33,
     "stop": 1837.46,
     "stop_distance": 14.14,
@@ -3442,7 +3497,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.155471+00:00",
+      "published": "2026-10-26T14:59:44.328474+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3470,6 +3525,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 1255.42,
     "stop": 1263.64,
     "stop_distance": 8.21,
@@ -3568,7 +3624,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.162222+00:00",
+      "published": "2026-10-26T14:59:44.339409+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3596,6 +3652,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 3138.18,
     "stop": 3158.88,
     "stop_distance": 20.7,
@@ -3694,7 +3751,7 @@
       "title": "Company signs MoU for partnership",
       "source": "Livemint",
       "url": "",
-      "published": "2026-10-25T11:44:22.175555+00:00",
+      "published": "2026-10-26T14:59:44.362604+00:00",
       "sentiment": 0.0,
       "tier": 3,
       "event": "MOU",
@@ -3722,6 +3779,7 @@
     "call_writing_otm": false
    },
    "execution": {
+    "option_idea": null,
     "entry_trigger": 616.57,
     "stop": 620.25,
     "stop_distance": 3.68,

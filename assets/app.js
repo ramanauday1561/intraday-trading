@@ -141,6 +141,7 @@ function list() {
           h("div", { class: "sub" }, label(s.setup)))),
       h("div", { class: "row", style: "margin-top:8px" }, h("span", {}, "₹" + fmt(s.price.ltp), " ", h("span", { class: cls(s.price.chg_pct) }, sgn(s.price.chg_pct) + "%")),
         h("span", { class: "sub" }, `Conviction ${s.conviction}`)),
+      s.execution.option_idea ? h("div", { class: "opt " + s.direction }, `${s.execution.option_idea.action} ${s.execution.option_idea.strike} · exp ${s.execution.option_idea.expiry}`) : null,
       h("div", { class: "meter" }, h("i", { style: `width:${s.conviction}%` })), tags.length ? h("div", { class: "tags" }, tags) : null);
   }));
 }
@@ -160,6 +161,14 @@ function openSheet(sym) {
   r.warnings.forEach((w) => b.append(h("div", { class: "banner " + w.level }, h("b", {}, label(w.code)), w.message)));
   r.blockers.forEach((x) => b.append(h("div", { class: "banner info" }, h("b", {}, "Blocked · " + label(x.code)), x.message)));
   if (s.contradiction) b.append(h("div", { class: "banner medium" }, h("b", {}, label(s.contradiction.type)), s.contradiction.note));
+  const oi = e.option_idea;
+  if (oi) b.append(h("h4", {}, "Option idea (approximate)"),
+    h("div", { class: "box opt-box " + s.direction },
+      h("div", { class: "opt-big" }, `${oi.action} ${oi.strike} · expiry ${oi.expiry} (${oi.days_to_expiry}d)`),
+      h("div", { class: "grid", style: "margin-top:8px" },
+        kv("Premium (est.)", "₹" + fmt(oi.premium_est)), kv("Exit if premium ≤ (est.)", "₹" + fmt(oi.premium_stop_est)),
+        kv("Target premium (est.)", "₹" + fmt(oi.premium_target_est)), kv("Stock stop / target", `₹${fmt(e.stop)} / ₹${fmt(e.target)}`)),
+      h("div", { class: "sub", style: "margin-top:8px" }, oi.note + " Exit on the STOCK levels if they are hit first; they are the real thesis.")));
   b.append(h("h4", {}, "Execution & risk matrix"),
     h("div", { class: "grid" },
       kv("Entry trigger", "₹" + fmt(e.entry_trigger)), kv("Risk : Reward", e.risk_reward),

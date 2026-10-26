@@ -51,3 +51,7 @@ dialog label{display:block;margin:12px 0;font-size:13px;color:var(--mu)}
 dialog input{display:block;width:100%;margin-top:4px;padding:12px;font-size:16px;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:8px}
 dialog menu{padding:0;margin:8px 0 0}
 .ios-hint{position:fixed;left:10px;right:10px;bottom:calc(10px + var(--safe-b));z-index:30;background:var(--panel2);border:1px solid var(--info);border-radius:12px;padding:10px 12px}
+.opt{margin-top:8px;font-weight:700;font-size:14px;padding:6px 10px;border-radius:8px;background:var(--panel2)}
+.opt.LONG{color:var(--up)}.opt.SHORT{color:var(--dn)}
+.opt-box.LONG{border-left:4px solid var(--up)}.opt-box.SHORT{border-left:4px solid var(--dn)}
+.opt-big{font-size:18px;font-weight:750}

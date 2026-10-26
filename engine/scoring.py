@@ -6,6 +6,7 @@ import pandas as pd
 
 from . import indicators as ind
 from . import lpp as lppmod
+from . import options_idea
 from .config import (LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, REGIME_WEIGHTS,
                      SCORE_THRESHOLD, VPIN_TOXIC)
 from .market import oi_quadrant
@@ -199,8 +200,10 @@ def analyse_stock(c):
 
     # ---- LPP on the proposed ATM option (modelled) ----
     lpp = {"applicable": False}
+    opt_idea = None
     if final != "NO_TRADE":
-        T = 7 / 365.0
+        sess_day = today.index[-1].date()
+        T = max((options_idea.monthly_expiry(sess_day) - sess_day).days, 1) / 365.0
         sigma = (opt or {}).get("atm_iv")
         sigma = sigma / 100 if sigma else float(daily_ret.tail(20).std() * math.sqrt(252))
         kind = "Call" if direction == "LONG" else "Put"
@@ -215,6 +218,7 @@ def analyse_stock(c):
                "lower": round(rng[0], 2) if rng else None, "upper": round(rng[1], 2) if rng else None,
                "entry_limit": round(limit, 2), "headroom_pct": hr, "modelled": True,
                "valid": lppmod.validate_order(limit, ref, premium)}
+        opt_idea = options_idea.idea(direction, ltp, sess_day, premium, stop_dist, rr)
         if hr is not None and hr < 15:
             warnings.append({"level": "high", "code": "LPP_BOUNDARY", "message": f"Entry limit within {hr:.0f}% of the 30-second LPP boundary (NSE error 17070 risk)."})
 
@@ -250,7 +254,7 @@ def analyse_stock(c):
                            "oi_quadrant": quad, "fut_oi_chg_pct": fut_oi,
                            "iv_skew": None if skew is None else round(skew, 2),
                            "call_writing_otm": bool(opt and opt["call_writing_otm"])},
-        "execution": {"entry_trigger": round(entry, 2), "stop": round(stop, 2), "stop_distance": round(stop_dist, 2),
+        "execution": {"option_idea": opt_idea, "entry_trigger": round(entry, 2), "stop": round(stop, 2), "stop_distance": round(stop_dist, 2),
                       "stop_distance_pct": round(100 * stop_dist / ltp, 2), "trail_distance": round(stop_dist, 2),
                       "target": round(t1, 2), "rr": rr, "risk_reward": f"1:{rr:.0f}", "qty": qty, "risk_amount": round(qty * stop_dist, 0),
                       "invalidation_vwap": round(vw, 2), "invalidation_text": inval,

@@ -13,6 +13,9 @@ Yahoo Finance chart API · NSE public endpoints · Google News & publisher RSS �
 2. Run the **Analyse & deploy** workflow (or push to `main`). Site: `https://<user>.github.io/intraday-trading/`.
 3. Optional: add repository variable `USE_FINBERT=1` for FinBERT sentiment.
 
+## Reliable refresh
+GitHub's built-in schedule can skip runs. For a dependable 10-minute refresh, follow [docs/RELIABLE_REFRESH.md](docs/RELIABLE_REFRESH.md) (free cron-job.org timer + a repo-scoped token).
+
 ## Install on your phone
 - **Android/Chrome**: open the site → *Install* button (or ⋮ → Install app).
 - **iPhone/Safari**: Share → *Add to Home Screen*.
