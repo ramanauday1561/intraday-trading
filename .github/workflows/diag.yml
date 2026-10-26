@@ -1,7 +1,11 @@
-name: Data span diagnostics
+name: Diagnostics (data span / replay a day)
 
 on:
   workflow_dispatch:
+    inputs:
+      date:
+        description: "Replay one session (YYYY-MM-DD) and show why each stock did or did not signal. Empty = data-span check."
+        required: false
 
 permissions:
   contents: read
@@ -9,7 +13,7 @@ permissions:
 jobs:
   diag:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -17,5 +21,9 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Show how many full 5-minute sessions the backtest sees
+      - name: Data span
+        if: inputs.date == ''
         run: python -W ignore -m engine.backtest --diag 2>&1 | grep "^diag"
+      - name: Replay one session
+        if: inputs.date != ''
+        run: python -W ignore -m engine.backtest --date "${{ inputs.date }}" --out /tmp/replay.json 2>&1 | grep -E "^(REPLAY|hypothesis|with_news|without_news)"

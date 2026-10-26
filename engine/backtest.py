@@ -195,6 +195,8 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
     vd = frames["^INDIAVIX"][1]
     trades = {"with_news": [], "without_news": []}
     blockers = defaultdict(int)
+    bias_counts = defaultdict(int)  # neutral = composite below threshold; blocked = had a direction but a filter vetoed it
+    closest = {}
     news_used = 0
     for date in days:
         prior_days = [d for d in all_days if d < date][-5:]
@@ -244,6 +246,12 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
                     if variant == "with_news":
                         for bk in sig["risk"]["blockers"]:
                             blockers[bk["code"]] += 1
+                        bias_counts["neutral" if sig["bias"] == "NO_TRADE" else "blocked" if sig["direction"] == "NO_TRADE" else "signal"] += 1
+                        key = (date.isoformat(), sym)
+                        if key not in closest or abs(sig["composite"]) > abs(closest[key]["composite"]):
+                            closest[key] = {"date": date.isoformat(), "time": cut.strftime("%H:%M"), "symbol": sym, "bias": sig["bias"],
+                                            "direction": sig["direction"], "composite": sig["composite"], "conviction": sig["conviction"],
+                                            "blockers": [b["code"] for b in sig["risk"]["blockers"]]}
                     if sig["direction"] == "NO_TRADE":
                         continue
                     tr = simulate(sig, later)
@@ -262,7 +270,9 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
            "scan": (f"hourly bar closes {asof[0]:02d}:{asof[1]:02d}+{asof[0]+1:02d}:{asof[1]:02d} to {(last_label//60)+1:02d}:{last_label%60:02d} IST" if hourly
                     else f"every 15 min {asof[0]:02d}:{asof[1]:02d}-14:30 IST") + ", first signal per stock per day",
            "capital": capital, "risk_levels_pct": list(RISK_LEVELS), "news_headlines": sum(len(v) for v in news_items.values()),
-           "trades_using_news": news_used, "blocker_counts": dict(blockers)}
+           "trades_using_news": news_used, "blocker_counts": dict(blockers),
+           "bias_counts": dict(bias_counts),
+           "closest_calls": sorted(closest.values(), key=lambda x: -abs(x["composite"]))[:15]}
     for k in trades:
         res[k] = _stats(trades[k], capital, len(days))
     for k in cands:
@@ -302,6 +312,12 @@ def main():
     with open(a.out, "w") as f:
         f.write(to_json(res))
     print("hypothesis H1:", res["hypothesis"])
+    if only and "bias_counts" in res:
+        print("REPLAY checks:", res["bias_counts"], "blockers:", res["blocker_counts"])
+        for c in res["closest_calls"]:
+            print("REPLAY", c["time"], c["symbol"], "bias", c["bias"], "final", c["direction"], "composite", c["composite"], "blockers", c["blockers"])
+        for t in res["trades"]:
+            print("REPLAY TRADE", t["signal_time"], t["symbol"], t["direction"], t["entry"], "->", t["exit"], t["reason"], "R", t["r_multiple"])
     for k in ("with_news", "without_news"):
         s = res[k]
         if not s.get("trades"):

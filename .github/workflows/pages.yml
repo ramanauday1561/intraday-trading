@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "*/10 3-10 * * 1-5"   # every 10 min, 08:30-16:00 IST on weekdays
+    - cron: "7-59/10 3-10 * * 1-5"   # every 10 min (off the busy :00 slots), ~08:37-16:30 IST on weekdays; GitHub may delay or skip
   workflow_dispatch:
 
 permissions:
@@ -58,12 +58,11 @@ jobs:
               print("SIGNALS mode:", s["meta"]["mode"], "health:", s["meta"].get("health"))
           except Exception as e:
               print("SIGNALS unreadable:", e)
-          try:
-              b = json.load(open("data/backtest.json"))
-              print("BACKTEST", b["date"], b["mode"], b["scan"], "summary:", b["summary"])
-              print("BACKTEST blockers:", b["signals"][0])
-              for t in b["trades"]:
-                  print("TRADE", t["symbol"], t["direction"], t["signal_time"], t["entry"], "->", t["exit"], t["reason"], "qty", t["qty"], "R", t["r_multiple"], "net", t["net_pnl"])
-          except Exception as e:
-              print("BACKTEST unreadable:", e)
+          from collections import Counter
+          sig = s.get("signals", []) if isinstance(s, dict) else []
+          print("SIGNALS phase:", s["meta"]["session_phase"], "data as of:", s["meta"]["data_as_of"],
+                "final:", dict(Counter(x["direction"] for x in sig)), "bias:", dict(Counter(x["bias"] for x in sig)))
+          print("SIGNALS blockers:", dict(Counter(b["code"] for x in sig for b in x["risk"]["blockers"])))
+          for x in sorted(sig, key=lambda x: -abs(x["composite"]))[:8]:
+              print("  ", x["symbol"], x["bias"], "->", x["direction"], "composite", x["composite"], [b["code"] for b in x["risk"]["blockers"]])
           PY
