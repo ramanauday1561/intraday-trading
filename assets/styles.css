@@ -55,3 +55,6 @@ dialog menu{padding:0;margin:8px 0 0}
 .opt.LONG{color:var(--up)}.opt.SHORT{color:var(--dn)}
 .opt-box.LONG{border-left:4px solid var(--up)}.opt-box.SHORT{border-left:4px solid var(--dn)}
 .opt-big{font-size:18px;font-weight:750}
+dialog h3{margin:18px 0 6px}
+dialog textarea{width:100%;font:12px ui-monospace,monospace;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px}
+dialog .btn{margin:4px 0}

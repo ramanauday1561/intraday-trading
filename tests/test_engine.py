@@ -193,3 +193,44 @@ def test_option_idea_strike_and_expiry():
     i = oi.idea("SHORT", 1748.1, date(2026, 10, 12), 40.0, 10.0, 2.0)
     assert i["action"] == "BUY PE" and i["strike"] == 1750 and i["premium_stop_est"] == 35.0 and i["premium_target_est"] == 50.0
     assert oi.idea("NO_TRADE", 100, date(2026, 10, 12), 1, 1, 2) is None
+
+
+def test_webpush_rfc8291_vector_and_roundtrip():
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from engine import webpush as wp
+    # RFC 8291 Appendix A test vector
+    as_key = ec.derive_private_key(int.from_bytes(wp.unb64u("yfWPiYE-n46HLnH0KqZOF1fJJU3MYrct3AELtAQ-oRw"), "big"), ec.SECP256R1())
+    body = wp.encrypt(b"When I grow up, I want to be a watermelon",
+                      "BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4",
+                      "BTBZMqHH6r4Tts7J_aSIgg", salt=wp.unb64u("DGv6ra1nlYgDCS1FRnbzlw"), as_key=as_key)
+    assert wp.b64u(body) == ("DGv6ra1nlYgDCS1FRnbzlwAAEABBBP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A_"
+                             "yl95bQpu6cVPTpK4Mqgkf1CXztLVBSt2Ks3oZwbuwXPXLWyouBWLVWGNWQexSgSxsj_Qulcy4a-fN")
+
+
+def test_vapid_jwt_verifies():
+    import json
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from cryptography.hazmat.primitives.asymmetric.utils import encode_dss_signature
+    from engine import webpush as wp
+    priv, pub = wp.generate_vapid_keys()
+    hdr = wp.vapid_header("https://web.push.apple.com/QGuQ", wp.load_vapid_private(priv), "https://example.com")
+    t, k = hdr[len("vapid t="):].split(", k=")
+    assert k == pub
+    h, c, s = t.split(".")
+    assert json.loads(wp.unb64u(c))["aud"] == "https://web.push.apple.com"
+    raw = wp.unb64u(s)
+    sig = encode_dss_signature(int.from_bytes(raw[:32], "big"), int.from_bytes(raw[32:], "big"))
+    ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), wp.unb64u(pub)).verify(sig, f"{h}.{c}".encode(), ec.ECDSA(hashes.SHA256()))
+
+
+def test_notify_only_new_live_active_signals():
+    from engine import notify
+    mk = lambda sym, d: {"symbol": sym, "direction": d, "conviction": 60,
+                         "execution": {"entry_trigger": 1, "stop": 0.9, "target": 1.2, "option_idea": None}}
+    cur = {"meta": {"mode": "live", "session_phase": "ACTIVE"}, "signals": [mk("A", "LONG"), mk("B", "SHORT"), mk("C", "NO_TRADE")]}
+    prev = {"signals": [mk("A", "LONG")]}
+    assert [s["symbol"] for s in notify.new_signals(cur, prev)] == ["B"]
+    assert [s["symbol"] for s in notify.new_signals(cur, None)] == ["A", "B"]
+    assert notify.new_signals(dict(cur, meta={"mode": "live", "session_phase": "CLOSED"}), prev) == []
+    assert notify.message_for(mk("B", "SHORT"))["tag"] == "B-SHORT"

@@ -50,6 +50,15 @@
     <label>Capital (₹)<input id="capital" type="number" min="1000" step="1000" inputmode="numeric"></label>
     <label>Risk per trade (%)<input id="riskPct" type="number" min="0.1" max="100" step="0.1" inputmode="decimal"></label>
     <p class="muted">Quantity is recalculated on-device from the stop distance. Nothing leaves your phone.</p>
+    <h3>Notifications</h3>
+    <p id="notifStatus" class="muted"></p>
+    <button type="button" id="notifBtn" class="btn">Enable notifications</button>
+    <button type="button" id="notifTest" class="btn ghost" hidden>Test on this phone</button>
+    <div id="subBox" hidden>
+      <p class="muted">Last step: copy this and save it in GitHub → repo Settings → Secrets and variables → Actions → New secret named <b>PUSH_SUBSCRIPTIONS</b>.</p>
+      <textarea id="subJson" readonly rows="5"></textarea>
+      <button type="button" id="copySub" class="btn ghost">Copy</button>
+    </div>
     <menu><button class="btn" value="ok">Save</button></menu>
   </form>
 </dialog>

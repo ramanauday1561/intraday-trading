@@ -1,5 +1,6 @@
 "use strict";
 const DATA_URL = "data/signals.json";
+const VAPID_PUBLIC = "BISlGtzJw0dzaj5ikAkMcMRqCsv4VHbSulg9dtFFWR6XKlsp4bprM8nVnw1aAwnvo7EXRksw_zcD-gfqhSymRg4"; // public half only; the private key lives in a GitHub secret
 const $ = (id) => document.getElementById(id);
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
@@ -215,6 +216,8 @@ async function load(manual) {
     if (!r.ok) throw new Error(r.status);
     state.data = await r.json();
     render();
+    const sym = new URLSearchParams(location.search).get("sym");
+    if (sym && !state.deepLinked) { state.deepLinked = true; openSheet(sym); }
   } catch (err) {
     if (!state.data) $("list").replaceChildren(h("div", { class: "empty" }, "Unable to load data. Check your connection and pull to refresh."));
     else if (manual) $("banners").prepend(h("div", { class: "banner medium" }, h("b", {}, "Offline"), "Showing the last saved analysis."));
@@ -229,13 +232,48 @@ $("filters").addEventListener("click", (ev) => {
 $("refreshBtn").onclick = () => load(true);
 $("closeSheet").onclick = () => history.back();
 window.addEventListener("popstate", closeSheet);
-$("settingsBtn").onclick = () => { $("capital").value = state.capital ?? state.data?.meta.capital ?? 100000; $("riskPct").value = state.riskPct ?? state.data?.meta.risk_pct ?? 0.5; $("settings").showModal(); };
+$("settingsBtn").onclick = () => { refreshNotifUI(); $("capital").value = state.capital ?? state.data?.meta.capital ?? 100000; $("riskPct").value = state.riskPct ?? state.data?.meta.risk_pct ?? 0.5; $("settings").showModal(); };
 $("settings").addEventListener("close", () => {
   const c = parseFloat($("capital").value), r = parseFloat($("riskPct").value);
   if (c > 0 && r > 0 && r <= 100) { state.capital = c; state.riskPct = r; store.set("capital", c); store.set("riskPct", r); }
 });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
 setInterval(() => { if (!document.hidden) load(); }, 120000);
+
+// Push notifications (iOS 16.4+: only works when opened from the Home Screen icon)
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const urlKey = (b64) => { const p = "=".repeat((4 - (b64.length % 4)) % 4); const raw = atob((b64 + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(raw, (c) => c.charCodeAt(0)); };
+function showSub(sub) {
+  $("subJson").value = JSON.stringify(sub); $("subBox").hidden = false; $("notifTest").hidden = false;
+  $("notifStatus").textContent = "Notifications are on for this phone.";
+  $("notifBtn").textContent = "Re-show subscription";
+}
+async function refreshNotifUI() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+    $("notifStatus").textContent = isStandalone() ? "This browser does not support web push (iOS 16.4 or newer needed)." : "Open the app from its Home Screen icon to enable notifications.";
+    $("notifBtn").hidden = true; return;
+  }
+  if (Notification.permission === "denied") { $("notifStatus").textContent = "Notifications are blocked. Enable them in iPhone Settings → Notifications → Intraday."; return; }
+  const reg = await navigator.serviceWorker.ready;
+  const sub = await reg.pushManager.getSubscription();
+  if (sub) showSub(sub); else $("notifStatus").textContent = "Get an alert when a new LONG/SHORT signal appears (market hours only).";
+}
+$("notifBtn").onclick = async () => {
+  try {
+    if (await Notification.requestPermission() !== "granted") { $("notifStatus").textContent = "Permission not granted."; return; }
+    const reg = await navigator.serviceWorker.ready;
+    const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlKey(VAPID_PUBLIC) });
+    showSub(sub);
+  } catch (err) { $("notifStatus").textContent = "Could not enable notifications: " + err.message; }
+};
+$("notifTest").onclick = async () => {
+  const reg = await navigator.serviceWorker.ready;
+  reg.showNotification("Intraday Quant Desk", { body: "Local test: this phone can show notifications.", icon: "icons/icon-192.png", tag: "local-test" });
+};
+$("copySub").onclick = async () => {
+  try { await navigator.clipboard.writeText($("subJson").value); $("copySub").textContent = "Copied ✓"; }
+  catch { $("subJson").select(); document.execCommand("copy"); $("copySub").textContent = "Copied ✓"; }
+};
 
 // PWA install
 let deferred;

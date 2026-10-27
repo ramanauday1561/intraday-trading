@@ -1,4 +1,4 @@
-const VERSION = "v4";
+const VERSION = "v5";
 const SHELL = `shell-${VERSION}`, DATA = `data-${VERSION}`;
 const ASSETS = ["./", "index.html", "assets/app.js", "assets/styles.css", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 
@@ -18,5 +18,20 @@ self.addEventListener("fetch", (e) => {
   e.respondWith(caches.match(req, { ignoreSearch: true }).then((hit) => {
     const net = fetch(req).then((r) => { if (r.ok) caches.open(SHELL).then((c) => c.put(req, r.clone())); return r; }).catch(() => hit);
     return hit || net;
+  }));
+});
+
+self.addEventListener("push", (e) => {
+  let m = {};
+  try { m = e.data ? e.data.json() : {}; } catch { m = { body: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(m.title || "Intraday Quant Desk", {
+    body: m.body || "", icon: "icons/icon-192.png", badge: "icons/icon-192.png", tag: m.tag, data: { url: m.url || "./" } }));
+});
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = new URL(e.notification.data && e.notification.data.url || "./", self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((cs) => {
+    for (const c of cs) if ("navigate" in c) return c.focus().then(() => c.navigate(url));
+    return self.clients.openWindow(url);
   }));
 });
