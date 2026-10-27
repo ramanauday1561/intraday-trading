@@ -253,7 +253,7 @@ async function refreshNotifUI() {
     $("notifStatus").textContent = isStandalone() ? "This browser does not support web push (iOS 16.4 or newer needed)." : "Open the app from its Home Screen icon to enable notifications.";
     $("notifBtn").hidden = true; return;
   }
-  if (Notification.permission === "denied") { $("notifStatus").textContent = "Notifications are blocked. Enable them in iPhone Settings → Notifications → Intraday."; return; }
+  if (Notification.permission === "denied") { $("notifStatus").textContent = "Notifications are blocked for this app. On iPhone: Settings → Notifications → Intraday → Allow."; return; }
   const reg = await navigator.serviceWorker.ready;
   const sub = await reg.pushManager.getSubscription();
   if (sub) showSub(sub); else $("notifStatus").textContent = "Get an alert when a new LONG/SHORT signal appears (market hours only).";
