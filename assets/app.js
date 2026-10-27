@@ -74,7 +74,7 @@ async function backtest() {
     const v = vmap[H.verdict] || ["", H.verdict];
     return el.replaceChildren(switcher,
       h("div", { class: "banner info" }, h("b", {}, "Pre-registered hypothesis H1"),
-        "Trades that oppose a material news signal have mean net R > 0 after costs. Registered 2026-10-25; only sessions after that date count. See preregistration.md in the repo."),
+        "Trades that oppose a material news signal have mean net R > 0 after costs. Registered 2026-10-25, restarted 2026-10-27 after a rule change; only sessions after 27 Oct count. See preregistration.md in the repo."),
       h("div", { class: "box" },
         h("div", { class: "hl" }, b.period ? `Forward sessions: ${b.period.from} → ${b.period.to} (${b.period.sessions})` : "No forward sessions yet — data accumulates daily."),
         h("div", { class: "hl" }, h("b", {}, "Opposed-news trades: "), mm(H.opposed), H.opposed_ci95 ? ` · 95% CI ${sgn(H.opposed_ci95[0], 3)}…${sgn(H.opposed_ci95[1], 3)}R` : ""),

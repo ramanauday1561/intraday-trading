@@ -7,7 +7,7 @@ import pandas as pd
 from . import indicators as ind
 from . import lpp as lppmod
 from . import options_idea
-from .config import (LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, REGIME_WEIGHTS,
+from .config import (LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
                      SCORE_THRESHOLD, VPIN_TOXIC)
 from .market import oi_quadrant
 
@@ -45,6 +45,28 @@ def detect_regime(vix, adx_v, gex, index_corr, event_driven):
     if vix < 12 and adx_v < 20 and (g is None or g > 0.3):
         return "RANGE_BOUND"
     return "TRANSITIONAL"
+
+
+def classify_contradiction(pos_news, gap, ofi_v, last_bar_bear, ltp, vw, prior_rally, extension, opt, surge_buy):
+    """Contradiction matrix. Returns (type, note, forced_direction, setup, neutralise_fundamental).
+
+    Priced-in exhaustion only forces a short once the reversal is CONFIRMED (price below VWAP and
+    order flow turning negative); before that it is reported as context, never as a trade."""
+    if pos_news and gap > 0.5 and ofi_v < -0.1 and last_bar_bear and ltp < vw:
+        return ("DISTRIBUTION_TRAP", "Positive catalyst + gap-up met negative OFI and a VWAP breach: news used as exit liquidity. "
+                "Fundamental pillar invalidated; targeting gap closure.", "SHORT", "TRAP_FADE", True)
+    if pos_news and prior_rally > 4 and extension > 1.5 and ((opt and opt["call_writing_otm"]) or (not opt and ofi_v < 0.1)):
+        why = "OTM call writing" if opt else "fading order flow (options data unavailable)"
+        if ltp < vw and ofi_v < -0.05:
+            return ("PRICED_IN_EXHAUSTION", f"Positive news after a multi-day rally with {why}, now confirmed by price below VWAP "
+                    "and negative order flow: news priced in. Fundamental score neutralised; fading via mean reversion.",
+                    "SHORT", "MEAN_REVERSION", True)
+        return ("PRICED_IN_WATCH", f"Positive news after a multi-day rally with {why} may be priced in, but the reversal is NOT "
+                "confirmed (price still above VWAP or order flow not negative). No short until it is.", None, "MOMENTUM", True)
+    if pos_news and gap > 0.8 and surge_buy and ofi_v > 0.1 and prior_rally < 0:
+        return ("GENUINE_OVERRIDE", "Breakaway gap with self-exciting buy flow (Hawkes surge) overrides prior-session weakness.",
+                "LONG", "BREAKAWAY", False)
+    return None
 
 
 def vix_multiplier(vix):
@@ -107,18 +129,12 @@ def analyse_stock(c):
     contradiction, setup, forced = None, "MOMENTUM", None
     pos_news = news["positive_catalyst"] > 0.25 or s_fund > 0.5
     last_bar_bear = today["close"].iloc[-1] < today["open"].iloc[-1]
-    if pos_news and gap > 0.5 and ofi_v < -0.1 and last_bar_bear and ltp < vw:
-        contradiction = ("DISTRIBUTION_TRAP", "Positive catalyst + gap-up met negative OFI and a VWAP breach: news used as exit liquidity. Fundamental pillar invalidated; targeting gap closure.")
-        pillars["fundamental"] = 0.0
-        forced, setup = "SHORT", "TRAP_FADE"
-    elif pos_news and prior_rally > 4 and (extension > 1.5) and ((opt and opt["call_writing_otm"]) or (not opt and ofi_v < 0.1)):
-        contradiction = ("PRICED_IN_EXHAUSTION", "Positive news after a multi-day rally with " + ("OTM call writing" if opt else "fading order flow (options data unavailable)") + ": news priced in. Fundamental score neutralised; fading retail enthusiasm via mean reversion.")
-        pillars["fundamental"] = 0.0
-        forced, setup = "SHORT", "MEAN_REVERSION"
-    elif pos_news and gap > 0.8 and hk["surge_buy"] and ofi_v > 0.1 and prior_rally < 0:
-        contradiction = ("GENUINE_OVERRIDE", "Breakaway gap with self-exciting buy flow (Hawkes surge) overrides prior-session weakness.")
-        forced, setup = "LONG", "BREAKAWAY"
-    if contradiction:
+    cm = classify_contradiction(pos_news, gap, ofi_v, last_bar_bear, ltp, vw, prior_rally, extension, opt, hk["surge_buy"])
+    if cm:
+        contradiction = cm[:2]
+        forced, setup = cm[2], cm[3]
+        if cm[4]:
+            pillars["fundamental"] = 0.0
         composite = sum(w[k] * pillars[k] for k in w)
 
     direction = forced or ("LONG" if composite > SCORE_THRESHOLD else "SHORT" if composite < -SCORE_THRESHOLD else "NO_TRADE")
@@ -182,6 +198,11 @@ def analyse_stock(c):
     if gf and ((c["nifty"] > gf) != (c["nifty_open"] > gf)):
         warnings.append({"level": "medium", "code": "GAMMA_FLIP", "message": f"Nifty crossed the gamma flip ({gf:.0f}): destabilising regime, widen risk."})
         stop_dist *= 1.2
+
+    if forced and direction != "NO_TRADE":  # overrides do not get to skip the conviction floor
+        pre_conv = 100 * clip(abs(composite) / 0.6 + (0.1 if (s_macro > 0.15) == (direction == "LONG") and abs(s_macro) > 0.15 else 0), 0, 1)
+        if pre_conv < OVERRIDE_MIN_CONVICTION:
+            blockers.append({"code": "LOW_CONVICTION", "message": f"{contradiction[0].replace('_', ' ').title()} override has conviction {pre_conv:.0f} < {OVERRIDE_MIN_CONVICTION}; shown as context only."})
 
     if blockers or direction == "NO_TRADE":
         final = "NO_TRADE"

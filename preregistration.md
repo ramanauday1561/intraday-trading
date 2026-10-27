@@ -1,6 +1,10 @@
 # Pre-registration: hypothesis H1
 
-Registered: 2026-10-25 (see git history for the commit timestamp).
+Registered: 2026-10-25; **restarted 2026-10-27** (see git history for commit timestamps).
+
+> Restart note (2026-10-27): the engine rules changed (priced-in-exhaustion shorts now need confirmation; all
+> overrides need conviction >= 40), so per the rule below the test restarts. Sessions up to and including
+> 2026-10-27 are development data.
 
 **Hypothesis H1.** Within this app's own signals, trades that **oppose** a material news signal
 (news sentiment score |s| > 0.2 pointing the opposite way to the trade) have a **mean net R > 0**
@@ -10,9 +14,9 @@ after costs (0.06% round trip), using the engine rules exactly as committed at r
 2024-10 to 2026-10 (hourly) backtests, where opposed-news trades did best (+0.19R, +0.10R gross).
 Because it was found by inspecting that data, that data is **development data and cannot test H1**.
 
-**Test data:** only sessions strictly **after 2026-10-25**, collected by the daily archive job
+**Test data:** only sessions strictly **after 2026-10-27**, collected by the daily archive job
 (real prices and headlines with publication times). Run weekly by `backtest.yml`
-(`python -m engine.backtest --after 2026-10-25 --out data/forward_test.json`).
+(`python -m engine.backtest --after 2026-10-27 --out data/forward_test.json`).
 
 **Decision rule (fixed in advance):**
 - fewer than 100 qualifying trades -> `INSUFFICIENT_DATA` (no conclusion either way);

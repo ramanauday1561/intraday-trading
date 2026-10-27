@@ -234,3 +234,13 @@ def test_notify_only_new_live_active_signals():
     assert [s["symbol"] for s in notify.new_signals(cur, None)] == ["A", "B"]
     assert notify.new_signals(dict(cur, meta={"mode": "live", "session_phase": "CLOSED"}), prev) == []
     assert notify.message_for(mk("B", "SHORT"))["tag"] == "B-SHORT"
+
+
+def test_priced_in_override_needs_confirmation():
+    from engine.scoring import classify_contradiction as cc
+    base = dict(pos_news=True, gap=0.2, last_bar_bear=False, prior_rally=6, extension=2.0, opt=None, surge_buy=False)
+    rising = cc(ofi_v=0.05, ltp=1321, vw=1312, **base)          # DRREDDY 27 Oct: above VWAP, flow not negative
+    assert rising[0] == "PRICED_IN_WATCH" and rising[2] is None
+    confirmed = cc(ofi_v=-0.2, ltp=1305, vw=1312, **base)
+    assert confirmed[0] == "PRICED_IN_EXHAUSTION" and confirmed[2] == "SHORT"
+    assert cc(ofi_v=0.0, ltp=1, vw=1, pos_news=False, gap=0, last_bar_bear=False, prior_rally=0, extension=0, opt=None, surge_buy=False) is None
