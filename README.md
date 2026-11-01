@@ -13,6 +13,13 @@ Yahoo Finance chart API · NSE public endpoints · Google News & publisher RSS �
 2. Run the **Analyse & deploy** workflow (or push to `main`). Site: `https://<user>.github.io/intraday-trading/`.
 3. Optional: add repository variable `USE_FINBERT=1` for FinBERT sentiment.
 
+## In the app
+- **Actionable / Long / Short / All** – the latest 10-minute snapshot; tap a card for the trade plan and the ATM call/put idea.
+- **Today** – every signal that appeared today stays listed with its live outcome (open, target hit, stopped, closed 15:15), even after it drops off the main list.
+- **Record** – running track record: each session is replayed after the close (16:15 IST) with the rules in force that day and appended to `data/track_record.json`.
+- **Backtest** – 5-minute, 2-year hourly and the pre-registered forward test.
+- **Notifications** – ⚙ → Enable notifications (iPhone: open from the Home Screen icon, iOS 16.4+). Needs the `VAPID_PRIVATE_KEY` and `PUSH_SUBSCRIPTIONS` repository secrets.
+
 ## Reliable refresh
 GitHub's built-in schedule can skip runs. For a dependable 10-minute refresh, follow [docs/RELIABLE_REFRESH.md](docs/RELIABLE_REFRESH.md) (free cron-job.org timer + a repo-scoped token).
 

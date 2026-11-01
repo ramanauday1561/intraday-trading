@@ -68,9 +68,29 @@ def yahoo(symbol, rng, interval):
     return df if df is not None and len(df) else None
 
 
-def fetch_many(symbols, rng, interval, workers=8):
+def fetch_many(symbols, rng, interval, workers=8, retries=2, backoff_s=3.0):
+    """Parallel fetch, then retry the failures one at a time with backoff (Yahoo rate-limits bursts)."""
     with ThreadPoolExecutor(workers) as ex:
-        return dict(zip(symbols, ex.map(lambda s: yahoo(s, rng, interval), symbols)))
+        out = dict(zip(symbols, ex.map(lambda s: yahoo(s, rng, interval), symbols)))
+    for attempt in range(retries):
+        missing = [s for s, d in out.items() if d is None]
+        if not missing:
+            break
+        time.sleep(backoff_s * (attempt + 1))
+        for s in missing:
+            out[s] = yahoo(s, rng, interval)
+    return out
+
+
+def daily_from_intraday(df):
+    """Daily OHLCV built from intraday bars (fallback when Yahoo's daily series fails)."""
+    if df is None or not len(df):
+        return None
+    g = df.groupby(df.index.date)
+    d = pd.DataFrame({"open": g["open"].first(), "high": g["high"].max(), "low": g["low"].min(),
+                      "close": g["close"].last(), "volume": g["volume"].sum()})
+    d.index = pd.DatetimeIndex([datetime(x.year, x.month, x.day, 15, 30, tzinfo=IST) for x in d.index])
+    return d
 
 
 # ---------- NSE derivatives (best effort; NSE often blocks cloud IPs) ----------
