@@ -325,3 +325,21 @@ def test_daily_from_intraday_and_fetch_retry(monkeypatch):
     monkeypatch.setattr(market.time, "sleep", lambda s: None)
     out = market.fetch_many(["A", "B"], "5d", "5m")
     assert out["A"] is not None and out["B"] is not None and calls["B"] == 2
+
+
+def test_adopted_exit_policy_in_engine_and_simulation():
+    from datetime import datetime as dt
+    from engine.backtest import simulate
+    from engine.config import EXIT_STOP_MULT, EXIT_TARGET_R
+    payload = build(now=dt(2025, 1, 6, 11, 30, tzinfo=IST), force_demo=True)
+    live = [x for x in payload["signals"] if x["direction"] != "NO_TRADE"]
+    assert live
+    for x in live:
+        e = x["execution"]
+        assert abs(e["stop_distance"] - EXIT_STOP_MULT * e["stop_distance_base"]) < 0.02 and e["rr"] == EXIT_TARGET_R
+        assert e["breakeven_after_r"] == 1.0
+    sig = {"symbol": "X", "direction": "LONG", "setup": "MOMENTUM", "conviction": 50, "regime": "TRENDING",
+           "risk": {"size_multiplier": 1.0}, "execution": {"stop_distance": 2.0, "rr": 2.0, "qty": 10, "breakeven_after_r": 1.0}}
+    # +1R (102) reached in bar 1, then price falls back through entry: exits at breakeven, not at the -1R stop
+    be = simulate(sig, _bars([(100, 102.5, 99.5, 102, 1), (102, 102, 97, 97.5, 1), (97.5, 98, 97, 97, 1)]))
+    assert be["reason"] == "BREAKEVEN" and be["r_multiple"] == 0.0

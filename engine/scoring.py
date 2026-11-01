@@ -7,7 +7,7 @@ import pandas as pd
 from . import indicators as ind
 from . import lpp as lppmod
 from . import options_idea
-from .config import (LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
+from .config import (EXIT_BREAKEVEN_R, EXIT_STOP_MULT, EXIT_TARGET_R, LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
                      SCORE_THRESHOLD, VPIN_TOXIC)
 from .market import oi_quadrant
 
@@ -208,6 +208,8 @@ def analyse_stock(c):
         final = "NO_TRADE"
     else:
         final = direction
+    base_stop = stop_dist  # entry filters (ATR range etc.) above were judged on the base stop
+    stop_dist, rr = base_stop * EXIT_STOP_MULT, EXIT_TARGET_R
     sign = 1 if direction == "LONG" else -1
     entry = ltp
     stop = entry - sign * stop_dist
@@ -276,7 +278,8 @@ def analyse_stock(c):
                            "iv_skew": None if skew is None else round(skew, 2),
                            "call_writing_otm": bool(opt and opt["call_writing_otm"])},
         "execution": {"option_idea": opt_idea, "entry_trigger": round(entry, 2), "stop": round(stop, 2), "stop_distance": round(stop_dist, 2),
-                      "stop_distance_pct": round(100 * stop_dist / ltp, 2), "trail_distance": round(stop_dist, 2),
+                      "stop_distance_pct": round(100 * stop_dist / ltp, 2), "stop_distance_base": round(base_stop, 4),
+                      "breakeven_after_r": EXIT_BREAKEVEN_R, "breakeven_trigger": round(entry + sign * EXIT_BREAKEVEN_R * stop_dist, 2),
                       "target": round(t1, 2), "rr": rr, "risk_reward": f"1:{rr:.0f}", "qty": qty, "risk_amount": round(qty * stop_dist, 0),
                       "invalidation_vwap": round(vw, 2), "invalidation_text": inval,
                       "gap_close_target": round(prev_close, 2) if setup == "TRAP_FADE" else None},

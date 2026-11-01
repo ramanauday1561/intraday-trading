@@ -120,7 +120,7 @@ def hypothesis_report(trades, in_sample):
 # fixed target (R multiple, None = hold to 15:15) and move-stop-to-breakeven after +1R.
 EXIT_POLICIES = [(f"stop{m}x_tgt{rr if rr else 'none'}_be{int(be)}", m, rr, be)
                  for m in (1.0, 1.5, 2.0) for rr in (2.0, 1.5, None) for be in (False, True)]
-CURRENT_EXIT = "stop1.0x_tgt2.0_be0"
+CURRENT_EXIT = "stop2.0x_tgt2.0_be1"  # adopted 2026-11-01; multipliers are relative to the base stop
 
 
 def walk_forward_exits(trades, sessions):

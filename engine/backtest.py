@@ -20,7 +20,7 @@ import pandas as pd
 
 from . import demo as demomod
 from . import news as newsmod
-from . import evaluate
+from . import evaluate, exits
 from .config import COST_PCT, INDEX_SYMBOLS, IST, LEVERAGE, UNIVERSE
 from .pipeline import _index_corr, to_json
 from .scoring import analyse_stock
@@ -70,24 +70,15 @@ def _fetch_news(start, end, window_days=7, workers=4):
 
 
 def simulate(sig, bars_after, exit_hhmm=(15, 15)):
-    """Walk bars after the signal. Entry = next bar open. Returns trade dict or None."""
+    """Walk bars after the signal with the engine's exit policy. Entry = next bar open. Returns trade dict or None."""
     if bars_after is None or len(bars_after) < 2:
         return None
     long_ = sig["direction"] == "LONG"
-    sd, rr = sig["execution"]["stop_distance"], sig["execution"]["rr"]
-    entry = float(bars_after["open"].iloc[0])
+    ex = sig["execution"]
+    sd, rr = ex["stop_distance"], ex["rr"]
+    state, entry, exit_px, _, _ = exits.walk(long_, bars_after, sd, rr, ex.get("breakeven_after_r"), exit_hhmm)
+    reason = {"CLOSED_1515": "EOD", "OPEN": "EOD", "STOPPED": "STOP"}.get(state, state)  # TARGET / BREAKEVEN
     stop, target = (entry - sd, entry + rr * sd) if long_ else (entry + sd, entry - rr * sd)
-    exit_px, reason = float(bars_after["close"].iloc[-1]), "EOD"
-    for ts, b in bars_after.iterrows():
-        if (ts.hour, ts.minute) >= exit_hhmm:
-            exit_px, reason = float(b["open"]), "EOD"
-            break
-        hit_stop = b["low"] <= stop if long_ else b["high"] >= stop
-        hit_tgt = b["high"] >= target if long_ else b["low"] <= target
-        if hit_stop:
-            exit_px, reason = stop, "STOP"; break
-        if hit_tgt:
-            exit_px, reason = target, "TARGET"; break
     per_share = (exit_px - entry) if long_ else (entry - exit_px)
     qty = sig["execution"]["qty"]
     cost_ps = entry * COST_PCT / 100
@@ -100,30 +91,17 @@ def simulate(sig, bars_after, exit_hhmm=(15, 15)):
 
 
 def simulate_policy(long_, bars_after, sd, rr, breakeven, exit_hhmm=(15, 15)):
-    """Gross R of one exit policy: stop `sd` away, optional target at rr*sd, optional move-to-breakeven
-    once price has moved +1R (applies from the next bar; stop wins ties). Entry = first bar's open."""
-    entry = float(bars_after["open"].iloc[0])
-    sgn = 1 if long_ else -1
-    stop = entry - sgn * sd
-    target = None if rr is None else entry + sgn * rr * sd
-    exit_px = float(bars_after["close"].iloc[-1])
-    for ts, b in bars_after.iterrows():
-        if (ts.hour, ts.minute) >= exit_hhmm:
-            exit_px = float(b["open"]); break
-        if (b["low"] <= stop) if long_ else (b["high"] >= stop):
-            exit_px = stop; break
-        if target is not None and ((b["high"] >= target) if long_ else (b["low"] <= target)):
-            exit_px = target; break
-        if breakeven and sgn * ((b["high"] if long_ else b["low"]) - entry) >= sd:
-            stop = entry  # from the next bar the trade can no longer lose (before costs)
-    return sgn * (exit_px - entry) / sd, entry
+    """Gross R of one exit policy (see exits.walk); breakeven after +1R when `breakeven` is true."""
+    _, entry, exit_px, _, _ = exits.walk(long_, bars_after, sd, rr, 1.0 if breakeven else None, exit_hhmm)
+    return (1 if long_ else -1) * (exit_px - entry) / sd, entry
 
 
 def exit_variants(sig, bars_after):
     """Net R of every pre-declared exit policy for this signal (see evaluate.EXIT_POLICIES)."""
     if bars_after is None or len(bars_after) < 2:
         return {}
-    long_, sd0 = sig["direction"] == "LONG", sig["execution"]["stop_distance"]
+    ex = sig["execution"]
+    long_, sd0 = sig["direction"] == "LONG", ex.get("stop_distance_base", ex["stop_distance"])
     out = {}
     for pid, mult, rr, be in evaluate.EXIT_POLICIES:
         sd = sd0 * mult
