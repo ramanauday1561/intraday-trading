@@ -39,7 +39,7 @@ function banners() {
   const hl = m.health;
   if (m.mode === "live" && hl) {
     const bad = [];
-    if (hl.prices_ok < hl.universe) bad.push(`prices for ${hl.prices_ok}/${hl.universe} stocks`);
+    if (hl.prices_ok < hl.universe) bad.push(`prices for ${hl.prices_ok}/${hl.universe} stocks${hl.missing && hl.missing.length ? " (missing " + hl.missing.join(", ") + ")" : ""}`);
     if (!hl.news_items) bad.push("no news fetched");
     if (!hl.nse_derivatives) bad.push("NSE derivatives (GEX, OI, IV skew) unavailable");
     add(bad.length ? "medium" : "info", "Live data check", bad.length ? "Partial: " + bad.join("; ") + "." : `All sources OK: ${hl.prices_ok} stocks, ${hl.news_items} headlines, NSE derivatives.`);
@@ -126,7 +126,53 @@ async function backtest() {
     h("h4", {}, "Read this before trusting it"), h("div", { class: "box" }, b.caveats.map((c) => h("div", { class: "hl" }, c))));
 }
 
+async function getJSON(name) {
+  try { const r = await fetch(`data/${name}.json?t=${Date.now()}`, { cache: "no-store" }); return r.ok ? await r.json() : null; } catch { return null; }
+}
+const STATE_LABEL = { OPEN: "Open", TARGET: "Target hit", STOPPED: "Stopped out", CLOSED_1515: "Closed 15:15", PENDING: "Waiting for entry", NO_DATA: "No data" };
+
+async function today() {
+  const el = $("list"), L = await getJSON("today_log");
+  if (state.filter !== "TODAY") return;
+  if (!L || !L.entries) return el.replaceChildren(h("div", { class: "empty" }, "No journal yet. It starts with the first signal of the day."));
+  const S = L.summary;
+  el.replaceChildren(
+    h("div", { class: "banner info" }, h("b", {}, `Signals on ${L.date}${L.mode === "demo" ? " (demo)" : ""}`),
+      `${S.signals} signal${S.signals === 1 ? "" : "s"} today · ${S.open} still open · running total ${sgn(S.net_r_gross, 2)}R before costs. ` +
+      "Each signal stays here after it disappears from the main list; outcomes use the backtest's rules (entry at the next bar, flat by 15:15)."),
+    ...(L.entries.length ? L.entries.map((e) => {
+      const st = e.status || {}, oi = e.option_idea;
+      return h("button", { class: "card " + e.direction, onclick: () => openSheet(e.symbol) },
+        h("div", { class: "row" }, h("div", {}, h("div", { class: "sym" }, e.symbol), h("div", { class: "sub" }, `${e.signal_time} · ${label(e.setup)}${e.contradiction ? " · " + label(e.contradiction) : ""}`)),
+          h("div", { style: "text-align:right" }, h("span", { class: "pill " + e.direction }, e.direction),
+            h("div", { class: "sub " + cls(st.r) }, `${STATE_LABEL[st.state] || st.state}${st.r != null ? " · " + sgn(st.r, 2) + "R" : ""}`))),
+        st.fill != null ? h("div", { class: "sub", style: "margin-top:6px" }, `Entry ₹${fmt(st.fill)} · SL ₹${fmt(st.stop)} · T ₹${fmt(st.target)} · now/exit ₹${fmt(st.price)} at ${st.at}`) : null,
+        oi ? h("div", { class: "opt " + e.direction }, `${oi.action} ${oi.strike} · exp ${oi.expiry}`) : null);
+    }) : [h("div", { class: "empty" }, "No signals so far today.")]));
+}
+
+async function record() {
+  const el = $("list"), R = await getJSON("track_record");
+  if (state.filter !== "RECORD") return;
+  if (!R || !R.days || !R.days.length) return el.replaceChildren(h("div", { class: "empty" }, "The track record starts after the first market close with this version (replayed daily at 16:15 IST)."));
+  const S = R.summary, tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
+  const maxAbs = Math.max(0.5, ...R.days.map((d) => Math.abs(d.net_r)));
+  el.replaceChildren(
+    h("div", { class: "banner info" }, h("b", {}, `Track record ${S.from} → ${S.to}`), R.note),
+    h("div", { class: "macro" }, tile("Sessions", S.sessions), tile("Trades", S.trades || 0),
+      tile("Win rate", S.trades ? S.win_rate_pct + "%" : "—"), tile("Avg net R", S.trades ? sgn(S.avg_net_r, 3) : "—", cls(S.avg_net_r)),
+      tile("Total net R", S.trades ? sgn(S.total_net_r, 1) : "—", cls(S.total_net_r)),
+      tile("95% CI (avg)", S.net_r_ci95 ? `${sgn(S.net_r_ci95[0], 2)}…${sgn(S.net_r_ci95[1], 2)}` : "need more days")),
+    h("h4", {}, "By day"),
+    ...R.days.slice().reverse().map((d) => h("div", { class: "box", style: "margin-bottom:8px" },
+      h("div", { class: "row" }, h("b", {}, d.date), h("span", { class: cls(d.net_r) }, `${d.trades.length} trade${d.trades.length === 1 ? "" : "s"} · ${sgn(d.net_r, 2)}R`)),
+      h("div", { class: "bar" }, h("span", { class: "t" }, h("i", { style: `left:${d.net_r >= 0 ? 50 : 50 - 50 * Math.abs(d.net_r) / maxAbs}%;width:${50 * Math.abs(d.net_r) / maxAbs}%;background:var(--${d.net_r >= 0 ? "up" : "dn"})` }))),
+      d.trades.map((t) => h("div", { class: "hl sub" }, `${t.signal_time} ${t.symbol} ${t.direction} · ${fmt(t.entry)} → ${fmt(t.exit)} (${label(t.reason)}) · ${sgn(t.net_r, 2)}R net`)))));
+}
+
 function list() {
+  if (state.filter === "TODAY") return today();
+  if (state.filter === "RECORD") return record();
   if (state.filter === "BACKTEST") return backtest();
   const f = state.filter, rows = state.data.signals.filter((s) => f === "ALL" || (f === "ACTION" ? s.direction !== "NO_TRADE" : s.direction === f));
   const el = $("list");

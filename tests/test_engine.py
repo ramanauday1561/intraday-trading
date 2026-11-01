@@ -271,3 +271,57 @@ def test_exit_walk_forward_picks_on_train_only():
     r = ev.walk_forward_exits(trades, days)
     assert r["selected"]["policy"] == "stop2.0x_tgtnone_be0" and r["policies_tried"] == 18
     assert r["selected"]["test"]["avg_net_r"] == -0.1  # good on train only -> test exposes it
+
+
+def _day_bars(closes, start="2026-10-28 10:00"):
+    idx = pd.date_range(start, periods=len(closes), freq="5min", tz=IST)
+    rows = [(c, c + 0.5, c - 0.5, c, 1000) for c in closes]
+    return pd.DataFrame(rows, columns=["open", "high", "low", "close", "volume"], index=idx)
+
+
+def test_journal_status_and_carry_over():
+    from engine import journal
+    bars = _day_bars([100, 100, 101, 102, 103, 104])
+    entry = {"symbol": "X", "direction": "LONG", "signal_bar": "2026-10-28T10:00:00+05:30", "stop_distance": 1.0, "rr": 2.0}
+    st = journal.status(entry, bars)
+    assert st["fill"] == 100 and st["state"] == "TARGET" and st["r"] == 2.0 and st["at"] == "10:15"
+    short = dict(entry, direction="SHORT")
+    assert journal.status(short, bars)["state"] == "STOPPED"
+    assert journal.status(dict(entry, signal_bar="2026-10-28T10:25:00+05:30"), bars)["state"] == "PENDING"
+
+    def payload(phase, sigs, asof="2026-10-28T10:00:00+05:30"):
+        mk = lambda sym, d: {"symbol": sym, "name": sym, "direction": d, "setup": "MOMENTUM", "conviction": 50, "price": {"ltp": 100},
+                             "execution": {"stop_distance": 1.0, "rr": 2.0, "option_idea": None}, "contradiction": None}
+        return {"meta": {"data_as_of": asof, "mode": "live", "session_phase": phase, "generated_at": asof},
+                "signals": [mk(*x) for x in sigs]}
+    first = journal.update(None, payload("ACTIVE", [("X", "LONG")]), {"X": bars})
+    # 10 minutes later the signal is gone from the main list, but the journal keeps it and adds the new one
+    later = journal.update(first, payload("ACTIVE", [("Y", "SHORT"), ("X", "NO_TRADE")], "2026-10-28T10:10:00+05:30"), {"X": bars})
+    assert [e["symbol"] for e in later["entries"]] == ["X", "Y"] and later["entries"][1]["status"]["state"] == "NO_DATA"
+    # a new day starts a fresh journal; a closed session adds nothing
+    assert journal.update(later, payload("CLOSED", [("Z", "LONG")], "2026-10-29T15:25:00+05:30"), {})["entries"] == []
+
+
+def test_track_record_accumulates_and_replaces_days():
+    from engine import track
+    day = lambda d, rs: {"period": {"from": d}, "trades": [{"date": d, "symbol": f"S{i}", "direction": "LONG", "net_r": r} for i, r in enumerate(rs)]}
+    rec = track.add_day({}, day("2026-10-28", [0.5, -1.0]), "abc1234")
+    rec = track.add_day(rec, day("2026-10-29", [1.0]))
+    rec = track.add_day(rec, day("2026-10-28", [0.5]))  # re-running a day replaces it
+    assert [d["date"] for d in rec["days"]] == ["2026-10-28", "2026-10-29"]
+    assert rec["summary"]["trades"] == 2 and rec["summary"]["total_net_r"] == 1.5 and rec["days"][0]["engine"] is None
+    assert track.add_day(rec, {"period": None}) is rec
+
+
+def test_daily_from_intraday_and_fetch_retry(monkeypatch):
+    from engine import market
+    d = market.daily_from_intraday(pd.concat([_day_bars([1, 2, 3]), _day_bars([5, 4], "2026-10-29 09:15")]))
+    assert list(d["open"]) == [1, 5] and list(d["close"]) == [3, 4] and list(d["volume"]) == [3000, 2000]
+    calls = {}
+    def flaky(sym, rng, itv):
+        calls[sym] = calls.get(sym, 0) + 1
+        return None if (sym == "B" and calls[sym] < 2) else d
+    monkeypatch.setattr(market, "yahoo", flaky)
+    monkeypatch.setattr(market.time, "sleep", lambda s: None)
+    out = market.fetch_many(["A", "B"], "5d", "5m")
+    assert out["A"] is not None and out["B"] is not None and calls["B"] == 2

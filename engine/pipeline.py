@@ -10,7 +10,8 @@ import pandas as pd
 from . import demo as demomod
 from . import news as newsmod
 from .config import INDEX_SYMBOLS, IST, REGIME_WEIGHTS, UNIVERSE
-from .market import NSE, fetch_many, options_structure, parse_derivatives
+from . import archive
+from .market import NSE, daily_from_intraday, fetch_many, options_structure, parse_derivatives
 from .scoring import analyse_stock, daily_sigma_pct, detect_regime, session_phase
 from . import indicators as ind
 
@@ -51,8 +52,9 @@ def _load_live(now):
     return i5, d1
 
 
-def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0):
+def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bars=False):
     now = (now or datetime.now(IST)).astimezone(IST)
+    fallbacks = []
     live = None if force_demo else _load_live(now)
     mode = "live" if live else "demo"
     stocks = {}
@@ -66,6 +68,9 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0):
                 idx_data[k] = _split(i5[k], d1[k])
         for sym, name, sector, sidx, mcap in UNIVERSE:
             a, b = i5.get(sym + ".NS"), d1.get(sym + ".NS")
+            if a is not None and (b is None or len(b) < 25):  # daily series failed: rebuild it from the archive
+                b = daily_from_intraday(archive.merge_bars(archive.load_bars(sym + ".NS"), a))
+                fallbacks.append(sym)
             if a is None or b is None or len(a) < 30 or len(b) < 25:
                 continue
             t, h, dd = _split(a, b)
@@ -113,7 +118,8 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0):
         for src, url in newsmod.GENERAL_FEEDS:
             general += newsmod.fetch_feed(url, src)
     signals = []
-    health = {"prices_ok": len(stocks), "universe": len(UNIVERSE), "news_items": 0,
+    health = {"prices_ok": len(stocks), "universe": len(UNIVERSE), "news_items": 0, "daily_from_archive": fallbacks,
+              "missing": [u[0] for u in UNIVERSE if u[0] not in stocks],
               "nse_derivatives": bool(nse and nse.ok and (index_gex is not None)), "general_feed_items": len(general)}
     for sym, name, sector, sidx, mcap in UNIVERSE:
         m = stocks.get(sym)
@@ -156,7 +162,7 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0):
              "expected_daily_move_pct": round(daily_sigma_pct(vix), 2), "index_correlation": round(corr, 2),
              "regime": regime, "weights": REGIME_WEIGHTS[regime],
              "gex": None if not index_gex else {k: (round(v, 2) if isinstance(v, float) else v) for k, v in index_gex.items() if k != "_rows"}}
-    return {"schema_version": 1,
+    payload = {"schema_version": 1,
             "meta": {"generated_at": datetime.now(IST).isoformat(timespec="seconds"), "data_as_of": last_ts.isoformat(),
                      "mode": mode, "session_phase": phase, "execution_allowed": phase == "ACTIVE" or mode == "demo",
                      "health": health, "universe_size": len(UNIVERSE), "analysed": len(signals), "sources": sources,
@@ -166,6 +172,9 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0):
                                "LPP bands are modelled, not transmitted; no orders are ever placed."] +
                               (["DEMO MODE: synthetic data - live sources unreachable."] if mode == "demo" else [])},
             "macro": macro, "signals": signals}
+    if return_bars:
+        return payload, {sym: m["today"] for sym, m in stocks.items()}
+    return payload
 
 
 def to_json(payload):

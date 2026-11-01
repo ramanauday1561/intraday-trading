@@ -2,6 +2,10 @@ name: Archive market data
 
 on:
   workflow_dispatch:
+    inputs:
+      dates:
+        description: "Optional: space-separated session dates to (re)add to the track record, e.g. 2026-10-28 2026-10-29"
+        required: false
   schedule:
     - cron: "45 10 * * 1-5"   # 16:15 IST, after the close
 
@@ -15,7 +19,7 @@ concurrency:
 jobs:
   archive:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,11 +29,21 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Fetch latest 5-minute bars and headlines, merge into archive/
         run: python -W ignore -m engine.archive
+      - name: Replay today with the live rules and add it to the track record
+        continue-on-error: true
+        env:
+          DATES: ${{ inputs.dates }}
+        run: |
+          for D in ${DATES:-$(TZ=Asia/Kolkata date +%F)}; do
+            echo "== replay $D"
+            if python -W ignore -m engine.backtest --date "$D" --out /tmp/day.json | grep -E "^(REPLAY TRADE|with_news)"; then :; fi
+            if [ -f /tmp/day.json ]; then python -m engine.track --day /tmp/day.json --out data/track_record.json; rm -f /tmp/day.json; fi
+          done
       - name: Commit archive
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add archive
+          git add archive data/track_record.json 2>/dev/null || git add archive
           git diff --cached --quiet && echo "nothing new" && exit 0
           git commit -m "Archive market data $(date -u +%F)"
           git pull --rebase origin main
