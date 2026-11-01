@@ -32,7 +32,12 @@ POS_EARN = r"\b(beat|beats|surge|jump|soar|record|rise|rises|up \d+|growth)\b"
 NEG_EARN = r"\b(miss|misses|slump|plunge|fall|falls|drop|drops|decline|loss|down \d+)\b"
 
 SCORE_THRESHOLD = 0.20          # |composite| needed for a directional call
-OVERRIDE_MIN_CONVICTION = 40    # contradiction-matrix overrides must still reach this conviction (0-100)
+OVERRIDE_MIN_CONVICTION = 40
+# Exit policy adopted 2026-11-01 (docs/IMPROVEMENT_LOG.md): stop 2x the base ATR stop, 2R target,
+# stop moved to entry after +1R. Entry filters still use the base stop.
+EXIT_STOP_MULT = 2.0
+EXIT_TARGET_R = 2.0
+EXIT_BREAKEVEN_R = 1.0    # contradiction-matrix overrides must still reach this conviction (0-100)
 VPIN_TOXIC = 0.55
 MIN_TURNOVER_CR = 75.0          # avg daily turnover proxy (INR crore) - SEBI F&O criterion
 CIRCUIT_WARN_PCT = 2.0

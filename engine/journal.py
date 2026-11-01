@@ -8,8 +8,9 @@ import time
 
 import requests
 
+from . import exits
+
 PAGES_LOG = "https://ramanauday1561.github.io/intraday-trading/data/today_log.json"
-EXIT_HHMM = (15, 15)
 
 
 def fetch_previous(url=PAGES_LOG, tries=3):
@@ -32,23 +33,12 @@ def status(entry, bars):
     after = bars[bars.index > entry["signal_bar"]]
     if not len(after):
         return {"state": "PENDING"}
-    long_ = entry["direction"] == "LONG"
-    sgn, sd = (1 if long_ else -1), entry["stop_distance"]
-    fill = float(after["open"].iloc[0])
-    stop, target = fill - sgn * sd, fill + sgn * entry["rr"] * sd
-    state, px, at = "OPEN", float(after["close"].iloc[-1]), after.index[-1]
-    for ts, b in after.iterrows():
-        if (ts.hour, ts.minute) >= EXIT_HHMM:
-            state, px, at = "CLOSED_1515", float(b["open"]), ts
-            break
-        if (b["low"] <= stop) if long_ else (b["high"] >= stop):
-            state, px, at = "STOPPED", stop, ts
-            break
-        if (b["high"] >= target) if long_ else (b["low"] <= target):
-            state, px, at = "TARGET", target, ts
-            break
-    return {"state": state, "fill": round(fill, 2), "stop": round(stop, 2), "target": round(target, 2),
-            "price": round(px, 2), "at": at.strftime("%H:%M"), "r": round(sgn * (px - fill) / sd, 2)}
+    long_, sd = entry["direction"] == "LONG", entry["stop_distance"]
+    state, fill, px, at, stop_now = exits.walk(long_, after, sd, entry["rr"], entry.get("breakeven_after_r"))
+    sgn = 1 if long_ else -1
+    return {"state": state, "fill": round(fill, 2), "stop": round(fill - sgn * sd, 2), "stop_now": round(stop_now, 2),
+            "target": round(fill + sgn * entry["rr"] * sd, 2), "price": round(px, 2), "at": at.strftime("%H:%M"),
+            "r": round(sgn * (px - fill) / sd, 2)}
 
 
 def update(prev, payload, bars):
@@ -65,6 +55,7 @@ def update(prev, payload, bars):
                             "conviction": s["conviction"], "signal_bar": meta["data_as_of"],
                             "signal_time": meta["data_as_of"][11:16], "ref_price": s["price"]["ltp"],
                             "stop_distance": e["stop_distance"], "rr": e["rr"], "option_idea": e.get("option_idea"),
+                            "breakeven_after_r": e.get("breakeven_after_r"),
                             "contradiction": (s.get("contradiction") or {}).get("type")})
             known.add((s["symbol"], s["direction"]))
     for e in entries:

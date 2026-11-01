@@ -74,7 +74,7 @@ async function backtest() {
     const v = vmap[H.verdict] || ["", H.verdict];
     return el.replaceChildren(switcher,
       h("div", { class: "banner info" }, h("b", {}, "Pre-registered hypothesis H1"),
-        "Trades that oppose a material news signal have mean net R > 0 after costs. Registered 2026-10-25, restarted 2026-10-27 after a rule change; only sessions after 27 Oct count. See preregistration.md in the repo."),
+        "Trades that oppose a material news signal have mean net R > 0 after costs. Registered 2026-10-25; restarted after rule changes on 27 Oct and 1 Nov; only sessions after 1 Nov count. See preregistration.md in the repo."),
       h("div", { class: "box" },
         h("div", { class: "hl" }, b.period ? `Forward sessions: ${b.period.from} → ${b.period.to} (${b.period.sessions})` : "No forward sessions yet — data accumulates daily."),
         h("div", { class: "hl" }, h("b", {}, "Opposed-news trades: "), mm(H.opposed), H.opposed_ci95 ? ` · 95% CI ${sgn(H.opposed_ci95[0], 3)}…${sgn(H.opposed_ci95[1], 3)}R` : ""),
@@ -129,7 +129,7 @@ async function backtest() {
 async function getJSON(name) {
   try { const r = await fetch(`data/${name}.json?t=${Date.now()}`, { cache: "no-store" }); return r.ok ? await r.json() : null; } catch { return null; }
 }
-const STATE_LABEL = { OPEN: "Open", TARGET: "Target hit", STOPPED: "Stopped out", CLOSED_1515: "Closed 15:15", PENDING: "Waiting for entry", NO_DATA: "No data" };
+const STATE_LABEL = { OPEN: "Open", TARGET: "Target hit", STOPPED: "Stopped out", BREAKEVEN: "Breakeven exit", CLOSED_1515: "Closed 15:15", PENDING: "Waiting for entry", NO_DATA: "No data" };
 
 async function today() {
   const el = $("list"), L = await getJSON("today_log");
@@ -146,7 +146,7 @@ async function today() {
         h("div", { class: "row" }, h("div", {}, h("div", { class: "sym" }, e.symbol), h("div", { class: "sub" }, `${e.signal_time} · ${label(e.setup)}${e.contradiction ? " · " + label(e.contradiction) : ""}`)),
           h("div", { style: "text-align:right" }, h("span", { class: "pill " + e.direction }, e.direction),
             h("div", { class: "sub " + cls(st.r) }, `${STATE_LABEL[st.state] || st.state}${st.r != null ? " · " + sgn(st.r, 2) + "R" : ""}`))),
-        st.fill != null ? h("div", { class: "sub", style: "margin-top:6px" }, `Entry ₹${fmt(st.fill)} · SL ₹${fmt(st.stop)} · T ₹${fmt(st.target)} · now/exit ₹${fmt(st.price)} at ${st.at}`) : null,
+        st.fill != null ? h("div", { class: "sub", style: "margin-top:6px" }, `Entry ₹${fmt(st.fill)} · SL ₹${fmt(st.stop_now ?? st.stop)}${st.stop_now != null && st.stop_now === st.fill ? " (moved to entry)" : ""} · T ₹${fmt(st.target)} · now/exit ₹${fmt(st.price)} at ${st.at}`) : null,
         oi ? h("div", { class: "opt " + e.direction }, `${oi.action} ${oi.strike} · exp ${oi.expiry}`) : null);
     }) : [h("div", { class: "empty" }, "No signals so far today.")]));
 }
@@ -220,7 +220,8 @@ function openSheet(sym) {
     h("div", { class: "grid" },
       kv("Entry trigger", "₹" + fmt(e.entry_trigger)), kv("Risk : Reward", e.risk_reward),
       kv("Stop-loss", `₹${fmt(e.stop)}`), kv("Distance to stop", `₹${fmt(e.stop_distance)} (${fmt(e.stop_distance_pct)}%)`),
-      kv("Trailing stop", `₹${fmt(e.trail_distance)} behind price`), kv(s.setup === "TRAP_FADE" ? "Target (gap close)" : "Target", "₹" + fmt(e.gap_close_target ?? e.target)),
+      kv("Move stop to entry at", e.breakeven_trigger != null ? `₹${fmt(e.breakeven_trigger)} (+${e.breakeven_after_r}R)` : "—"),
+      kv("Target", "₹" + fmt(e.target) + (e.gap_close_target ? ` (gap close ₹${fmt(e.gap_close_target)})` : "")),
       kv("Suggested qty", act ? `${q.q} sh` : "—"), kv("Capital at risk", act ? "₹" + fmt(q.risk, 0) : "—"),
       kv("VWAP fail-safe", "₹" + fmt(e.invalidation_vwap)), kv("Daily ATR", `₹${fmt(s.price.atr_daily)} (${fmt(s.price.atr_pct)}%)`)),
     h("h4", {}, "Structural invalidation"), h("div", { class: "box inval" }, e.invalidation_text),
