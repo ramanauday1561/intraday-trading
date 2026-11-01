@@ -114,3 +114,28 @@ def hypothesis_report(trades, in_sample):
         verdict = "SUPPORTED" if ci and ci[0] > 0 else "NOT_SUPPORTED"
     return {"in_sample": in_sample, "min_trades_required": HYPOTHESIS_MIN_TRADES, "opposed": metrics(opp), "opposed_ci95": ci,
             "other_trades": metrics(rest), "verdict": verdict}
+
+
+# Exit policies, declared before looking at their results: stop width (x the engine's current stop),
+# fixed target (R multiple, None = hold to 15:15) and move-stop-to-breakeven after +1R.
+EXIT_POLICIES = [(f"stop{m}x_tgt{rr if rr else 'none'}_be{int(be)}", m, rr, be)
+                 for m in (1.0, 1.5, 2.0) for rr in (2.0, 1.5, None) for be in (False, True)]
+CURRENT_EXIT = "stop1.0x_tgt2.0_be0"
+
+
+def walk_forward_exits(trades, sessions):
+    """Choose the exit policy with the best TRAIN mean net R; judge it once on TEST against the current policy."""
+    cut = int(len(sessions) * TRAIN_FRACTION)
+    train = {d.isoformat() for d in sessions[:cut]}
+    trades = [t for t in trades if t.get("exits")]
+    if not trades or not train:
+        return None
+    rows = {}
+    for pid, *_ in EXIT_POLICIES:
+        tr = [{"date": t["date"], "net_r": t["exits"][pid]} for t in trades if t["date"] in train]
+        te = [{"date": t["date"], "net_r": t["exits"][pid]} for t in trades if t["date"] not in train]
+        rows[pid] = {"train": metrics(tr), "test": metrics(te), "test_ci95": bootstrap_ci(te)}
+    eligible = {k: v for k, v in rows.items() if v["train"]["trades"] >= MIN_TRAIN_TRADES}
+    best = max(eligible, key=lambda k: eligible[k]["train"]["avg_net_r"]) if eligible else None
+    return {"policies_tried": len(rows), "selected": best and {"policy": best, **rows[best]},
+            "current": {"policy": CURRENT_EXIT, **rows[CURRENT_EXIT]}, "all": rows}

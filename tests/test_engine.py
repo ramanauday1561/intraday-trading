@@ -244,3 +244,30 @@ def test_priced_in_override_needs_confirmation():
     confirmed = cc(ofi_v=-0.2, ltp=1305, vw=1312, **base)
     assert confirmed[0] == "PRICED_IN_EXHAUSTION" and confirmed[2] == "SHORT"
     assert cc(ofi_v=0.0, ltp=1, vw=1, pos_news=False, gap=0, last_bar_bear=False, prior_rally=0, extension=0, opt=None, surge_buy=False) is None
+
+
+def test_exit_policy_simulation():
+    from engine.backtest import simulate_policy
+    bars = _bars([(100, 101.5, 99.8, 101, 1), (101, 101.2, 99.5, 99.6, 1), (99.6, 99.7, 99.6, 99.6, 1)])
+    # +1R reached in bar 1 (sd=1); breakeven moves stop to 100 -> stopped at entry in bar 2
+    assert simulate_policy(True, bars, 1.0, None, True)[0] == 0.0
+    # without breakeven the trade survives (low 99.5 > stop 99) and is marked at the last close
+    assert round(simulate_policy(True, bars, 1.0, None, False)[0], 2) == -0.4
+    # target 1.5R (101.5) hit in bar 1
+    assert simulate_policy(True, bars, 1.0, 1.5, False)[0] == 1.5
+    # short mirror: stop at 101 hit in bar 1 (high 101.5)
+    assert simulate_policy(False, bars, 1.0, 2.0, False)[0] == -1.0
+
+
+def test_exit_walk_forward_picks_on_train_only():
+    from datetime import date, timedelta
+    from engine import evaluate as ev
+    days = [date(2025, 1, 6) + timedelta(days=i) for i in range(40)]
+    trades = []
+    for i, d in enumerate(days):
+        for k in range(3):
+            ex = {pid: (0.5 if (pid == "stop2.0x_tgtnone_be0" and i < 24) else -0.1) for pid, *_ in ev.EXIT_POLICIES}
+            trades.append({"date": d.isoformat(), "exits": ex})
+    r = ev.walk_forward_exits(trades, days)
+    assert r["selected"]["policy"] == "stop2.0x_tgtnone_be0" and r["policies_tried"] == 18
+    assert r["selected"]["test"]["avg_net_r"] == -0.1  # good on train only -> test exposes it

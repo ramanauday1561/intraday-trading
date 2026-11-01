@@ -99,6 +99,39 @@ def simulate(sig, bars_after, exit_hhmm=(15, 15)):
             "net_pnl": round(per_share * qty - entry * qty * COST_PCT / 100, 0)}
 
 
+def simulate_policy(long_, bars_after, sd, rr, breakeven, exit_hhmm=(15, 15)):
+    """Gross R of one exit policy: stop `sd` away, optional target at rr*sd, optional move-to-breakeven
+    once price has moved +1R (applies from the next bar; stop wins ties). Entry = first bar's open."""
+    entry = float(bars_after["open"].iloc[0])
+    sgn = 1 if long_ else -1
+    stop = entry - sgn * sd
+    target = None if rr is None else entry + sgn * rr * sd
+    exit_px = float(bars_after["close"].iloc[-1])
+    for ts, b in bars_after.iterrows():
+        if (ts.hour, ts.minute) >= exit_hhmm:
+            exit_px = float(b["open"]); break
+        if (b["low"] <= stop) if long_ else (b["high"] >= stop):
+            exit_px = stop; break
+        if target is not None and ((b["high"] >= target) if long_ else (b["low"] <= target)):
+            exit_px = target; break
+        if breakeven and sgn * ((b["high"] if long_ else b["low"]) - entry) >= sd:
+            stop = entry  # from the next bar the trade can no longer lose (before costs)
+    return sgn * (exit_px - entry) / sd, entry
+
+
+def exit_variants(sig, bars_after):
+    """Net R of every pre-declared exit policy for this signal (see evaluate.EXIT_POLICIES)."""
+    if bars_after is None or len(bars_after) < 2:
+        return {}
+    long_, sd0 = sig["direction"] == "LONG", sig["execution"]["stop_distance"]
+    out = {}
+    for pid, mult, rr, be in evaluate.EXIT_POLICIES:
+        sd = sd0 * mult
+        gross, entry = simulate_policy(long_, bars_after, sd, rr, be)
+        out[pid] = round(gross - entry * COST_PCT / 100 / sd, 4)
+    return out
+
+
 def _pnl_at(t, risk_pct, capital):
     """Re-size a trade for another risk % (same leverage cap)."""
     q = min(int(capital * risk_pct / 100 * t["size_mult"] / t["stop_distance"]), int(capital * LEVERAGE / t["entry"]))
@@ -256,6 +289,7 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
                         continue
                     tr = simulate(sig, later)
                     if tr:
+                        tr["exits"] = exit_variants(sig, later)
                         tr.update({"date": date.isoformat(), "signal_time": cut.strftime("%H:%M"), "news_score": nws["score"],
                                    "news_bucket": "news_aligned" if (abs(nws["score"]) > 0.2 and (nws["score"] > 0) == (tr["direction"] == "LONG"))
                                    else "news_opposed" if abs(nws["score"]) > 0.2 else "no_news",
@@ -277,10 +311,13 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
         res[k] = _stats(trades[k], capital, len(days))
     for k in cands:
         res[k]["walk_forward"] = evaluate.walk_forward(cands[k], days)
+        res[k]["exit_policies"] = evaluate.walk_forward_exits(trades[k], days)
         res[k]["candidates"] = len(cands[k])
     res["hypothesis"] = evaluate.hypothesis_report(trades["with_news"], after is None)
     res["forward_after"] = after.isoformat() if after else None
-    res["trades"] = [{kk: vv for kk, vv in t.items() if kk not in ("per_share",)} for t in sorted(trades["with_news"], key=lambda t: (t["date"], t["signal_time"]))][-400:]
+    res["trades"] = [{kk: vv for kk, vv in t.items() if kk not in ("per_share", "exits")} for t in sorted(trades["with_news"], key=lambda t: (t["date"], t["signal_time"]))][-400:]
+    for t in res["trades"]:
+        t.pop("exits", None)
     res["caveats"] = [
         "Headlines come from Google News RSS filtered by each item's own publication time; its historical archive can be incomplete, so news coverage on old days is thinner than live.",
         "Sentiment uses a finance lexicon (not FinBERT) unless USE_FINBERT=1. Earnings surprise is a headline beat/miss proxy.",
@@ -323,6 +360,9 @@ def main():
         if not s.get("trades"):
             continue
         print(k, {x: s.get(x) for x in ("trades", "win_rate_pct", "avg_r", "avg_net_r", "avg_cost_r", "profit_factor", "net_pnl_risk1", "return_pct_risk1", "return_pct_risk5")})
+        ep = s.get("exit_policies")
+        if ep:
+            print("  exit policy chosen on train:", ep["selected"], "| current:", ep["current"])
         wf = s.get("walk_forward")
         if wf and wf["selected"]:
             print("  walk-forward selected:", wf["selected"]["config"], "train", wf["selected"]["train"], "TEST", wf["selected"]["test"], wf["selected"]["test_ci95"], wf["selected"]["verdict"])

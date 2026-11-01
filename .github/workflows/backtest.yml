@@ -54,6 +54,11 @@ jobs:
                   print(k.upper(), {x: s.get(x) for x in ("trades","win_rate_pct","avg_r","avg_r_se","total_r","profit_factor","max_drawdown_r","net_pnl_risk1","return_pct_risk1","net_pnl_risk5","return_pct_risk5")})
                   print(k.upper(), "by_news", s.get("by_news"), "by_dir", s.get("by_direction"))
               print("BLOCKERS", b["blocker_counts"])
+              for k in ("with_news", "without_news"):
+                  ep = b[k].get("exit_policies") or {}
+                  sel, cur = ep.get("selected") or {}, ep.get("current") or {}
+                  print("EXITS", k, "| chosen:", sel.get("policy"), "train", sel.get("train"), "TEST", sel.get("test"), sel.get("test_ci95"),
+                        "| current TEST", cur.get("test"), cur.get("test_ci95"))
           if os.path.exists("data/forward_test.json"):
               f = json.load(open("data/forward_test.json"))
               print("FORWARD H1:", f.get("period"), f["hypothesis"])
