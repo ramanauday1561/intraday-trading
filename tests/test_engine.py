@@ -304,12 +304,14 @@ def test_journal_status_and_carry_over():
 
 def test_track_record_accumulates_and_replaces_days():
     from engine import track
-    day = lambda d, rs: {"period": {"from": d}, "trades": [{"date": d, "symbol": f"S{i}", "direction": "LONG", "net_r": r} for i, r in enumerate(rs)]}
+    day = lambda d, rs: {"period": {"from": d}, "trades": [{"date": d, "symbol": f"S{i}", "direction": "LONG", "net_r": r,
+                                                            "stop_distance": 2.5, "size_mult": 1.0} for i, r in enumerate(rs)]}
     rec = track.add_day({}, day("2026-10-28", [0.5, -1.0]), "abc1234")
     rec = track.add_day(rec, day("2026-10-29", [1.0]))
     rec = track.add_day(rec, day("2026-10-28", [0.5]))  # re-running a day replaces it
     assert [d["date"] for d in rec["days"]] == ["2026-10-28", "2026-10-29"]
     assert rec["summary"]["trades"] == 2 and rec["summary"]["total_net_r"] == 1.5 and rec["days"][0]["engine"] is None
+    assert rec["days"][1]["trades"][0]["stop_distance"] == 2.5  # kept so the app can size paper trades
     assert track.add_day(rec, {"period": None}) is rec
 
 
