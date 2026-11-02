@@ -369,5 +369,18 @@ window.addEventListener("appinstalled", () => { $("installBtn").hidden = true; }
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone && !store.get("iosHintSeen", false)) $("iosHint").hidden = false;
 $("iosClose").onclick = () => { $("iosHint").hidden = true; store.set("iosHintSeen", true); };
-if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+// Updates: the service worker serves the cached app first, so a new release used to appear only on the
+// launch after next. Check for a new version on open/resume and reload once the new one takes control.
+if ("serviceWorker" in navigator) {
+  const hadController = !!navigator.serviceWorker.controller; // false on first install: nothing to refresh
+  let reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController || reloading) return;
+    reloading = true;
+    location.reload();
+  });
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").then((reg) => {
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
+  }).catch(() => {}));
+}
 load();
