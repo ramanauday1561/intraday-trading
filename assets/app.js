@@ -23,6 +23,22 @@ const sgn = (n, d = 2) => (n == null ? "—" : (n > 0 ? "+" : "") + fmt(n, d));
 const cls = (n) => (n > 0 ? "up" : n < 0 ? "dn" : "mu");
 const label = (s) => String(s || "").replace(/_/g, " ").toLowerCase().replace(/^\w|\s\w/g, (m) => m.toUpperCase());
 
+// Paper money: every suggested trade is "taken" with the ⚙ capital and risk %, sized exactly like the app's
+// suggested quantity (risk / stop distance, capped at 5x capital), with 0.06% round-trip costs.
+const COST_PCT = 0.06, LEVERAGE = 5;
+function account() {
+  return { cap: state.capital ?? state.data?.meta.capital ?? 100000, risk: state.riskPct ?? state.data?.meta.risk_pct ?? 5 };
+}
+function paper(long, fill, exit, sd, sizeMult) {
+  const { cap, risk } = account();
+  if (!(sd > 0) || fill == null || exit == null) return null;
+  const q = Math.max(0, Math.min(Math.floor((cap * risk / 100) * (sizeMult ?? 1) / sd), Math.floor((cap * LEVERAGE) / fill)));
+  const pnl = (long ? 1 : -1) * (exit - fill) * q - (fill * q * COST_PCT) / 100;
+  return { q, invested: q * fill, pnl };
+}
+const rupees = (n) => (n < 0 ? "−₹" : "₹") + fmt(Math.abs(n), 0);
+const signedRupees = (n) => (n > 0 ? "+" : "") + rupees(n);
+
 function qty(s) {
   const risk = (state.capital ?? state.data.meta.capital) * ((state.riskPct ?? state.data.meta.risk_pct) / 100) * s.risk.size_multiplier;
   const d = s.execution.stop_distance;
@@ -135,8 +151,18 @@ async function today() {
   const el = $("list"), L = await getJSON("today_log");
   if (state.filter !== "TODAY") return;
   if (!L || !L.entries) return el.replaceChildren(h("div", { class: "empty" }, "No journal yet. It starts with the first signal of the day."));
-  const S = L.summary;
+  const S = L.summary, A = account();
+  const legs = L.entries.map((e) => { const st = e.status || {}; return { e, st, p: paper(e.direction === "LONG", st.fill, st.price, e.stop_distance, e.size_mult) }; });
+  const taken = legs.filter((x) => x.p && x.p.q > 0);
+  const booked = taken.filter((x) => x.st.state !== "OPEN").reduce((a, x) => a + x.p.pnl, 0);
+  const open = taken.filter((x) => x.st.state === "OPEN").reduce((a, x) => a + x.p.pnl, 0);
+  const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
   el.replaceChildren(
+    h("h4", {}, `Paper money · ${rupees(A.cap)} account at ${A.risk}% risk per trade`),
+    h("div", { class: "macro" }, tile("Trades taken", taken.length), tile("Day P&L", signedRupees(booked + open), cls(booked + open)),
+      tile("Booked", signedRupees(booked), cls(booked)), tile("Still open", signedRupees(open), cls(open))),
+    h("div", { class: "sub", style: "margin-bottom:10px" }, `Return on the account today: ${sgn((100 * (booked + open)) / A.cap, 2)}%. ` +
+      "Each signal is bought/shorted at the next 5-minute open with the app's suggested quantity (5× intraday margin cap) and closed by 15:15; costs included. Change the account in ⚙."),
     h("div", { class: "banner info" }, h("b", {}, `Signals on ${L.date}${L.mode === "demo" ? " (demo)" : ""}`),
       `${S.signals} signal${S.signals === 1 ? "" : "s"} today · ${S.open} still open · running total ${sgn(S.net_r_gross, 2)}R before costs. ` +
       "Each signal stays here after it disappears from the main list; outcomes use the backtest's rules (entry at the next bar, flat by 15:15)."),
@@ -147,6 +173,9 @@ async function today() {
           h("div", { style: "text-align:right" }, h("span", { class: "pill " + e.direction }, e.direction),
             h("div", { class: "sub " + cls(st.r) }, `${STATE_LABEL[st.state] || st.state}${st.r != null ? " · " + sgn(st.r, 2) + "R" : ""}`))),
         st.fill != null ? h("div", { class: "sub", style: "margin-top:6px" }, `Entry ₹${fmt(st.fill)} · SL ₹${fmt(st.stop_now ?? st.stop)}${st.stop_now != null && st.stop_now === st.fill ? " (moved to entry)" : ""} · T ₹${fmt(st.target)} · now/exit ₹${fmt(st.price)} at ${st.at}`) : null,
+        (() => { const p = paper(e.direction === "LONG", st.fill, st.price, e.stop_distance, e.size_mult);
+          return p && p.q > 0 ? h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `Paper: ${p.q} sh · ${rupees(p.invested)} position`),
+            h("b", { class: cls(p.pnl) }, signedRupees(p.pnl) + (st.state === "OPEN" ? " (open)" : ""))) : null; })(),
         oi ? h("div", { class: "opt " + e.direction }, `${oi.action} ${oi.strike} · exp ${oi.expiry}`) : null);
     }) : [h("div", { class: "empty" }, "No signals so far today.")]));
 }
@@ -157,7 +186,15 @@ async function record() {
   if (!R || !R.days || !R.days.length) return el.replaceChildren(h("div", { class: "empty" }, "The track record starts after the first market close with this version (replayed daily at 16:15 IST)."));
   const S = R.summary, tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
   const maxAbs = Math.max(0.5, ...R.days.map((d) => Math.abs(d.net_r)));
+  const A = account();
+  const dayPnl = (d) => d.trades.reduce((a, t) => { const p = paper(t.direction === "LONG", t.entry, t.exit, t.stop_distance, t.size_mult); return a + (p ? p.pnl : 0); }, 0);
+  let bal = A.cap, peak = A.cap, maxDd = 0;
+  const equity = R.days.map((d) => { const p = dayPnl(d); bal += p; peak = Math.max(peak, bal); maxDd = Math.max(maxDd, (peak - bal) / peak); return { date: d.date, pnl: p, bal }; });
+  const total = bal - A.cap, pnlByDate = Object.fromEntries(equity.map((x) => [x.date, x.pnl]));
   el.replaceChildren(
+    h("div", { class: "banner " + (total >= 0 ? "info" : "medium") }, h("b", {}, `Paper account: ${rupees(A.cap)} → ${rupees(bal)}`),
+      `${signedRupees(total)} (${sgn((100 * total) / A.cap, 2)}%) since ${S.from} at ${A.risk}% risk per trade, max drawdown ${fmt(100 * maxDd, 1)}%. ` +
+      "Fixed account size per trade (no compounding), every suggested trade taken, costs included. Not real money."),
     h("div", { class: "banner info" }, h("b", {}, `Track record ${S.from} → ${S.to}`), R.note),
     h("div", { class: "macro" }, tile("Sessions", S.sessions), tile("Trades", S.trades || 0),
       tile("Win rate", S.trades ? S.win_rate_pct + "%" : "—"), tile("Avg net R", S.trades ? sgn(S.avg_net_r, 3) : "—", cls(S.avg_net_r)),
@@ -165,9 +202,10 @@ async function record() {
       tile("95% CI (avg)", S.net_r_ci95 ? `${sgn(S.net_r_ci95[0], 2)}…${sgn(S.net_r_ci95[1], 2)}` : "need more days")),
     h("h4", {}, "By day"),
     ...R.days.slice().reverse().map((d) => h("div", { class: "box", style: "margin-bottom:8px" },
-      h("div", { class: "row" }, h("b", {}, d.date), h("span", { class: cls(d.net_r) }, `${d.trades.length} trade${d.trades.length === 1 ? "" : "s"} · ${sgn(d.net_r, 2)}R`)),
+      h("div", { class: "row" }, h("b", {}, d.date), h("span", { class: cls(d.net_r) }, `${d.trades.length} trade${d.trades.length === 1 ? "" : "s"} · ${sgn(d.net_r, 2)}R · ${signedRupees(pnlByDate[d.date] || 0)}`)),
       h("div", { class: "bar" }, h("span", { class: "t" }, h("i", { style: `left:${d.net_r >= 0 ? 50 : 50 - 50 * Math.abs(d.net_r) / maxAbs}%;width:${50 * Math.abs(d.net_r) / maxAbs}%;background:var(--${d.net_r >= 0 ? "up" : "dn"})` }))),
-      d.trades.map((t) => h("div", { class: "hl sub" }, `${t.signal_time} ${t.symbol} ${t.direction} · ${fmt(t.entry)} → ${fmt(t.exit)} (${label(t.reason)}) · ${sgn(t.net_r, 2)}R net`)))));
+      d.trades.map((t) => { const p = paper(t.direction === "LONG", t.entry, t.exit, t.stop_distance, t.size_mult);
+        return h("div", { class: "hl sub" }, `${t.signal_time} ${t.symbol} ${t.direction} · ${fmt(t.entry)} → ${fmt(t.exit)} (${label(t.reason)}) · ${sgn(t.net_r, 2)}R` + (p ? ` · ${p.q} sh ${signedRupees(p.pnl)}` : "")); }))));
 }
 
 function list() {
@@ -283,6 +321,7 @@ $("settingsBtn").onclick = () => { refreshNotifUI(); $("capital").value = state.
 $("settings").addEventListener("close", () => {
   const c = parseFloat($("capital").value), r = parseFloat($("riskPct").value);
   if (c > 0 && r > 0 && r <= 100) { state.capital = c; state.riskPct = r; store.set("capital", c); store.set("riskPct", r); }
+  if (state.data) list(); // paper-money figures depend on the account size
 });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
 setInterval(() => { if (!document.hidden) load(); }, 120000);

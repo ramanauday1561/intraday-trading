@@ -55,7 +55,7 @@ def update(prev, payload, bars):
                             "conviction": s["conviction"], "signal_bar": meta["data_as_of"],
                             "signal_time": meta["data_as_of"][11:16], "ref_price": s["price"]["ltp"],
                             "stop_distance": e["stop_distance"], "rr": e["rr"], "option_idea": e.get("option_idea"),
-                            "breakeven_after_r": e.get("breakeven_after_r"),
+                            "breakeven_after_r": e.get("breakeven_after_r"), "size_mult": (s.get("risk") or {}).get("size_multiplier", 1.0),
                             "contradiction": (s.get("contradiction") or {}).get("type")})
             known.add((s["symbol"], s["direction"]))
     for e in entries:

@@ -82,6 +82,15 @@ def fetch_many(symbols, rng, interval, workers=8, retries=2, backoff_s=3.0):
     return out
 
 
+def drop_incomplete(df, now, bar_minutes=5):
+    """Remove bars still forming at `now`. Yahoo includes the current, partial candle; its tiny volume made
+    the live 'volume expanding' check fail almost every run, so live signals never matched the backtest."""
+    if df is None:
+        return None
+    done = df[df.index + pd.Timedelta(minutes=bar_minutes) <= pd.Timestamp(now)]
+    return done if len(done) else None
+
+
 def daily_from_intraday(df):
     """Daily OHLCV built from intraday bars (fallback when Yahoo's daily series fails)."""
     if df is None or not len(df):

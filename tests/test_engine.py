@@ -304,12 +304,14 @@ def test_journal_status_and_carry_over():
 
 def test_track_record_accumulates_and_replaces_days():
     from engine import track
-    day = lambda d, rs: {"period": {"from": d}, "trades": [{"date": d, "symbol": f"S{i}", "direction": "LONG", "net_r": r} for i, r in enumerate(rs)]}
+    day = lambda d, rs: {"period": {"from": d}, "trades": [{"date": d, "symbol": f"S{i}", "direction": "LONG", "net_r": r,
+                                                            "stop_distance": 2.5, "size_mult": 1.0} for i, r in enumerate(rs)]}
     rec = track.add_day({}, day("2026-10-28", [0.5, -1.0]), "abc1234")
     rec = track.add_day(rec, day("2026-10-29", [1.0]))
     rec = track.add_day(rec, day("2026-10-28", [0.5]))  # re-running a day replaces it
     assert [d["date"] for d in rec["days"]] == ["2026-10-28", "2026-10-29"]
     assert rec["summary"]["trades"] == 2 and rec["summary"]["total_net_r"] == 1.5 and rec["days"][0]["engine"] is None
+    assert rec["days"][1]["trades"][0]["stop_distance"] == 2.5  # kept so the app can size paper trades
     assert track.add_day(rec, {"period": None}) is rec
 
 
@@ -343,3 +345,13 @@ def test_adopted_exit_policy_in_engine_and_simulation():
     # +1R (102) reached in bar 1, then price falls back through entry: exits at breakeven, not at the -1R stop
     be = simulate(sig, _bars([(100, 102.5, 99.5, 102, 1), (102, 102, 97, 97.5, 1), (97.5, 98, 97, 97, 1)]))
     assert be["reason"] == "BREAKEVEN" and be["r_multiple"] == 0.0
+
+
+def test_live_uses_completed_bars_only():
+    from datetime import datetime as dt
+    from engine.market import drop_incomplete
+    bars = _day_bars([100, 101, 102], "2026-11-02 10:40")          # bars start 10:40, 10:45, 10:50
+    kept = drop_incomplete(bars, dt(2026, 11, 2, 10, 50, 20, tzinfo=IST))  # refresh 20 s into the 10:50 bar
+    assert [t.strftime("%H:%M") for t in kept.index] == ["10:40", "10:45"]
+    assert len(drop_incomplete(bars, dt(2026, 11, 2, 10, 55, tzinfo=IST))) == 3   # 10:50 bar now complete
+    assert drop_incomplete(bars, dt(2026, 11, 2, 10, 41, tzinfo=IST)) is None

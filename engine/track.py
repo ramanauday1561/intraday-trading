@@ -10,7 +10,8 @@ import os
 
 from . import evaluate
 
-KEEP = ("symbol", "direction", "setup", "signal_time", "entry", "exit", "reason", "r_multiple", "net_r", "conviction", "news_bucket")
+KEEP = ("symbol", "direction", "setup", "signal_time", "entry", "exit", "reason", "r_multiple", "net_r", "conviction",
+        "news_bucket", "stop_distance", "size_mult")  # stop/size let the app re-size trades for the user's paper account
 
 
 def add_day(record, day_result, engine_version=None):
