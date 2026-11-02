@@ -343,3 +343,13 @@ def test_adopted_exit_policy_in_engine_and_simulation():
     # +1R (102) reached in bar 1, then price falls back through entry: exits at breakeven, not at the -1R stop
     be = simulate(sig, _bars([(100, 102.5, 99.5, 102, 1), (102, 102, 97, 97.5, 1), (97.5, 98, 97, 97, 1)]))
     assert be["reason"] == "BREAKEVEN" and be["r_multiple"] == 0.0
+
+
+def test_live_uses_completed_bars_only():
+    from datetime import datetime as dt
+    from engine.market import drop_incomplete
+    bars = _day_bars([100, 101, 102], "2026-11-02 10:40")          # bars start 10:40, 10:45, 10:50
+    kept = drop_incomplete(bars, dt(2026, 11, 2, 10, 50, 20, tzinfo=IST))  # refresh 20 s into the 10:50 bar
+    assert [t.strftime("%H:%M") for t in kept.index] == ["10:40", "10:45"]
+    assert len(drop_incomplete(bars, dt(2026, 11, 2, 10, 55, tzinfo=IST))) == 3   # 10:50 bar now complete
+    assert drop_incomplete(bars, dt(2026, 11, 2, 10, 41, tzinfo=IST)) is None
