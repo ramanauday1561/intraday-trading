@@ -111,5 +111,20 @@ def update():
     print(f"archive: +{added} bars across {len(syms)} symbols; RELIANCE-style news rows now {n_news}")
 
 
+def last_full_session(min_bars=60):
+    """Latest date with a complete 5-minute Nifty session in the archive (GitHub can run the 16:15 job hours
+    late, after midnight, so 'today' is not a safe choice)."""
+    df = load_bars("^NSEI")
+    if df is None:
+        return None
+    counts = df.groupby(df.index.date).size()
+    full = counts[counts >= min_bars]
+    return str(full.index[-1]) if len(full) else None
+
+
 if __name__ == "__main__":
-    update()
+    import sys
+    if "--last-session" in sys.argv:
+        print(last_full_session() or "")
+    else:
+        update()

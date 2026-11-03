@@ -355,3 +355,14 @@ def test_live_uses_completed_bars_only():
     assert [t.strftime("%H:%M") for t in kept.index] == ["10:40", "10:45"]
     assert len(drop_incomplete(bars, dt(2026, 11, 2, 10, 55, tzinfo=IST))) == 3   # 10:50 bar now complete
     assert drop_incomplete(bars, dt(2026, 11, 2, 10, 41, tzinfo=IST)) is None
+
+
+def test_last_full_session_ignores_partial_days(tmp_path, monkeypatch):
+    import importlib
+    monkeypatch.setenv("ARCHIVE_DIR", str(tmp_path))
+    from engine import archive
+    importlib.reload(archive)
+    full = _day_bars([100.0] * 75, "2026-11-02 09:15")
+    partial = _day_bars([100.0] * 10, "2026-11-03 09:15")
+    archive.save_bars("^NSEI", pd.concat([full, partial]))
+    assert archive.last_full_session() == "2026-11-02"

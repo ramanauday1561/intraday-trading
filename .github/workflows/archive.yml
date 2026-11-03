@@ -29,12 +29,14 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Fetch latest 5-minute bars and headlines, merge into archive/
         run: python -W ignore -m engine.archive
-      - name: Replay today with the live rules and add it to the track record
+      - name: Replay the latest completed session and add it to the track record
         continue-on-error: true
         env:
           DATES: ${{ inputs.dates }}
         run: |
-          for D in ${DATES:-$(TZ=Asia/Kolkata date +%F)}; do
+          # Default: the latest complete session in the archive, not the calendar date (runs can be hours late).
+          LAST=$(python -m engine.archive --last-session)
+          for D in ${DATES:-$LAST}; do
             echo "== replay $D"
             if python -W ignore -m engine.backtest --date "$D" --out /tmp/day.json | grep -E "^(REPLAY TRADE|with_news)"; then :; fi
             if [ -f /tmp/day.json ]; then python -m engine.track --day /tmp/day.json --out data/track_record.json; rm -f /tmp/day.json; fi
