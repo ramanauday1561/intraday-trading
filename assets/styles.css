@@ -58,3 +58,13 @@ dialog menu{padding:0;margin:8px 0 0}
 dialog h3{margin:18px 0 6px}
 dialog textarea{width:100%;font:12px ui-monospace,monospace;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px}
 dialog .btn{margin:4px 0}
+.tbar{margin:12px 0 2px}
+.tbar-track{position:relative;height:8px;border-radius:8px;background:linear-gradient(90deg,rgba(239,83,80,.28),var(--panel2) 33%,rgba(38,166,154,.28))}
+.tbar-fill{position:absolute;top:0;bottom:0;border-radius:8px}.tbar-fill.up{background:var(--up)}.tbar-fill.dn{background:var(--dn)}
+.tbar-tick{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--mu)}.tbar-tick.be{background:var(--warn)}
+.tbar-dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid var(--tx)}
+.tbar-dot.up{background:var(--up)}.tbar-dot.dn{background:var(--dn)}
+.tbar-labels{position:relative;height:16px;margin-top:6px;font-size:11px;color:var(--mu)}
+.tbar-labels span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.tbar-labels span:first-child{transform:none}.tbar-labels span:last-child{transform:translateX(-100%)}
+.tbar-note{margin-top:2px}
