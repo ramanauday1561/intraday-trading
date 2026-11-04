@@ -1,4 +1,4 @@
-const VERSION = "v12";
+const VERSION = "v14";
 const SHELL = `shell-${VERSION}`, DATA = `data-${VERSION}`;
 const ASSETS = ["./", "index.html", "assets/app.js", "assets/styles.css", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 
@@ -9,7 +9,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request, url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== location.origin) return;
-  if (/\/data\/[\w-]+\.json$/.test(url.pathname)) { // all data: network-first, last good copy offline
+  if (/\/data\/[\w\/-]+\.json$/.test(url.pathname)) { // all data: network-first, last good copy offline
     const key = url.pathname.slice(url.pathname.indexOf("data/"));
     e.respondWith(fetch(req).then((r) => { if (r.ok) { const copy = r.clone(); caches.open(DATA).then((c) => c.put(key, copy)); } return r; })
       .catch(() => caches.open(DATA).then((c) => c.match(key)).then((r) => r || Response.error())));

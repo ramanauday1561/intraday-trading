@@ -6,7 +6,8 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
 };
-const state = { data: null, filter: "ACTION", capital: store.get("capital", null), riskPct: store.get("riskPct", null) };
+const VIEWS = ["TODAY", "ACTION", "LONG", "SHORT", "ALL", "RECORD", "BACKTEST"];
+const state = { data: null, filter: VIEWS.includes(store.get("view", "TODAY")) ? store.get("view", "TODAY") : "TODAY", capital: store.get("capital", null), riskPct: store.get("riskPct", null) };
 
 // DOM builder: text is always set via textContent, so RSS headlines can never inject markup.
 function h(tag, attrs, ...kids) {
@@ -45,34 +46,31 @@ function qty(s) {
   return d > 0 ? (() => { const cap = (state.capital ?? state.data.meta.capital) * 5; const qq = Math.min(Math.floor(risk / d), Math.floor(cap / s.price.ltp)); return { q: qq, risk: qq * d }; })() : { q: 0, risk };
 }
 
-function banners() {
-  const m = state.data.meta, box = $("banners");
-  box.replaceChildren();
-  const add = (lvl, title, msg) => box.append(h("div", { class: "banner " + lvl }, h("b", {}, title), msg));
-  if (m.mode === "demo") add("info", "Demo data", "Live sources were unreachable, so this is a synthetic market for demonstration only. Not tradable.");
+// One quiet status line instead of stacked banners. Warnings only when they matter for trading right now:
+// demo data, stale data during market hours, or missing stocks.
+function banners(offline) {
+  const m = state.data.meta, hl = m.health || {};
+  const phase = { ACTIVE: "Live · new signals until 14:40", MORATORIUM: "Live · first signals from 10:10", PRE_OPEN: "Pre-open · first signals from 10:10",
+    LATE: "Live · no new entries · exits by 15:15", CLOSED: "Market closed" }[m.session_phase] || m.session_phase;
+  const updated = new Date(m.generated_at).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
   const age = (Date.now() - new Date(m.generated_at)) / 60000;
-  if (m.mode === "live" && age > 30) add("medium", "Stale data", `Last analysis ran ${Math.round(age)} min ago.`);
-  const hl = m.health;
-  if (m.mode === "live" && hl) {
-    const bad = [];
-    if (hl.prices_ok < hl.universe) bad.push(`prices for ${hl.prices_ok}/${hl.universe} stocks${hl.missing && hl.missing.length ? " (missing " + hl.missing.join(", ") + ")" : ""}`);
-    if (!hl.news_items) bad.push("no news fetched");
-    if (!hl.nse_derivatives) bad.push("NSE derivatives (GEX, OI, IV skew) unavailable");
-    add(bad.length ? "medium" : "info", "Live data check", bad.length ? "Partial: " + bad.join("; ") + "." : `All sources OK: ${hl.prices_ok} stocks, ${hl.news_items} headlines, NSE derivatives.`);
-  }
-  const phases = { CLOSED: "Market closed — showing the last completed session.", MORATORIUM: "Opening window: first signals from the 10:10 refresh (bars from 10:00), the window the backtests test.",
-    PRE_OPEN: "Pre-open call auction. First signals from the 10:10 IST refresh.", LATE: "After 14:30 — no fresh entries; open trades run to 15:15." };
-  if (phases[m.session_phase]) add("medium", "Session", phases[m.session_phase]);
+  const marketHours = m.session_phase !== "CLOSED";
+  const parts = [m.mode === "demo" ? "Demo data — not real prices" : phase, `updated ${updated}`];
+  let level = m.mode === "demo" ? "warn" : marketHours ? "ok" : "idle";
+  if (m.mode === "live" && marketHours && age > 25) { parts.push(`last update ${Math.round(age)} min ago`); level = "warn"; }
+  if (m.mode === "live" && hl.missing && hl.missing.length) { parts.push(`missing ${hl.missing.join(", ")}`); level = "warn"; }
+  if (offline) { parts.push("offline — showing saved data"); level = "warn"; }
+  $("status").replaceChildren(h("span", { class: "dot " + level }), parts.join(" · "));
 }
 
 function macro() {
-  const M = state.data.macro, w = M.weights;
-  const t = (k, v, s, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v), h("div", { class: "s" }, s || ""));
+  const M = state.data.macro;
+  const item = (k, v, c) => h("span", { class: "strip-item" }, h("span", { class: "k" }, k), " ", h("b", { class: c || "" }, v));
   $("macro").replaceChildren(
-    t("Nifty 50", fmt(M.nifty.ltp), sgn(M.nifty.chg_pct) + "%", cls(M.nifty.chg_pct)),
-    M.banknifty ? t("Bank Nifty", fmt(M.banknifty.ltp), sgn(M.banknifty.chg_pct) + "%", cls(M.banknifty.chg_pct)) : t("Bank Nifty", "—"),
-    t("India VIX", fmt(M.india_vix), `σ/day ≈ ${fmt(M.expected_daily_move_pct)}%`),
-    t("Regime", label(M.regime), `F${w.fundamental * 100 | 0} P${w.price_action * 100 | 0} I${w.institutional * 100 | 0} M${w.macro * 100 | 0}`));
+    item("NIFTY", `${fmt(M.nifty.ltp, 0)} ${sgn(M.nifty.chg_pct)}%`, cls(M.nifty.chg_pct)),
+    M.banknifty ? item("BANK", `${fmt(M.banknifty.ltp, 0)} ${sgn(M.banknifty.chg_pct)}%`, cls(M.banknifty.chg_pct)) : null,
+    item("VIX", fmt(M.india_vix, 1)),
+    item("", label(M.regime)));
 }
 
 async function backtest() {
@@ -177,38 +175,103 @@ function tradeBar(e, st) {
     h("div", { class: "sub tbar-note" }, note));
 }
 
-async function today() {
-  const el = $("list"), L = await getJSON("today_log");
-  if (state.filter !== "TODAY") return;
-  if (!L || !L.entries) return el.replaceChildren(h("div", { class: "empty" }, "No journal yet. It starts with the first signal of the day."));
-  const S = L.summary, A = account();
-  const legs = L.entries.map((e) => { const st = e.status || {}; return { e, st, p: paper(e.direction === "LONG", st.fill, st.price, e.stop_distance, e.size_mult) }; });
+const istToday = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+const shortDate = (d) => new Date(d + "T12:00:00+05:30").toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short" });
+
+// Paper results for one day's journal (live or replayed): trades taken, booked and still-open P&L.
+function dayStats(L) {
+  const legs = (L.entries || []).map((e) => { const st = e.status || {}; return { e, st, p: paper(e.direction === "LONG", st.fill, st.price, e.stop_distance, e.size_mult) }; });
   const taken = legs.filter((x) => x.p && x.p.q > 0);
   const booked = taken.filter((x) => x.st.state !== "OPEN").reduce((a, x) => a + x.p.pnl, 0);
   const open = taken.filter((x) => x.st.state === "OPEN").reduce((a, x) => a + x.p.pnl, 0);
+  return { taken: taken.length, booked, open, total: booked + open, wins: taken.filter((x) => x.p.pnl > 0).length };
+}
+
+// Days before live journals were saved exist only as after-close replays (Record): show them in the same shape.
+function replayLog(R, date) {
+  const d = (R?.days || []).find((x) => x.date === date);
+  if (!d) return null;
+  const REASON = { EOD: "CLOSED_1515", STOP: "STOPPED", TARGET: "TARGET", BREAKEVEN: "BREAKEVEN" };
+  const entries = d.trades.map((t) => {
+    const sgn = t.direction === "LONG" ? 1 : -1, sd = t.stop_distance;
+    return { symbol: t.symbol, direction: t.direction, setup: t.setup, signal_time: t.signal_time, conviction: t.conviction, stop_distance: sd, rr: 2,
+      breakeven_after_r: 1, size_mult: t.size_mult, option_idea: null, contradiction: null,
+      status: { state: REASON[t.reason] || t.reason, fill: t.entry, stop: sd ? t.entry - sgn * sd : null, target: sd ? t.entry + sgn * 2 * sd : null,
+        price: t.exit, at: t.reason === "EOD" ? "15:15" : "", r: t.r_multiple } };
+  });
+  return { date, mode: "replay", entries, summary: { signals: entries.length, open: 0 } };
+}
+
+function journalView(L, isLive) {
+  const A = account(), D = dayStats(L), S = L.summary || {};
   const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
-  el.replaceChildren(
+  return [
     h("h4", {}, `Paper money · ${rupees(A.cap)} account at ${A.risk}% risk per trade`),
-    h("div", { class: "macro" }, tile("Trades taken", taken.length), tile("Day P&L", signedRupees(booked + open), cls(booked + open)),
-      tile("Booked", signedRupees(booked), cls(booked)), tile("Still open", signedRupees(open), cls(open))),
-    h("div", { class: "sub", style: "margin-bottom:10px" }, `Return on the account today: ${sgn((100 * (booked + open)) / A.cap, 2)}%. ` +
-      "Each signal is bought/shorted at the next 5-minute open with the app's suggested quantity (5× intraday margin cap) and closed by 15:15; costs included. Change the account in ⚙."),
-    h("div", { class: "banner info" }, h("b", {}, `Signals on ${L.date}${L.mode === "demo" ? " (demo)" : ""}`),
-      `${S.signals} signal${S.signals === 1 ? "" : "s"} today · ${S.open} still open · running total ${sgn(S.net_r_gross, 2)}R before costs. ` +
-      "Each signal stays here after it disappears from the main list; outcomes use the backtest's rules (entry at the next bar, flat by 15:15)."),
+    h("div", { class: "macro" }, tile("Trades taken", D.taken), tile("Day P&L", signedRupees(D.total), cls(D.total)),
+      tile("Booked", signedRupees(D.booked), cls(D.booked)), tile("Still open", signedRupees(D.open), cls(D.open))),
+    h("div", { class: "sub" }, `${shortDate(L.date)} · ${S.signals ?? D.taken} signal${(S.signals ?? D.taken) === 1 ? "" : "s"} · ${S.open ?? 0} open · ${sgn((100 * D.total) / A.cap, 2)}% on the account` +
+      (L.mode === "replay" ? " · after-close replay (the live list was not saved for this day)" : "")),
+    h("details", { class: "how" }, h("summary", {}, "How this is calculated"),
+      "Every signal stays listed after it leaves the main list. Each is bought/shorted at the next 5-minute open with the app's suggested " +
+      "quantity (5× intraday margin cap), follows its stop / breakeven / target, and is closed by 15:15; costs included. Change the account in ⚙." +
+      " Past days come from the live list saved after each close; earlier days, before saving started, show the after-close replay."),
     ...(L.entries.length ? L.entries.map((e) => {
       const st = e.status || {}, oi = e.option_idea;
-      return h("button", { class: "card " + e.direction, onclick: () => openSheet(e.symbol) },
+      return h("button", { class: "card " + e.direction, onclick: () => (isLive ? openSheet(e.symbol) : null) },
         h("div", { class: "row" }, h("div", {}, h("div", { class: "sym" }, e.symbol), h("div", { class: "sub" }, `${e.signal_time} · ${label(e.setup)}${e.contradiction ? " · " + label(e.contradiction) : ""}`)),
           h("div", { style: "text-align:right" }, h("span", { class: "pill " + e.direction }, e.direction),
             h("div", { class: "sub " + cls(st.r) }, `${STATE_LABEL[st.state] || st.state}${st.r != null ? " · " + sgn(st.r, 2) + "R" : ""}`))),
         tradeBar(e, st),
-        st.fill != null ? h("div", { class: "sub", style: "margin-top:6px" }, `Entry ₹${fmt(st.fill)} · SL ₹${fmt(st.stop_now ?? st.stop)}${st.stop_now != null && st.stop_now === st.fill ? " (moved to entry)" : ""} · T ₹${fmt(st.target)} · now/exit ₹${fmt(st.price)} at ${st.at}`) : null,
+        st.fill != null ? h("div", { class: "sub", style: "margin-top:6px" }, `Entry ₹${fmt(st.fill)} · SL ₹${fmt(st.stop_now ?? st.stop)}${st.stop_now != null && st.stop_now === st.fill ? " (moved to entry)" : ""} · T ₹${fmt(st.target)} · ${st.state === "OPEN" ? "now" : "exit"} ₹${fmt(st.price)}${st.at ? " at " + st.at : ""}`) : null,
         (() => { const p = paper(e.direction === "LONG", st.fill, st.price, e.stop_distance, e.size_mult);
           return p && p.q > 0 ? h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `Paper: ${p.q} sh · ${rupees(p.invested)} position`),
             h("b", { class: cls(p.pnl) }, signedRupees(p.pnl) + (st.state === "OPEN" ? " (open)" : ""))) : null; })(),
         oi ? h("div", { class: "opt " + e.direction }, `${oi.action} ${oi.strike} · exp ${oi.expiry}`) : null);
-    }) : [h("div", { class: "empty" }, "No signals so far today.")]));
+    }) : [h("div", { class: "empty" }, isLive ? "No signals so far today." : "No signals that day.")]),
+  ];
+}
+
+async function today() {
+  const el = $("list");
+  const [L, I, R] = await Promise.all([getJSON("today_log"), getJSON("journal/index"), getJSON("track_record")]);
+  if (state.filter !== "TODAY") return;
+  const liveDays = new Set((I?.days || []).map((d) => d.date));
+  const latest = L && L.entries ? L.date : null;
+  const past = [...new Set([...liveDays, ...(R?.days || []).map((d) => d.date)])].filter((d) => d !== latest).sort().reverse();
+  state.day = state.day || "today";
+  const chip = (k, t) => h("button", { class: "chip" + (state.day === k ? " on" : ""), onclick: () => { state.day = k; today(); } }, t);
+  const days = h("nav", { class: "chips days", "aria-label": "Day" },
+    chip("today", latest && latest !== istToday() ? "Latest" : "Today"), ...past.slice(0, 10).map((d) => chip(d, shortDate(d))), past.length ? chip("all", "All days") : null);
+  const pastLog = async (d) => (liveDays.has(d) ? await getJSON("journal/" + d) : null) || replayLog(R, d);
+
+  if (state.day === "all") {
+    const all = [...(latest ? [latest] : []), ...past];
+    const rows = [];
+    for (const d of all) {
+      const log = d === latest ? L : await pastLog(d);
+      if (log) rows.push({ d, src: d === latest ? "live" : log.mode === "replay" ? "replay" : "live", ...dayStats(log) });
+    }
+    if (state.filter !== "TODAY" || state.day !== "all") return;
+    const A = account(), total = rows.reduce((a, r) => a + r.total, 0), trades = rows.reduce((a, r) => a + r.taken, 0);
+    const winDays = rows.filter((r) => r.total > 0).length, maxAbs = Math.max(1, ...rows.map((r) => Math.abs(r.total)));
+    const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
+    return el.replaceChildren(days,
+      h("h4", {}, `All days · ${rupees(A.cap)} paper account at ${A.risk}% risk`),
+      h("div", { class: "macro" }, tile("Total P&L", signedRupees(total), cls(total)), tile("Return", sgn((100 * total) / A.cap, 2) + "%", cls(total)),
+        tile("Days won", `${winDays} / ${rows.length}`), tile("Trades", trades)),
+      h("div", { class: "sub", style: "margin-bottom:8px" }, "Fixed account size each day (no compounding). Tap a day for its trades."),
+      ...rows.map((r) => h("button", { class: "card dayrow", onclick: () => { state.day = r.d === latest ? "today" : r.d; today(); } },
+        h("div", { class: "row" }, h("div", {}, h("b", {}, shortDate(r.d)), h("div", { class: "sub" }, `${r.taken} trade${r.taken === 1 ? "" : "s"} · ${r.wins} won${r.src === "replay" ? " · replay" : ""}`)),
+          h("b", { class: cls(r.total) }, signedRupees(r.total))),
+        h("div", { class: "bar" }, h("span", { class: "t" }, h("i", { style: `left:${r.total >= 0 ? 50 : 50 - (50 * Math.abs(r.total)) / maxAbs}%;width:${(50 * Math.abs(r.total)) / maxAbs}%;background:var(--${r.total >= 0 ? "up" : "dn"})` }))))));
+  }
+  if (state.day !== "today") {
+    const log = await pastLog(state.day);
+    if (state.filter !== "TODAY") return;
+    return el.replaceChildren(days, ...(log ? journalView(log, false) : [h("div", { class: "empty" }, "No data saved for that day.")]));
+  }
+  if (!L || !L.entries) return el.replaceChildren(days, h("div", { class: "empty" }, "No journal yet. It starts with the first signal of the day."));
+  el.replaceChildren(days, ...journalView(L, true));
 }
 
 async function record() {
@@ -336,13 +399,14 @@ async function load(manual) {
     if (sym && !state.deepLinked) { state.deepLinked = true; openSheet(sym); }
   } catch (err) {
     if (!state.data) $("list").replaceChildren(h("div", { class: "empty" }, "Unable to load data. Check your connection and pull to refresh."));
-    else if (manual) $("banners").prepend(h("div", { class: "banner medium" }, h("b", {}, "Offline"), "Showing the last saved analysis."));
+    else if (manual) banners(true);
   }
 }
 
 $("filters").addEventListener("click", (ev) => {
   const b = ev.target.closest("button"); if (!b) return;
-  state.filter = b.dataset.f; document.querySelectorAll(".chip").forEach((c) => c.classList.toggle("on", c === b));
+  state.filter = b.dataset.f; store.set("view", state.filter);
+  document.querySelectorAll("#filters .chip").forEach((c) => c.classList.toggle("on", c === b));
   if (state.data) list();
 });
 $("refreshBtn").onclick = () => load(true);
@@ -414,4 +478,5 @@ if ("serviceWorker" in navigator) {
     document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
   }).catch(() => {}));
 }
+document.querySelectorAll("#filters .chip").forEach((c) => c.classList.toggle("on", c.dataset.f === state.filter)); // restore last view
 load();

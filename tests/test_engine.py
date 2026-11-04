@@ -370,3 +370,15 @@ def test_last_full_session_ignores_partial_days(tmp_path, monkeypatch):
     partial = _day_bars([100.0] * 10, "2026-11-03 09:15")
     archive.save_bars("^NSEI", pd.concat([full, partial]))
     assert archive.last_full_session() == "2026-11-02"
+
+
+def test_save_journal_keeps_live_days_and_index(tmp_path):
+    from engine import archive
+    log = lambda d, n, mode="live": {"date": d, "mode": mode, "entries": [{}] * n, "summary": {"net_r_gross": 0.5 * n}}
+    assert archive.save_journal(log("2026-11-04", 4), str(tmp_path)) == "2026-11-04"
+    assert archive.save_journal(log("2026-11-05", 1), str(tmp_path)) == "2026-11-05"
+    assert archive.save_journal(log("2026-11-05", 2), str(tmp_path)) == "2026-11-05"   # later save replaces
+    assert archive.save_journal(log("2026-11-06", 3, "demo"), str(tmp_path)) is None     # demo never saved
+    assert archive.save_journal(None, str(tmp_path)) is None
+    idx = json.load(open(tmp_path / "index.json"))["days"]
+    assert [(d["date"], d["signals"]) for d in idx] == [("2026-11-04", 4), ("2026-11-05", 2)]
