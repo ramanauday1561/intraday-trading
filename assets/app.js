@@ -147,6 +147,36 @@ async function getJSON(name) {
 }
 const STATE_LABEL = { OPEN: "Open", TARGET: "Target hit", STOPPED: "Stopped out", BREAKEVEN: "Breakeven exit", CLOSED_1515: "Closed 15:15", PENDING: "Waiting for entry", NO_DATA: "No data" };
 
+// Where the price sits on the trade's path: stop-loss (-1R) on the left, entry, the breakeven trigger
+// (+1R) and the target (+rr R) on the right. Works the same for longs and shorts because it is in R.
+function tradeBar(e, st) {
+  if (st.fill == null || st.r == null) return null;
+  const rr = e.rr || 2, lo = -1, span = rr - lo, be = e.breakeven_after_r;
+  const pos = (r) => Math.min(100, Math.max(0, ((r - lo) / span) * 100));
+  const now = pos(st.r), zero = pos(0), up = st.r >= 0;
+  const moved = st.stop_now != null && st.stop_now === st.fill;
+  let note;
+  if (st.state === "TARGET") note = "Target reached.";
+  else if (st.state === "STOPPED") note = "Stop-loss hit.";
+  else if (st.state === "BREAKEVEN") note = "Came back to entry after +1R: closed at breakeven.";
+  else if (st.state === "CLOSED_1515") note = `Closed at 15:15 at ${sgn(st.r, 2)}R.`;
+  else if (st.r < 0) note = `${Math.round(-st.r * 100)}% of the way to the stop-loss.`;
+  else if (be != null && st.r < be && !moved) note = `${Math.round((st.r / be) * 100)}% of the way to the breakeven trigger (then the stop moves to entry).`;
+  else note = `${Math.round((st.r / rr) * 100)}% of the way to the target${moved ? "; stop is now at entry" : ""}.`;
+  return h("div", { class: "tbar", "aria-label": note },
+    h("div", { class: "tbar-track" },
+      h("i", { class: "tbar-fill " + (up ? "up" : "dn"), style: `left:${Math.min(zero, now)}%;width:${Math.abs(now - zero)}%` }),
+      h("span", { class: "tbar-tick", style: `left:${zero}%` }),
+      be != null ? h("span", { class: "tbar-tick be", style: `left:${pos(be)}%` }) : null,
+      h("span", { class: "tbar-dot " + (up ? "up" : "dn"), style: `left:${now}%` })),
+    h("div", { class: "tbar-labels" },
+      h("span", { style: "left:0" }, moved ? "SL→entry" : "SL"),
+      h("span", { style: `left:${zero}%` }, "Entry"),
+      be != null ? h("span", { style: `left:${pos(be)}%` }, `+${be}R`) : null,
+      h("span", { style: "left:100%" }, "Target")),
+    h("div", { class: "sub tbar-note" }, note));
+}
+
 async function today() {
   const el = $("list"), L = await getJSON("today_log");
   if (state.filter !== "TODAY") return;
@@ -172,6 +202,7 @@ async function today() {
         h("div", { class: "row" }, h("div", {}, h("div", { class: "sym" }, e.symbol), h("div", { class: "sub" }, `${e.signal_time} · ${label(e.setup)}${e.contradiction ? " · " + label(e.contradiction) : ""}`)),
           h("div", { style: "text-align:right" }, h("span", { class: "pill " + e.direction }, e.direction),
             h("div", { class: "sub " + cls(st.r) }, `${STATE_LABEL[st.state] || st.state}${st.r != null ? " · " + sgn(st.r, 2) + "R" : ""}`))),
+        tradeBar(e, st),
         st.fill != null ? h("div", { class: "sub", style: "margin-top:6px" }, `Entry ₹${fmt(st.fill)} · SL ₹${fmt(st.stop_now ?? st.stop)}${st.stop_now != null && st.stop_now === st.fill ? " (moved to entry)" : ""} · T ₹${fmt(st.target)} · now/exit ₹${fmt(st.price)} at ${st.at}`) : null,
         (() => { const p = paper(e.direction === "LONG", st.fill, st.price, e.stop_distance, e.size_mult);
           return p && p.q > 0 ? h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `Paper: ${p.q} sh · ${rupees(p.invested)} position`),
