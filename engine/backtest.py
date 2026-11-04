@@ -49,7 +49,11 @@ def _frames(demo, hourly=False):
         bars = i5.get(ysym)
         if not hourly:  # 5-minute: union with the repo's growing archive
             bars = archive.merge_bars(archive.load_bars(ysym), bars)
-        out[key] = (bars, d1.get(ysym))
+        daily = d1.get(ysym)
+        if daily is None and not hourly and bars is not None:  # Yahoo daily failed: rebuild it from the archive
+            from .market import daily_from_intraday
+            daily = daily_from_intraday(bars)
+        out[key] = (bars, daily)
     return out
 
 
