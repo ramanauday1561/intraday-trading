@@ -6,7 +6,8 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
 };
-const state = { data: null, filter: "ACTION", capital: store.get("capital", null), riskPct: store.get("riskPct", null) };
+const VIEWS = ["TODAY", "ACTION", "LONG", "SHORT", "ALL", "RECORD", "BACKTEST"];
+const state = { data: null, filter: VIEWS.includes(store.get("view", "TODAY")) ? store.get("view", "TODAY") : "TODAY", capital: store.get("capital", null), riskPct: store.get("riskPct", null) };
 
 // DOM builder: text is always set via textContent, so RSS headlines can never inject markup.
 function h(tag, attrs, ...kids) {
@@ -45,34 +46,31 @@ function qty(s) {
   return d > 0 ? (() => { const cap = (state.capital ?? state.data.meta.capital) * 5; const qq = Math.min(Math.floor(risk / d), Math.floor(cap / s.price.ltp)); return { q: qq, risk: qq * d }; })() : { q: 0, risk };
 }
 
-function banners() {
-  const m = state.data.meta, box = $("banners");
-  box.replaceChildren();
-  const add = (lvl, title, msg) => box.append(h("div", { class: "banner " + lvl }, h("b", {}, title), msg));
-  if (m.mode === "demo") add("info", "Demo data", "Live sources were unreachable, so this is a synthetic market for demonstration only. Not tradable.");
+// One quiet status line instead of stacked banners. Warnings only when they matter for trading right now:
+// demo data, stale data during market hours, or missing stocks.
+function banners(offline) {
+  const m = state.data.meta, hl = m.health || {};
+  const phase = { ACTIVE: "Live · new signals until 14:40", MORATORIUM: "Live · first signals from 10:10", PRE_OPEN: "Pre-open · first signals from 10:10",
+    LATE: "Live · no new entries · exits by 15:15", CLOSED: "Market closed" }[m.session_phase] || m.session_phase;
+  const updated = new Date(m.generated_at).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
   const age = (Date.now() - new Date(m.generated_at)) / 60000;
-  if (m.mode === "live" && age > 30) add("medium", "Stale data", `Last analysis ran ${Math.round(age)} min ago.`);
-  const hl = m.health;
-  if (m.mode === "live" && hl) {
-    const bad = [];
-    if (hl.prices_ok < hl.universe) bad.push(`prices for ${hl.prices_ok}/${hl.universe} stocks${hl.missing && hl.missing.length ? " (missing " + hl.missing.join(", ") + ")" : ""}`);
-    if (!hl.news_items) bad.push("no news fetched");
-    if (!hl.nse_derivatives) bad.push("NSE derivatives (GEX, OI, IV skew) unavailable");
-    add(bad.length ? "medium" : "info", "Live data check", bad.length ? "Partial: " + bad.join("; ") + "." : `All sources OK: ${hl.prices_ok} stocks, ${hl.news_items} headlines, NSE derivatives.`);
-  }
-  const phases = { CLOSED: "Market closed — showing the last completed session.", MORATORIUM: "Opening window: first signals from the 10:10 refresh (bars from 10:00), the window the backtests test.",
-    PRE_OPEN: "Pre-open call auction. First signals from the 10:10 IST refresh.", LATE: "After 14:30 — no fresh entries; open trades run to 15:15." };
-  if (phases[m.session_phase]) add("medium", "Session", phases[m.session_phase]);
+  const marketHours = m.session_phase !== "CLOSED";
+  const parts = [m.mode === "demo" ? "Demo data — not real prices" : phase, `updated ${updated}`];
+  let level = m.mode === "demo" ? "warn" : marketHours ? "ok" : "idle";
+  if (m.mode === "live" && marketHours && age > 25) { parts.push(`last update ${Math.round(age)} min ago`); level = "warn"; }
+  if (m.mode === "live" && hl.missing && hl.missing.length) { parts.push(`missing ${hl.missing.join(", ")}`); level = "warn"; }
+  if (offline) { parts.push("offline — showing saved data"); level = "warn"; }
+  $("status").replaceChildren(h("span", { class: "dot " + level }), parts.join(" · "));
 }
 
 function macro() {
-  const M = state.data.macro, w = M.weights;
-  const t = (k, v, s, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v), h("div", { class: "s" }, s || ""));
+  const M = state.data.macro;
+  const item = (k, v, c) => h("span", { class: "strip-item" }, h("span", { class: "k" }, k), " ", h("b", { class: c || "" }, v));
   $("macro").replaceChildren(
-    t("Nifty 50", fmt(M.nifty.ltp), sgn(M.nifty.chg_pct) + "%", cls(M.nifty.chg_pct)),
-    M.banknifty ? t("Bank Nifty", fmt(M.banknifty.ltp), sgn(M.banknifty.chg_pct) + "%", cls(M.banknifty.chg_pct)) : t("Bank Nifty", "—"),
-    t("India VIX", fmt(M.india_vix), `σ/day ≈ ${fmt(M.expected_daily_move_pct)}%`),
-    t("Regime", label(M.regime), `F${w.fundamental * 100 | 0} P${w.price_action * 100 | 0} I${w.institutional * 100 | 0} M${w.macro * 100 | 0}`));
+    item("NIFTY", `${fmt(M.nifty.ltp, 0)} ${sgn(M.nifty.chg_pct)}%`, cls(M.nifty.chg_pct)),
+    M.banknifty ? item("BANK", `${fmt(M.banknifty.ltp, 0)} ${sgn(M.banknifty.chg_pct)}%`, cls(M.banknifty.chg_pct)) : null,
+    item("VIX", fmt(M.india_vix, 1)),
+    item("", label(M.regime)));
 }
 
 async function backtest() {
@@ -191,11 +189,10 @@ async function today() {
     h("h4", {}, `Paper money · ${rupees(A.cap)} account at ${A.risk}% risk per trade`),
     h("div", { class: "macro" }, tile("Trades taken", taken.length), tile("Day P&L", signedRupees(booked + open), cls(booked + open)),
       tile("Booked", signedRupees(booked), cls(booked)), tile("Still open", signedRupees(open), cls(open))),
-    h("div", { class: "sub", style: "margin-bottom:10px" }, `Return on the account today: ${sgn((100 * (booked + open)) / A.cap, 2)}%. ` +
-      "Each signal is bought/shorted at the next 5-minute open with the app's suggested quantity (5× intraday margin cap) and closed by 15:15; costs included. Change the account in ⚙."),
-    h("div", { class: "banner info" }, h("b", {}, `Signals on ${L.date}${L.mode === "demo" ? " (demo)" : ""}`),
-      `${S.signals} signal${S.signals === 1 ? "" : "s"} today · ${S.open} still open · running total ${sgn(S.net_r_gross, 2)}R before costs. ` +
-      "Each signal stays here after it disappears from the main list; outcomes use the backtest's rules (entry at the next bar, flat by 15:15)."),
+    h("div", { class: "sub" }, `${L.date} · ${S.signals} signal${S.signals === 1 ? "" : "s"} · ${S.open} open · ${sgn((100 * (booked + open)) / A.cap, 2)}% on the account`),
+    h("details", { class: "how" }, h("summary", {}, "How this is calculated"),
+      "Every signal stays listed after it leaves the main list. Each is bought/shorted at the next 5-minute open with the app's suggested " +
+      "quantity (5× intraday margin cap), follows its stop / breakeven / target, and is closed by 15:15; costs included. Change the account in ⚙."),
     ...(L.entries.length ? L.entries.map((e) => {
       const st = e.status || {}, oi = e.option_idea;
       return h("button", { class: "card " + e.direction, onclick: () => openSheet(e.symbol) },
@@ -336,13 +333,14 @@ async function load(manual) {
     if (sym && !state.deepLinked) { state.deepLinked = true; openSheet(sym); }
   } catch (err) {
     if (!state.data) $("list").replaceChildren(h("div", { class: "empty" }, "Unable to load data. Check your connection and pull to refresh."));
-    else if (manual) $("banners").prepend(h("div", { class: "banner medium" }, h("b", {}, "Offline"), "Showing the last saved analysis."));
+    else if (manual) banners(true);
   }
 }
 
 $("filters").addEventListener("click", (ev) => {
   const b = ev.target.closest("button"); if (!b) return;
-  state.filter = b.dataset.f; document.querySelectorAll(".chip").forEach((c) => c.classList.toggle("on", c === b));
+  state.filter = b.dataset.f; store.set("view", state.filter);
+  document.querySelectorAll("#filters .chip").forEach((c) => c.classList.toggle("on", c === b));
   if (state.data) list();
 });
 $("refreshBtn").onclick = () => load(true);
@@ -414,4 +412,5 @@ if ("serviceWorker" in navigator) {
     document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
   }).catch(() => {}));
 }
+document.querySelectorAll("#filters .chip").forEach((c) => c.classList.toggle("on", c.dataset.f === state.filter)); // restore last view
 load();

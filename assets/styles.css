@@ -68,3 +68,8 @@ dialog .btn{margin:4px 0}
 .tbar-labels span{position:absolute;transform:translateX(-50%);white-space:nowrap}
 .tbar-labels span:first-child{transform:none}.tbar-labels span:last-child{transform:translateX(-100%)}
 .tbar-note{margin-top:2px}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mu);margin:2px 0 10px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--mu)}.dot.ok{background:var(--up)}.dot.warn{background:var(--warn)}.dot.idle{background:var(--mu)}
+.strip{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;font-size:13px;margin-bottom:10px;white-space:nowrap}
+.strip-item .k{color:var(--mu);font-size:11px;letter-spacing:.5px}
+details.how{font-size:13px;color:var(--mu);margin:6px 0 12px}details.how summary{cursor:pointer;color:var(--info)}
