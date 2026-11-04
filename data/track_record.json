@@ -88,19 +88,71 @@
     }
    ],
    "net_r": 0.241
+  },
+  {
+   "date": "2026-11-04",
+   "engine": "6aab9ae",
+   "trades": [
+    {
+     "symbol": "WIPRO",
+     "direction": "SHORT",
+     "setup": "MEAN_REVERSION",
+     "signal_time": "10:15",
+     "entry": 195.33,
+     "exit": 193.35,
+     "reason": "EOD",
+     "r_multiple": 0.443,
+     "net_r": 0.417,
+     "conviction": 41,
+     "news_bucket": "news_opposed",
+     "stop_distance": 4.47,
+     "size_mult": 1.0
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "10:45",
+     "entry": 1806.0,
+     "exit": 1773.4,
+     "reason": "EOD",
+     "r_multiple": -0.982,
+     "net_r": -1.014,
+     "conviction": 91,
+     "news_bucket": "news_aligned",
+     "stop_distance": 33.21,
+     "size_mult": 0.5
+    },
+    {
+     "symbol": "BEL",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "13:30",
+     "entry": 397.2,
+     "exit": 396.5,
+     "reason": "EOD",
+     "r_multiple": -0.122,
+     "net_r": -0.164,
+     "conviction": 94,
+     "news_bucket": "news_aligned",
+     "stop_distance": 5.72,
+     "size_mult": 1.0
+    }
+   ],
+   "net_r": -0.761
   }
  ],
  "summary": {
-  "trades": 5,
-  "win_rate_pct": 60.0,
-  "avg_net_r": 0.255,
-  "total_net_r": 1.3,
-  "profit_factor": 2.13,
-  "sessions": 2,
-  "sessions_with_trades": 2,
+  "trades": 8,
+  "win_rate_pct": 50.0,
+  "avg_net_r": 0.064,
+  "total_net_r": 0.5,
+  "profit_factor": 1.22,
+  "sessions": 3,
+  "sessions_with_trades": 3,
   "net_r_ci95": null,
   "from": "2026-11-02",
-  "to": "2026-11-03"
+  "to": "2026-11-04"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }
