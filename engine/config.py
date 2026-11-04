@@ -4,8 +4,11 @@ from datetime import timedelta, timezone
 IST = timezone(timedelta(hours=5, minutes=30))
 
 MARKET_OPEN = (9, 15)
-MORATORIUM_MIN = 15            # no automated execution for first 15 minutes
-LAST_ENTRY = (15, 0)
+# Entry window = the window the backtests test: signals may use completed 5-minute bars labelled
+# 10:00 through 14:30 (the 15-minute checkpoints of engine.backtest). Live, that is 10:05 to 14:40.
+ENTRY_FIRST_BAR = (10, 0)
+ENTRY_LAST_BAR = (14, 30)
+BAR_MINUTES = 5
 MARKET_CLOSE = (15, 30)
 
 # Pillar order: fundamental, price_action, institutional, macro

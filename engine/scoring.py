@@ -7,7 +7,7 @@ import pandas as pd
 from . import indicators as ind
 from . import lpp as lppmod
 from . import options_idea
-from .config import (EXIT_BREAKEVEN_R, EXIT_STOP_MULT, EXIT_TARGET_R, LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
+from .config import (BAR_MINUTES, ENTRY_FIRST_BAR, ENTRY_LAST_BAR, EXIT_BREAKEVEN_R, EXIT_STOP_MULT, EXIT_TARGET_R, LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
                      SCORE_THRESHOLD, VPIN_TOXIC)
 from .market import oi_quadrant
 
@@ -19,14 +19,18 @@ def clip(x, lo=-1.0, hi=1.0):
 
 
 def session_phase(now):
+    """ACTIVE only while the latest completed bar is inside the tested entry window (10:00-14:30 bars),
+    i.e. from 10:05 to 14:40 IST: live signals then match what the backtests and the Record replay test."""
     m = now.hour * 60 + now.minute
+    first = ENTRY_FIRST_BAR[0] * 60 + ENTRY_FIRST_BAR[1] + BAR_MINUTES
+    last = ENTRY_LAST_BAR[0] * 60 + ENTRY_LAST_BAR[1] + 2 * BAR_MINUTES
     if now.weekday() >= 5 or m < 9 * 60 or m >= 15 * 60 + 30:
         return "CLOSED"
     if m < 9 * 60 + 15:
         return "PRE_OPEN"
-    if m < 9 * 60 + 30:
+    if m < first:
         return "MORATORIUM"
-    return "ACTIVE" if m < 15 * 60 else "LATE"
+    return "ACTIVE" if m < last else "LATE"
 
 
 def daily_sigma_pct(vix):
@@ -159,9 +163,9 @@ def analyse_stock(c):
     phase = c["phase"]
     if phase != "ACTIVE":
         blockers.append({"code": "SESSION_" + phase, "message": {
-            "MORATORIUM": "15-minute opening moratorium: no automated execution before 09:30 IST.",
-            "PRE_OPEN": "Pre-open call auction in progress; engine inactive until 09:30 IST.",
-            "LATE": "No fresh entries after 15:00 IST.", "CLOSED": "Market closed; showing the last completed session."}[phase]})
+            "MORATORIUM": "Opening window: no entries until the 10:00 bar completes (first signals from the 10:10 refresh), the window the backtests test.",
+            "PRE_OPEN": "Pre-open call auction in progress; first signals from the 10:10 IST refresh.",
+            "LATE": "No fresh entries after the 14:30 bar (the backtests' last checkpoint); open trades run to 15:15.", "CLOSED": "Market closed; showing the last completed session."}[phase]})
     if turnover_cr < MIN_TURNOVER_CR:
         blockers.append({"code": "LIQUIDITY", "message": f"Avg turnover Rs {turnover_cr:.0f} cr below the Rs {MIN_TURNOVER_CR:.0f} cr F&O criterion."})
     target_dist = rr * stop_dist

@@ -21,7 +21,7 @@ import pandas as pd
 from . import demo as demomod
 from . import news as newsmod
 from . import evaluate, exits
-from .config import COST_PCT, INDEX_SYMBOLS, IST, LEVERAGE, UNIVERSE
+from .config import ENTRY_FIRST_BAR, ENTRY_LAST_BAR, COST_PCT, INDEX_SYMBOLS, IST, LEVERAGE, UNIVERSE
 from .pipeline import _index_corr, to_json
 from .scoring import analyse_stock
 
@@ -160,8 +160,8 @@ def _group(trades, key):
 
 
 def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True, hourly=False, after=None, diag=False):
-    asof = asof or ((10, 15) if hourly else (10, 0))
-    bar_min, step, last_label = (60, 60, 13 * 60 + 15) if hourly else (5, 15, 14 * 60 + 30)
+    asof = asof or ((10, 15) if hourly else ENTRY_FIRST_BAR)
+    bar_min, step, last_label = (60, 60, 13 * 60 + 15) if hourly else (5, 15, ENTRY_LAST_BAR[0] * 60 + ENTRY_LAST_BAR[1])
     frames = _frames(demo, hourly)
     n5, nd_all = frames["^NSEI"]
     if n5 is None or nd_all is None:
