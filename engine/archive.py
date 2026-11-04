@@ -111,6 +111,31 @@ def update():
     print(f"archive: +{added} bars across {len(syms)} symbols; RELIANCE-style news rows now {n_news}")
 
 
+JOURNAL_DIR = os.environ.get("JOURNAL_DIR", os.path.join("data", "journal"))
+
+
+def save_journal(log, root=None):
+    """Keep the day's live journal (what the app actually showed) as data/journal/<date>.json and refresh
+    data/journal/index.json. Only live days are kept; re-saving a date overwrites it (a partial save made
+    during a session is completed by the next run)."""
+    root = root or JOURNAL_DIR
+    if not log or log.get("mode") != "live" or not log.get("date"):
+        return None
+    os.makedirs(root, exist_ok=True)
+    with open(os.path.join(root, f"{log['date']}.json"), "w") as f:
+        json.dump(log, f, indent=1)
+    days = []
+    for name in sorted(os.listdir(root)):
+        if not name[:4].isdigit() or not name.endswith(".json"):
+            continue
+        with open(os.path.join(root, name)) as f:
+            d = json.load(f)
+        days.append({"date": d["date"], "signals": len(d.get("entries", [])), "net_r_gross": (d.get("summary") or {}).get("net_r_gross", 0.0)})
+    with open(os.path.join(root, "index.json"), "w") as f:
+        json.dump({"days": days}, f, indent=1)
+    return log["date"]
+
+
 def last_full_session(min_bars=60):
     """Latest date with a complete 5-minute Nifty session in the archive (GitHub can run the 16:15 job hours
     late, after midnight, so 'today' is not a safe choice)."""
@@ -126,5 +151,8 @@ if __name__ == "__main__":
     import sys
     if "--last-session" in sys.argv:
         print(last_full_session() or "")
+    elif "--save-journal" in sys.argv:
+        from . import journal
+        print("saved live journal for", save_journal(journal.fetch_previous()))
     else:
         update()

@@ -73,3 +73,5 @@ dialog .btn{margin:4px 0}
 .strip{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;font-size:13px;margin-bottom:10px;white-space:nowrap}
 .strip-item .k{color:var(--mu);font-size:11px;letter-spacing:.5px}
 details.how{font-size:13px;color:var(--mu);margin:6px 0 12px}details.how summary{cursor:pointer;color:var(--info)}
+.chips.days{margin-bottom:4px}.chips.days .chip{padding:6px 12px;min-height:34px;font-size:13px}
+.card.dayrow .bar{margin-top:8px}
