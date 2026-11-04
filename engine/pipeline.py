@@ -46,7 +46,7 @@ def _load_live(now):
     syms = [u[0] + ".NS" for u in UNIVERSE]
     idx = list(INDEX_SYMBOLS.values()) + sorted({u[3] for u in UNIVERSE} - set(INDEX_SYMBOLS.values()))
     i5 = {k: drop_incomplete(v, now) for k, v in fetch_many(syms + idx, "5d", "5m").items()}  # completed bars only
-    d1 = fetch_many(syms + idx, "3mo", "1d")
+    d1 = fetch_many(syms + idx, "1y", "1d")  # same long history the backtests use, so ATR/ADX match
     if any(i5.get(INDEX_SYMBOLS[k]) is None or d1.get(INDEX_SYMBOLS[k]) is None for k in ("NIFTY", "VIX")):
         return None
     return i5, d1
