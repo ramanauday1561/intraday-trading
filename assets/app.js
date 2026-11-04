@@ -60,8 +60,8 @@ function banners() {
     if (!hl.nse_derivatives) bad.push("NSE derivatives (GEX, OI, IV skew) unavailable");
     add(bad.length ? "medium" : "info", "Live data check", bad.length ? "Partial: " + bad.join("; ") + "." : `All sources OK: ${hl.prices_ok} stocks, ${hl.news_items} headlines, NSE derivatives.`);
   }
-  const phases = { CLOSED: "Market closed — showing the last completed session.", MORATORIUM: "15-minute opening moratorium (until 09:30 IST). Execution disabled.",
-    PRE_OPEN: "Pre-open call auction. Engine inactive until 09:30 IST.", LATE: "After 15:00 IST — no fresh entries." };
+  const phases = { CLOSED: "Market closed — showing the last completed session.", MORATORIUM: "Opening window: first signals from the 10:10 refresh (bars from 10:00), the window the backtests test.",
+    PRE_OPEN: "Pre-open call auction. First signals from the 10:10 IST refresh.", LATE: "After 14:30 — no fresh entries; open trades run to 15:15." };
   if (phases[m.session_phase]) add("medium", "Session", phases[m.session_phase]);
 }
 

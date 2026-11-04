@@ -36,7 +36,7 @@ python -m http.server 8000         # open http://localhost:8000
 ```
 
 ## Implemented from the blueprint
-Regime weight matrix (trending / range / event / macro-shock + a transitional blend) · VWAP, volume profile (POC/VAH/VAL), ATR, ADX · BVC-signed order-flow imbalance · VPIN on a volume clock · Hawkes branching-ratio approximation · F&O OI quadrants · GEX, call/put walls, gamma flip, IV skew (when NSE data is reachable) · news taxonomy tiers, order-value/market-cap materiality, headline-based SUE proxy, cross-media divergence · VIX→daily σ (÷√252) stop scaling and size reduction · 15-min opening moratorium, no entries after 15:00 · circuit-proximity suppression/warnings · modelled 30-second LPP band (±40%, premium > ₹50) · structural invalidation text.
+Regime weight matrix (trending / range / event / macro-shock + a transitional blend) · VWAP, volume profile (POC/VAH/VAL), ATR, ADX · BVC-signed order-flow imbalance · VPIN on a volume clock · Hawkes branching-ratio approximation · F&O OI quadrants · GEX, call/put walls, gamma flip, IV skew (when NSE data is reachable) · news taxonomy tiers, order-value/market-cap materiality, headline-based SUE proxy, cross-media divergence · VIX→daily σ (÷√252) stop scaling and size reduction · entries only in the tested window (bars 10:00–14:30), exits by 15:15 · circuit-proximity suppression/warnings · modelled 30-second LPP band (±40%, premium > ₹50) · structural invalidation text.
 
 ## Honest limitations
 - Free data is delayed/incomplete; NSE frequently blocks cloud IPs, so GEX/IV-skew/OI may be missing (weights renormalise, UI shows `n/a`). Tick-level data and pre-open order-book depth are not available from open sources; 5-minute bars are used instead.

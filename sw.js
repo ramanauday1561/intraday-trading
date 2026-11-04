@@ -1,4 +1,4 @@
-const VERSION = "v11";
+const VERSION = "v12";
 const SHELL = `shell-${VERSION}`, DATA = `data-${VERSION}`;
 const ASSETS = ["./", "index.html", "assets/app.js", "assets/styles.css", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 

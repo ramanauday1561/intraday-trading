@@ -33,7 +33,11 @@ def test_regimes():
 def test_session_phase():
     mk = lambda h, m: datetime(2025, 1, 6, h, m, tzinfo=IST)  # Monday
     assert session_phase(mk(9, 20)) == "MORATORIUM"
-    assert session_phase(mk(10, 0)) == "ACTIVE"
+    assert session_phase(mk(9, 45)) == "MORATORIUM"   # e.g. the 3 Nov RELIANCE 09:35 signal: outside the tested window
+    assert session_phase(mk(10, 4)) == "MORATORIUM"   # 10:00 bar not yet complete
+    assert session_phase(mk(10, 5)) == "ACTIVE"
+    assert session_phase(mk(14, 39)) == "ACTIVE"      # latest completed bar 14:30 = last backtest checkpoint
+    assert session_phase(mk(14, 40)) == "LATE"
     assert session_phase(mk(15, 10)) == "LATE"
     assert session_phase(mk(16, 0)) == "CLOSED"
     assert session_phase(datetime(2025, 1, 4, 11, 0, tzinfo=IST)) == "CLOSED"
