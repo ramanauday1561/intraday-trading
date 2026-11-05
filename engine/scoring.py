@@ -235,7 +235,8 @@ def analyse_stock(c):
         sigma = sigma / 100 if sigma else float(daily_ret.tail(20).std() * math.sqrt(252))
         kind = "Call" if direction == "LONG" else "Put"
         rows = [o for o in (opt or {}).get("_rows", []) if o["type"] == kind and o["ltp"] > 0]
-        premium = min(rows, key=lambda o: abs(o["k"] - ltp))["ltp"] if rows else 0.4 * ltp * sigma * math.sqrt(T)
+        contract = dict(min(rows, key=lambda o: abs(o["k"] - ltp)), lot=(opt or {}).get("lot")) if rows else None
+        premium = contract["ltp"] if contract else 0.4 * ltp * sigma * math.sqrt(T)
         ref = premium - 0.5 * sign * (ltp - float(today["close"].iloc[-2] if len(today) > 1 else ltp)) * 30 / 300
         limit = lppmod.clamp(premium * 1.005, ref, premium)
         hr = lppmod.headroom_pct(limit, ref, premium)
@@ -245,7 +246,8 @@ def analyse_stock(c):
                "lower": round(rng[0], 2) if rng else None, "upper": round(rng[1], 2) if rng else None,
                "entry_limit": round(limit, 2), "headroom_pct": hr, "modelled": True,
                "valid": lppmod.validate_order(limit, ref, premium)}
-        opt_idea = options_idea.idea(direction, ltp, sess_day, premium, stop_dist, rr)
+        opt_idea = options_idea.idea(direction, ltp, sess_day, premium, stop_dist, rr,
+                                     contract=contract if contract and "exp" in contract and "symbol" in contract else None)
         if hr is not None and hr < 15:
             warnings.append({"level": "high", "code": "LPP_BOUNDARY", "message": f"Entry limit within {hr:.0f}% of the 30-second LPP boundary (NSE error 17070 risk)."})
 

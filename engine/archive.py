@@ -136,6 +136,34 @@ def save_journal(log, root=None):
     return log["date"]
 
 
+OI_FILE = os.path.join(ROOT, "oi_eod.json")
+
+
+def load_oi(before=None, path=None):
+    """Latest end-of-day futures-OI snapshot dated before `before` (default today, IST): {name: oi}."""
+    path = path or OI_FILE
+    if not os.path.exists(path):
+        return {}
+    with open(path) as f:
+        snaps = json.load(f)
+    before = before or datetime.now(IST).date().isoformat()
+    dates = sorted(d for d in snaps if d < before)
+    return snaps[dates[-1]] if dates else {}
+
+
+def save_oi(day, oi, path=None, keep=30):
+    path = path or OI_FILE
+    snaps = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            snaps = json.load(f)
+    snaps[day] = oi
+    snaps = {d: snaps[d] for d in sorted(snaps)[-keep:]}
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(snaps, f, indent=1)
+
+
 def last_full_session(min_bars=60):
     """Latest date with a complete 5-minute Nifty session in the archive (GitHub can run the 16:15 job hours
     late, after midnight, so 'today' is not a safe choice)."""
@@ -151,6 +179,16 @@ if __name__ == "__main__":
     import sys
     if "--last-session" in sys.argv:
         print(last_full_session() or "")
+    elif "--save-oi" in sys.argv:
+        from . import kite
+        kc = kite.load_client()
+        day = last_full_session()
+        if not kc or not day:
+            print("futures OI snapshot skipped (no Kite session today)")
+        else:
+            oi = kite.futures_oi(kc, {u[0] for u in UNIVERSE})
+            save_oi(day, oi)
+            print(f"saved futures OI for {len(oi)} stocks ({day})")
     elif "--save-journal" in sys.argv:
         from . import journal
         print("saved live journal for", save_journal(journal.fetch_previous()))

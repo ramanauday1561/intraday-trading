@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kite login · Intraday Quant Desk</title>
+<meta name="theme-color" content="#0b1220">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="top"><div class="brand"><span class="logo">◢</span> Kite login</div><a class="btn ghost" href="./">Back to app</a></header>
+<main>
+  <div id="msg" class="box">Reading the Kite login result…</div>
+  <div id="manual" class="box" hidden style="margin-top:12px">
+    <b>Finish in GitHub (about 20 seconds)</b>
+    <ol class="sub">
+      <li>Tap <b>Copy token</b>.</li>
+      <li>Open <a id="wf" target="_blank" rel="noopener">the “Kite login (daily)” workflow</a> → <b>Run workflow</b> → paste into <b>request_token</b> → <b>Run workflow</b>.</li>
+      <li>The token works only once and only for a few minutes, so do it straight away.</li>
+    </ol>
+    <textarea id="tok" readonly rows="2" style="width:100%"></textarea>
+    <button id="copy" class="btn ghost" type="button">Copy token</button>
+    <p class="sub">Tip: save a GitHub token below once and this step happens automatically next time.</p>
+  </div>
+  <details class="how" style="margin-top:12px">
+    <summary>One-tap login: save a GitHub token on this phone (optional)</summary>
+    <p class="sub">Create a fine-grained token limited to <b>ramanauday1561/intraday-trading</b> with only <b>Actions: Read and write</b>
+      (the same kind as for cron-job.org). It stays on this phone only and can only start workflows in this repository.</p>
+    <input id="gh" type="password" placeholder="github_pat_…" autocomplete="off" style="width:100%;padding:12px;font-size:16px;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:8px">
+    <button id="saveGh" class="btn" type="button" style="margin-top:8px">Save on this phone</button>
+    <button id="clearGh" class="btn ghost" type="button" style="margin-top:8px">Remove</button>
+  </details>
+</main>
+<script src="assets/kite.js"></script>
+</body>
+</html>

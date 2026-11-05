@@ -1,6 +1,6 @@
-const VERSION = "v14";
+const VERSION = "v15";
 const SHELL = `shell-${VERSION}`, DATA = `data-${VERSION}`;
-const ASSETS = ["./", "index.html", "assets/app.js", "assets/styles.css", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
+const ASSETS = ["./", "index.html", "kite.html", "assets/kite.js", "assets/app.js", "assets/styles.css", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(SHELL).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", (e) => {

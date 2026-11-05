@@ -20,6 +20,9 @@ Yahoo Finance chart API · NSE public endpoints · Google News & publisher RSS �
 - **Backtest** – 5-minute, 2-year hourly and the pre-registered forward test.
 - **Notifications** – ⚙ → Enable notifications (iPhone: open from the Home Screen icon, iOS 16.4+). Needs the `VAPID_PRIVATE_KEY` and `PUSH_SUBSCRIPTIONS` repository secrets.
 
+## Zerodha Kite (optional)
+Log in once each trading day from ⚙ → Connect Kite to switch from free data to Zerodha candles, option chains, futures OI and real lot sizes. Read-only: the app never places orders. Setup: [docs/KITE_SETUP.md](docs/KITE_SETUP.md).
+
 ## Reliable refresh
 GitHub's built-in schedule can skip runs. For a dependable 10-minute refresh, follow [docs/RELIABLE_REFRESH.md](docs/RELIABLE_REFRESH.md) (free cron-job.org timer + a repo-scoped token).
 
