@@ -1,0 +1,156 @@
+{
+ "date": "2026-11-04",
+ "mode": "live",
+ "updated": "2026-11-05T00:38:14+05:30",
+ "entries": [
+  {
+   "symbol": "INFY",
+   "name": "Infosys",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 94,
+   "signal_bar": "2026-11-04T10:45:00+05:30",
+   "signal_time": "10:45",
+   "ref_price": 1132.8,
+   "stop_distance": 35.82,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 1130,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 20,
+    "premium_est": 39.84,
+    "premium_stop_est": 21.94,
+    "premium_target_est": 75.66,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 1132.5,
+    "stop": 1168.32,
+    "stop_now": 1168.32,
+    "target": 1060.86,
+    "price": 1123.1,
+    "at": "15:15",
+    "r": 0.26
+   }
+  },
+  {
+   "symbol": "SUNPHARMA",
+   "name": "Sun Pharma",
+   "direction": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 93,
+   "signal_bar": "2026-11-04T10:45:00+05:30",
+   "signal_time": "10:45",
+   "ref_price": 1806.8,
+   "stop_distance": 33.05,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY CE",
+    "strike": 1810,
+    "type": "CE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 20,
+    "premium_est": 22.32,
+    "premium_stop_est": 5.79,
+    "premium_target_est": 55.37,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 0.5,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 1806.0,
+    "stop": 1772.95,
+    "stop_now": 1772.95,
+    "target": 1872.1,
+    "price": 1773.4,
+    "at": "15:25",
+    "r": -0.99
+   }
+  },
+  {
+   "symbol": "WIPRO",
+   "name": "Wipro",
+   "direction": "SHORT",
+   "setup": "MEAN_REVERSION",
+   "conviction": 48,
+   "signal_bar": "2026-11-04T11:35:00+05:30",
+   "signal_time": "11:35",
+   "ref_price": 193.9,
+   "stop_distance": 3.57,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 195,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 20,
+    "premium_est": 6.55,
+    "premium_stop_est": 4.76,
+    "premium_target_est": 10.12,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": "PRICED_IN_EXHAUSTION",
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 193.89,
+    "stop": 197.46,
+    "stop_now": 197.46,
+    "target": 186.75,
+    "price": 193.35,
+    "at": "15:15",
+    "r": 0.15
+   }
+  },
+  {
+   "symbol": "ONGC",
+   "name": "ONGC",
+   "direction": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 96,
+   "signal_bar": "2026-11-04T12:35:00+05:30",
+   "signal_time": "12:35",
+   "ref_price": 234.38,
+   "stop_distance": 3.13,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY CE",
+    "strike": 235,
+    "type": "CE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 20,
+    "premium_est": 4.68,
+    "premium_stop_est": 3.12,
+    "premium_target_est": 7.81,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 234.33,
+    "stop": 231.2,
+    "stop_now": 231.2,
+    "target": 240.59,
+    "price": 234.22,
+    "at": "15:15",
+    "r": -0.04
+   }
+  }
+ ],
+ "summary": {
+  "signals": 4,
+  "net_r_gross": -0.62,
+  "open": 0
+ }
+}
