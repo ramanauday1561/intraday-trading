@@ -45,3 +45,13 @@ Regime weight matrix (trending / range / event / macro-shock + a transitional bl
 - Free data is delayed/incomplete; NSE frequently blocks cloud IPs, so GEX/IV-skew/OI may be missing (weights renormalise, UI shows `n/a`). Tick-level data and pre-open order-book depth are not available from open sources; 5-minute bars are used instead.
 - SUE needs analyst consensus (not open): a headline beat/miss proxy is used. Market caps in `engine/config.py` are static approximations. MQSOS is not computable; a 20-day turnover proxy is used.
 - The Hawkes estimate, regime thresholds and scoring weights are heuristics, **not backtested**. No orders are ever placed. Not investment advice.
+
+## Render mirror (optional)
+
+`server/app.py` is a standard-library web service for Render. It mirrors the GitHub Pages site, so the
+Render URL shows the same code and live data. `GET /egress-ip` reports the public IP the service uses for
+outgoing requests. It holds no broker credentials and places no orders.
+
+- Build command: `true`
+- Start command: `python server/app.py`
+- Region: Singapore (closest to the exchanges)
