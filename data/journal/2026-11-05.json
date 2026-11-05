@@ -1,0 +1,84 @@
+{
+ "date": "2026-11-05",
+ "mode": "live",
+ "updated": "2026-11-05T18:34:23+05:30",
+ "entries": [
+  {
+   "symbol": "SBIN",
+   "name": "State Bank of India",
+   "direction": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 100,
+   "signal_bar": "2026-11-05T11:25:00+05:30",
+   "signal_time": "11:25",
+   "ref_price": 999.0,
+   "stop_distance": 14.11,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY CE",
+    "strike": 1000,
+    "type": "CE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 19,
+    "premium_est": 19.9,
+    "premium_stop_est": 12.84,
+    "premium_target_est": 34.01,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 998.95,
+    "stop": 984.84,
+    "stop_now": 984.84,
+    "target": 1027.17,
+    "price": 1006.5,
+    "at": "15:15",
+    "r": 0.54
+   }
+  },
+  {
+   "symbol": "DRREDDY",
+   "name": "Dr. Reddy's",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 54,
+   "signal_bar": "2026-11-05T11:35:00+05:30",
+   "signal_time": "11:35",
+   "ref_price": 1364.4,
+   "stop_distance": 20.82,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 1360,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 19,
+    "premium_est": 36.54,
+    "premium_stop_est": 26.13,
+    "premium_target_est": 57.36,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 1365.2,
+    "stop": 1386.02,
+    "stop_now": 1386.02,
+    "target": 1323.56,
+    "price": 1366.8,
+    "at": "15:15",
+    "r": -0.08
+   }
+  }
+ ],
+ "summary": {
+  "signals": 2,
+  "net_r_gross": 0.46,
+  "open": 0
+ }
+}

@@ -140,19 +140,56 @@
     }
    ],
    "net_r": -0.761
+  },
+  {
+   "date": "2026-11-05",
+   "engine": "eaa130b",
+   "trades": [
+    {
+     "symbol": "DRREDDY",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "11:30",
+     "entry": 1364.3,
+     "exit": 1366.8,
+     "reason": "EOD",
+     "r_multiple": -0.124,
+     "net_r": -0.164,
+     "conviction": 59,
+     "news_bucket": "no_news",
+     "stop_distance": 20.18,
+     "size_mult": 1.0
+    },
+    {
+     "symbol": "SBIN",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "13:45",
+     "entry": 1007.8,
+     "exit": 1006.5,
+     "reason": "EOD",
+     "r_multiple": -0.092,
+     "net_r": -0.135,
+     "conviction": 100,
+     "news_bucket": "news_aligned",
+     "stop_distance": 14.11,
+     "size_mult": 1.0
+    }
+   ],
+   "net_r": -0.299
   }
  ],
  "summary": {
-  "trades": 8,
-  "win_rate_pct": 50.0,
-  "avg_net_r": 0.064,
-  "total_net_r": 0.5,
-  "profit_factor": 1.22,
-  "sessions": 3,
-  "sessions_with_trades": 3,
+  "trades": 10,
+  "win_rate_pct": 40.0,
+  "avg_net_r": 0.021,
+  "total_net_r": 0.2,
+  "profit_factor": 1.08,
+  "sessions": 4,
+  "sessions_with_trades": 4,
   "net_r_ci95": null,
   "from": "2026-11-02",
-  "to": "2026-11-04"
+  "to": "2026-11-05"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }
