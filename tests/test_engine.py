@@ -382,3 +382,120 @@ def test_save_journal_keeps_live_days_and_index(tmp_path):
     assert archive.save_journal(None, str(tmp_path)) is None
     idx = json.load(open(tmp_path / "index.json"))["days"]
     assert [(d["date"], d["signals"]) for d in idx] == [("2026-11-04", 4), ("2026-11-05", 2)]
+
+
+# ---------------- Zerodha Kite (fake client: no network) ----------------
+def test_kite_session_checksum_encryption_and_expiry(tmp_path):
+    import hashlib
+    from datetime import datetime as dt
+    from engine import kite
+    assert kite.checksum("key", "req", "sec") == hashlib.sha256(b"keyreqsec").hexdigest()
+    path = str(tmp_path / "s.enc")
+    kite.save_session({"access_token": "AT", "created": "2026-11-05T09:01:00+05:30"}, "secret1", path)
+    assert kite.read_session("secret1", path)["access_token"] == "AT"
+    assert kite.read_session("other-secret", path) is None          # cannot be read without the repo secret
+    assert b"AT" not in open(path, "rb").read()                       # stored encrypted
+    s = lambda created: {"created": created}
+    assert kite.session_fresh(s("2026-11-05T07:00:00+05:30"), dt(2026, 11, 5, 10, 0, tzinfo=IST))
+    assert not kite.session_fresh(s("2026-11-04T20:00:00+05:30"), dt(2026, 11, 5, 10, 0, tzinfo=IST))  # expired at 06:00
+    assert kite.session_fresh(s("2026-11-04T20:00:00+05:30"), dt(2026, 11, 5, 5, 0, tzinfo=IST))       # still valid before 06:00
+    assert not kite.session_fresh(None)
+
+
+def test_kite_parsers_and_implied_vol():
+    from engine import kite
+    csv_text = ("instrument_token,exchange_token,tradingsymbol,name,last_price,expiry,strike,tick_size,lot_size,instrument_type,segment,exchange\n"
+                "408065,1594,INFY,\"INFOSYS\",0,,0,0.05,1,EQ,NSE,NSE\n"
+                "12345,48,INFY26NOV1500CE,\"INFY\",0,2026-11-24,1500,0.05,400,CE,NFO-OPT,NFO\n")
+    rows = kite.parse_instruments(csv_text)
+    assert rows[0]["token"] == 408065 and rows[0]["expiry"] is None and rows[1]["lot"] == 400 and rows[1]["strike"] == 1500.0
+    df = kite.parse_candles([["2026-11-04T09:15:00+0530", 100, 101, 99, 100.5, 1000], ["2026-11-04T09:20:00+0530", 100.5, 102, 100, 101, 1500]])
+    assert str(df.index[0]) == "2026-11-04 09:15:00+05:30" and df["volume"].iloc[1] == 1500
+    p = kite.bs_price(1500, 1520, 20 / 365, 0.25, True)
+    assert abs(kite.implied_vol(p, 1500, 1520, 20 / 365, True) - 0.25) < 1e-4
+    assert kite.implied_vol(0.01, 1500, 1000, 20 / 365, True) is None   # below intrinsic value: no IV
+
+
+class FakeKite:
+    """Mimics engine.kite.Kite: NFO instruments for INFY and quotes priced at 25% volatility."""
+    def __init__(self, spot=1500.0):
+        from datetime import date
+        from engine import kite
+        self.spot, self.exp = spot, date(2026, 11, 24)
+        self.rows = [{"token": 1, "symbol": "INFY26NOVFUT", "name": "INFY", "expiry": self.exp, "strike": 0.0, "lot": 400, "type": "FUT", "segment": "NFO-FUT", "exchange": "NFO"}]
+        for k in range(1380, 1640, 20):
+            for t in ("CE", "PE"):
+                self.rows.append({"token": k, "symbol": f"INFY26NOV{k}{t}", "name": "INFY", "expiry": self.exp, "strike": float(k), "lot": 400, "type": t, "segment": "NFO-OPT", "exchange": "NFO"})
+        self.kite = kite
+
+    def instruments(self, exchange):
+        return self.rows
+
+    def quote(self, keys):
+        from datetime import date
+        out, t = {}, (self.exp - date(2026, 11, 5)).days / 365
+        for key in keys:
+            r = next(x for x in self.rows if "NFO:" + x["symbol"] == key)
+            if r["type"] == "FUT":
+                out[key] = {"last_price": self.spot, "oi": 1_100_000}
+            else:
+                out[key] = {"last_price": round(self.kite.bs_price(self.spot, r["strike"], t, 0.25, r["type"] == "CE"), 2), "oi": 5000 + r["strike"]}
+        return out
+
+
+def test_kite_option_chain_rows_iv_and_futures_oi():
+    from datetime import date
+    from engine import kite
+    from engine.market import options_structure
+    ch = kite.option_chains(FakeKite(), {"INFY": 1500.0}, prev_oi={"INFY": 1_000_000}, today=date(2026, 11, 5), min_days=3)["INFY"]
+    assert ch["expiry"] == date(2026, 11, 24) and ch["lot"] == 400
+    assert abs(ch["fut_oi_chg_pct"] - 10.0) < 1e-9                       # 1.1M vs 1.0M at yesterday's close
+    assert all(abs(k / 1500 - 1) <= 0.08 for k in {o["k"] for o in ch["options"]})
+    atm = [o for o in ch["options"] if o["k"] == 1500.0 and o["type"] == "Call"][0]
+    assert abs(atm["iv"] - 25.0) < 0.5                                     # IV recovered from the premium
+    st = options_structure(ch["options"], 1500.0, ch["expiry"])
+    assert st and st["atm_iv"] and st["call_wall"] and st["put_wall"]      # GEX / walls now computable
+    assert kite.option_chains(FakeKite(), {"INFY": 1500.0}, today=date(2026, 11, 22), min_days=3) == {}  # too close to expiry
+
+
+def test_option_idea_uses_the_real_contract():
+    from datetime import date
+    from engine import options_idea as oi
+    c = {"exp": date(2026, 11, 24), "k": 1500.0, "ltp": 31.5, "lot": 400, "symbol": "INFY26NOV1500CE"}
+    i = oi.idea("LONG", 1498.0, date(2026, 11, 5), 0, 10.0, 2.0, contract=c)
+    assert i["strike"] == 1500 and i["expiry"] == "2026-11-24" and i["premium_est"] == 31.5
+    assert i["live"] and i["lot_size"] == 400 and i["lot_cost"] == 12600 and i["tradingsymbol"] == "INFY26NOV1500CE"
+    assert oi.idea("LONG", 1498.0, date(2026, 11, 5), 30, 10.0, 2.0)["live"] is False
+
+
+def test_live_data_prefers_kite_and_falls_back_to_yahoo(monkeypatch):
+    from datetime import datetime as dt
+    from engine import pipeline
+    from engine.config import INDEX_SYMBOLS, UNIVERSE
+    bars = _day_bars([100.0] * 20, "2026-11-05 09:15")
+    daily = pipeline.daily_from_intraday(bars)
+    every = [u[0] + ".NS" for u in UNIVERSE] + list(INDEX_SYMBOLS.values()) + sorted({u[3] for u in UNIVERSE} - set(INDEX_SYMBOLS.values()))
+    from_kite = [s for s in every if s != "INFY.NS"]
+    monkeypatch.setattr(pipeline.kitemod, "fetch_bars", lambda kc, syms, now: ({s: bars for s in from_kite}, {s: daily for s in from_kite}))
+    asked = {}
+    def yahoo(syms, rng, itv):
+        asked.setdefault(itv, []).extend(syms)
+        return {s: bars if itv == "5m" else daily for s in syms}
+    monkeypatch.setattr(pipeline, "fetch_many", yahoo)
+    src = {}
+    i5, d1 = pipeline._load_live(dt(2026, 11, 5, 10, 50, 20, tzinfo=IST), kc=object(), source=src)
+    assert asked == {"5m": ["INFY.NS"], "1d": ["INFY.NS"]}                # Yahoo only for what Kite lacked
+    assert src == {"kite": len(from_kite), "yahoo": 1}
+    assert i5["INFY.NS"].index[-1].strftime("%H:%M") == "10:45"          # forming 10:50 bar dropped for Kite and Yahoo alike
+
+
+def test_futures_oi_snapshots(tmp_path):
+    from engine import archive
+    p = str(tmp_path / "oi.json")
+    assert archive.load_oi("2026-11-05", p) == {}
+    archive.save_oi("2026-11-03", {"INFY": 1.0}, p)
+    archive.save_oi("2026-11-04", {"INFY": 2.0}, p)
+    archive.save_oi("2026-11-05", {"INFY": 3.0}, p)
+    assert archive.load_oi("2026-11-05", p) == {"INFY": 2.0}   # strictly before today: yesterday's close
+    archive.save_oi("2026-11-06", {"INFY": 4.0}, p, keep=2)
+    assert sorted(json.load(open(p))) == ["2026-11-05", "2026-11-06"]

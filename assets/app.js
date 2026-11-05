@@ -55,7 +55,9 @@ function banners(offline) {
   const updated = new Date(m.generated_at).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
   const age = (Date.now() - new Date(m.generated_at)) / 60000;
   const marketHours = m.session_phase !== "CLOSED";
+  const kite = (hl.kite || {}).connected;
   const parts = [m.mode === "demo" ? "Demo data — not real prices" : phase, `updated ${updated}`];
+  if (m.mode === "live") parts.push(kite ? "Kite data" : "free data");
   let level = m.mode === "demo" ? "warn" : marketHours ? "ok" : "idle";
   if (m.mode === "live" && marketHours && age > 25) { parts.push(`last update ${Math.round(age)} min ago`); level = "warn"; }
   if (m.mode === "live" && hl.missing && hl.missing.length) { parts.push(`missing ${hl.missing.join(", ")}`); level = "warn"; }
@@ -344,8 +346,9 @@ function openSheet(sym) {
   if (oi) b.append(h("h4", {}, "Option idea (approximate)"),
     h("div", { class: "box opt-box " + s.direction },
       h("div", { class: "opt-big" }, `${oi.action} ${oi.strike} · expiry ${oi.expiry} (${oi.days_to_expiry}d)`),
+      oi.live ? h("div", { class: "sub" }, `${oi.tradingsymbol} · 1 lot = ${oi.lot_size} sh · ≈ ${rupees(oi.lot_cost)} per lot · live from Kite`) : null,
       h("div", { class: "grid", style: "margin-top:8px" },
-        kv("Premium (est.)", "₹" + fmt(oi.premium_est)), kv("Exit if premium ≤ (est.)", "₹" + fmt(oi.premium_stop_est)),
+        kv(oi.live ? "Premium (live)" : "Premium (est.)", "₹" + fmt(oi.premium_est)), kv("Exit if premium ≤ (est.)", "₹" + fmt(oi.premium_stop_est)),
         kv("Target premium (est.)", "₹" + fmt(oi.premium_target_est)), kv("Stock stop / target", `₹${fmt(e.stop)} / ₹${fmt(e.target)}`)),
       h("div", { class: "sub", style: "margin-top:8px" }, oi.note + " Exit on the STOCK levels if they are hit first; they are the real thesis.")));
   b.append(h("h4", {}, "Execution & risk matrix"),
@@ -412,7 +415,18 @@ $("filters").addEventListener("click", (ev) => {
 $("refreshBtn").onclick = () => load(true);
 $("closeSheet").onclick = () => history.back();
 window.addEventListener("popstate", closeSheet);
-$("settingsBtn").onclick = () => { refreshNotifUI(); $("capital").value = state.capital ?? state.data?.meta.capital ?? 100000; $("riskPct").value = state.riskPct ?? state.data?.meta.risk_pct ?? 0.5; $("settings").showModal(); };
+function refreshKiteUI() {
+  const m = state.data?.meta || {}, k = (m.health || {}).kite || {};
+  $("kiteBtn").hidden = !m.kite_api_key;
+  $("kiteStatus").textContent = !m.kite_api_key ? "Add the KITE_API_KEY and KITE_API_SECRET repository secrets to enable Kite."
+    : k.connected ? `Connected today ✓ ${k.bars_from_kite || 0} price series and ${k.option_chains || 0} option chains from Kite.`
+    : "Not connected today — the app is using free data (Yahoo, no option chains).";
+}
+$("kiteBtn").onclick = () => {
+  const key = state.data?.meta?.kite_api_key;
+  if (key) location.href = `https://kite.zerodha.com/connect/login?v=3&api_key=${encodeURIComponent(key)}`;
+};
+$("settingsBtn").onclick = () => { refreshNotifUI(); refreshKiteUI(); $("capital").value = state.capital ?? state.data?.meta.capital ?? 100000; $("riskPct").value = state.riskPct ?? state.data?.meta.risk_pct ?? 0.5; $("settings").showModal(); };
 $("settings").addEventListener("close", () => {
   const c = parseFloat($("capital").value), r = parseFloat($("riskPct").value);
   if (c > 0 && r > 0 && r <= 100) { state.capital = c; state.riskPct = r; store.set("capital", c); store.set("riskPct", r); }

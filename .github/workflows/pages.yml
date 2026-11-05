@@ -36,12 +36,21 @@ jobs:
         run: pip install -r requirements-finbert.txt
       - name: Unit tests
         run: python -m pytest -q tests
+      - name: Restore today's Kite session (encrypted; absent until you log in from the app)
+        uses: actions/cache/restore@v4
+        with:
+          path: .kite
+          key: kite-session-none-${{ github.run_id }}
+          restore-keys: kite-session-
       - name: Run engine (live data, demo fallback)
+        env:
+          KITE_API_KEY: ${{ secrets.KITE_API_KEY }}
+          KITE_API_SECRET: ${{ secrets.KITE_API_SECRET }}
         run: python -W ignore -m engine.run --out data/signals.json
       - name: Assemble site
         run: |
           mkdir _site
-          cp -r index.html sw.js manifest.webmanifest .nojekyll assets icons data _site/
+          cp -r index.html kite.html sw.js manifest.webmanifest .nojekyll assets icons data _site/
       - name: Push notifications for new signals
         continue-on-error: true
         env:

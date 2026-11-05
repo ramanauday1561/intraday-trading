@@ -11,6 +11,8 @@ from . import demo as demomod
 from . import news as newsmod
 from .config import INDEX_SYMBOLS, IST, REGIME_WEIGHTS, UNIVERSE
 from . import archive
+from . import kite as kitemod
+import os
 from .market import NSE, daily_from_intraday, drop_incomplete, fetch_many, options_structure, parse_derivatives
 from .scoring import analyse_stock, daily_sigma_pct, detect_regime, session_phase
 from . import indicators as ind
@@ -42,11 +44,28 @@ def _index_corr(daily_map, nifty_daily):
     return float(np.nanmean(cs)) if cs else 0.5
 
 
-def _load_live(now):
+def _load_live(now, kc=None, source=None):
+    """5-minute and daily bars: Zerodha Kite when today's session exists, Yahoo for anything Kite did not return."""
     syms = [u[0] + ".NS" for u in UNIVERSE]
     idx = list(INDEX_SYMBOLS.values()) + sorted({u[3] for u in UNIVERSE} - set(INDEX_SYMBOLS.values()))
-    i5 = {k: drop_incomplete(v, now) for k, v in fetch_many(syms + idx, "5d", "5m").items()}  # completed bars only
-    d1 = fetch_many(syms + idx, "1y", "1d")  # same long history the backtests use, so ATR/ADX match
+    allsyms = syms + idx
+    i5, d1 = {}, {}
+    if kc:
+        try:
+            i5, d1 = kitemod.fetch_bars(kc, allsyms, now)
+        except (kitemod.KiteError, OSError) as e:
+            print("Kite bars unavailable, using Yahoo:", e, file=sys.stderr)
+    if source is not None:
+        source.update({"kite": sum(v is not None for v in i5.values()), "yahoo": 0})
+    miss5 = [s for s in allsyms if i5.get(s) is None]
+    missd = [s for s in allsyms if d1.get(s) is None]
+    if miss5:
+        i5.update(fetch_many(miss5, "5d", "5m"))
+        if source is not None:
+            source["yahoo"] = sum(i5.get(s) is not None for s in miss5)
+    if missd:
+        d1.update(fetch_many(missd, "1y", "1d"))  # same long history the backtests use, so ATR/ADX match
+    i5 = {k: drop_incomplete(v, now) for k, v in i5.items()}  # completed bars only
     if any(i5.get(INDEX_SYMBOLS[k]) is None or d1.get(INDEX_SYMBOLS[k]) is None for k in ("NIFTY", "VIX")):
         return None
     return i5, d1
@@ -55,10 +74,12 @@ def _load_live(now):
 def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bars=False):
     now = (now or datetime.now(IST)).astimezone(IST)
     fallbacks = []
-    live = None if force_demo else _load_live(now)
+    kc = None if force_demo else kitemod.load_client()
+    source = {}
+    live = None if force_demo else _load_live(now, kc, source)
     mode = "live" if live else "demo"
     stocks = {}
-    sources = ["Yahoo Finance chart API (prices, India VIX)", "Google News RSS + ET/Moneycontrol/Mint RSS",
+    sources = ["Zerodha Kite Connect (prices, option chains; when connected)", "Yahoo Finance chart API (prices, India VIX)", "Google News RSS + ET/Moneycontrol/Mint RSS",
                "NSE public derivatives API (best effort)", "FinBERT (ProsusAI/finbert) or finance lexicon", "NumPy/pandas"]
     if mode == "live":
         i5, d1 = live
@@ -101,9 +122,20 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bar
     corr = _index_corr({s: v["daily"] for s, v in stocks.items()}, nd)
 
     # derivatives (index GEX + per-stock structures)
-    nse = NSE() if mode == "live" else None
+    chains, kite_err = {}, None
+    if kc and mode == "live":  # real option chains, futures OI and lot sizes from Kite
+        try:
+            spots = {u[0]: float(stocks[u[0]]["today"]["close"].iloc[-1]) for u in UNIVERSE if u[0] in stocks}
+            chains = kitemod.option_chains(kc, spots, prev_oi=archive.load_oi(), min_days=3)
+            chains.update(kitemod.option_chains(kc, {"NIFTY": float(nt["close"].iloc[-1])}, width=0.04))
+        except (kitemod.KiteError, OSError) as e:
+            kite_err = str(e)
+            print("Kite option chains unavailable:", e, file=sys.stderr)
+    nse = NSE() if mode == "live" and not chains else None
     index_gex, deriv = None, {}
-    if nse and nse.ok:
+    if chains.get("NIFTY"):
+        index_gex = options_structure(chains["NIFTY"]["options"], float(nt["close"].iloc[-1]), chains["NIFTY"]["expiry"])
+    elif nse and nse.ok:
         js = nse.derivatives("NIFTY")
         pr = parse_derivatives(js, float(nt["close"].iloc[-1]))
         index_gex = options_structure(pr["options"], float(nt["close"].iloc[-1]), pr.get("expiry"))
@@ -120,7 +152,9 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bar
     signals = []
     health = {"prices_ok": len(stocks), "universe": len(UNIVERSE), "news_items": 0, "daily_from_archive": fallbacks,
               "missing": [u[0] for u in UNIVERSE if u[0] not in stocks],
-              "nse_derivatives": bool(nse and nse.ok and (index_gex is not None)), "general_feed_items": len(general)}
+              "nse_derivatives": bool(index_gex is not None), "general_feed_items": len(general),
+              "kite": {"connected": bool(kc), "bars_from_kite": source.get("kite", 0), "bars_from_yahoo": source.get("yahoo", 0),
+                       "option_chains": len(chains), "error": kite_err}}
     for sym, name, sector, sidx, mcap in UNIVERSE:
         m = stocks.get(sym)
         if not m:
@@ -131,7 +165,14 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bar
             items += [i for i in general if key.search(i["title"])]
             opt = None
             fut = None
-            if nse and nse.ok:
+            ch = chains.get(sym)
+            if ch:
+                spot = float(m["today"]["close"].iloc[-1])
+                fut = ch["fut_oi_chg_pct"]
+                opt = options_structure(ch["options"], spot, ch["expiry"])
+                if opt:
+                    opt["_rows"], opt["lot"] = ch["options"], ch["lot"]
+            elif nse and nse.ok:
                 pr = parse_derivatives(nse.derivatives(sym), float(m["today"]["close"].iloc[-1]))
                 fut = pr["fut_oi_chg_pct"]
                 opt = options_structure(pr["options"], float(m["today"]["close"].iloc[-1]), pr.get("expiry"))
@@ -165,7 +206,8 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bar
     payload = {"schema_version": 1,
             "meta": {"generated_at": datetime.now(IST).isoformat(timespec="seconds"), "data_as_of": last_ts.isoformat(),
                      "mode": mode, "session_phase": phase, "execution_allowed": phase == "ACTIVE" or mode == "demo",
-                     "health": health, "universe_size": len(UNIVERSE), "analysed": len(signals), "sources": sources,
+                     "health": health, "universe_size": len(UNIVERSE),
+                     "kite_api_key": os.environ.get("KITE_API_KEY") or None, "analysed": len(signals), "sources": sources,
                      "capital": capital, "risk_pct": risk_pct, "disclaimer": DISCLAIMER,
                      "notes": ["Hawkes branching ratio is a Fano-factor approximation on 5-minute bars.",
                                "GEX/IV-skew/OI need NSE derivatives data; when blocked these inputs are omitted and weights renormalised.",

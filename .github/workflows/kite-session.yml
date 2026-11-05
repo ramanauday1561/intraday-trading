@@ -1,0 +1,48 @@
+name: Kite login (daily)
+
+# Started by the app's kite.html page after you log in to Zerodha (or run it by hand with the request token).
+# Exchanges the single-use request token for today's access token, encrypts it with a key derived from
+# KITE_API_SECRET and stores it in the Actions cache for the refresh and archive jobs. Read-only data use only.
+on:
+  workflow_dispatch:
+    inputs:
+      request_token:
+        description: "request_token from the Kite login redirect (single-use, valid for a few minutes)"
+        required: true
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: kite-session
+  cancel-in-progress: false
+
+jobs:
+  session:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KITE_API_KEY: ${{ secrets.KITE_API_KEY }}
+      KITE_API_SECRET: ${{ secrets.KITE_API_SECRET }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Exchange the request token
+        env:
+          REQUEST_TOKEN: ${{ inputs.request_token }}
+        run: python -m engine.kite --exchange "$REQUEST_TOKEN"
+      - name: Store the encrypted session
+        uses: actions/cache/save@v4
+        with:
+          path: .kite
+          key: kite-session-${{ github.run_id }}
+      - name: Check the session works
+        run: python -m engine.kite --check
+      - name: Refresh the app now with Kite data
+        run: gh workflow run pages.yml --ref main

@@ -29,6 +29,18 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Fetch latest 5-minute bars and headlines, merge into archive/
         run: python -W ignore -m engine.archive
+      - name: Restore today's Kite session (encrypted; absent until you log in from the app)
+        uses: actions/cache/restore@v4
+        with:
+          path: .kite
+          key: kite-session-none-${{ github.run_id }}
+          restore-keys: kite-session-
+      - name: Save the end-of-day futures OI snapshot (Kite; gives tomorrow's OI change)
+        continue-on-error: true
+        env:
+          KITE_API_KEY: ${{ secrets.KITE_API_KEY }}
+          KITE_API_SECRET: ${{ secrets.KITE_API_SECRET }}
+        run: python -m engine.archive --save-oi
       - name: Save the day's live journal (what the app showed)
         continue-on-error: true
         run: python -m engine.archive --save-journal
