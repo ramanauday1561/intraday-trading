@@ -1,0 +1,50 @@
+name: Market-hours heartbeat
+
+# Keeps the 10-minute refresh going during market hours without relying on any single outside trigger.
+# One run loops from ~08:55 to 15:35 IST: every 2 minutes it checks when "Analyse & deploy" last started and
+# dispatches it if that was 9.5+ minutes ago, so it only fills gaps left by cron-job.org / GitHub's schedule.
+# It is started by its own schedule, by any "Analyse & deploy" run, or by hand. Only one runs at a time.
+on:
+  schedule:
+    - cron: "13,43 3-9 * * 1-5"   # 08:43-15:13 IST: many chances to start, since GitHub may skip schedules
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: heartbeat
+  cancel-in-progress: false
+
+jobs:
+  beat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Dispatch the refresh whenever it is overdue (until 15:35 IST)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          start=$(date +%s)
+          ist() { TZ=Asia/Kolkata date +%H%M; }
+          if [ "$(TZ=Asia/Kolkata date +%u)" -gt 5 ]; then echo "Weekend: nothing to do."; exit 0; fi
+          while :; do
+            now=$(ist)
+            if [ "$now" -ge 1535 ]; then echo "$now Market closed: stopping."; exit 0; fi
+            if [ "$now" -ge 0855 ]; then
+              last=$(gh run list -w pages.yml -L 1 --json createdAt -q '.[0].createdAt' || true)
+              age=$(( $(date +%s) - $(date -d "${last:-1970-01-01T00:00:00Z}" +%s) ))
+              if [ "$age" -ge 570 ]; then
+                gh workflow run pages.yml --ref main && echo "$now dispatched refresh (last run ${age}s ago)" || echo "$now dispatch failed"
+              else
+                echo "$now ok (last run ${age}s ago)"
+              fi
+            fi
+            if [ $(( $(date +%s) - start )) -ge 20400 ]; then   # ~5h40m: hand over before the 6h job limit
+              gh workflow run heartbeat.yml --ref main || true
+              echo "$now handed over to a fresh heartbeat run"; exit 0
+            fi
+            sleep 120
+          done
