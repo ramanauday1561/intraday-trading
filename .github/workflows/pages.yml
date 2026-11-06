@@ -11,10 +11,11 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write   # to start the market-hours heartbeat
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false   # let a started refresh finish deploying; extra triggers just queue
 
 jobs:
   deploy:
@@ -63,6 +64,19 @@ jobs:
           path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Make sure the market-hours heartbeat is running
+        if: always() && github.event_name != 'push'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          now=$(TZ=Asia/Kolkata date +%H%M); dow=$(TZ=Asia/Kolkata date +%u)
+          if [ "$dow" -le 5 ] && [ "$now" -ge 0850 ] && [ "$now" -lt 1530 ]; then
+            n=$(gh run list -w heartbeat.yml -s in_progress --json databaseId -q length)
+            q=$(gh run list -w heartbeat.yml -s queued --json databaseId -q length)
+            if [ "$n" = 0 ] && [ "$q" = 0 ]; then gh workflow run heartbeat.yml --ref main && echo "heartbeat started"; else echo "heartbeat already running"; fi
+          fi
       - name: Print results (compact)
         if: always()
         run: |
