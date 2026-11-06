@@ -237,21 +237,26 @@ async function today() {
   const el = $("list");
   const [L, I, R] = await Promise.all([getJSON("today_log"), getJSON("journal/index"), getJSON("track_record")]);
   if (state.filter !== "TODAY") return;
+  const now = istToday();
+  const liveLog = L && L.entries ? L : null;   // newest live journal: today's once trading starts, else the last session's
   const liveDays = new Set((I?.days || []).map((d) => d.date));
-  const latest = L && L.entries ? L.date : null;
-  const past = [...new Set([...liveDays, ...(R?.days || []).map((d) => d.date)])].filter((d) => d !== latest).sort().reverse();
+  const past = [...new Set([...liveDays, ...(R?.days || []).map((d) => d.date), ...(liveLog ? [liveLog.date] : [])])]
+    .filter((d) => d !== now).sort().reverse();
   state.day = state.day || "today";
+  const yesterday = new Date(Date.parse(now + "T12:00:00Z") - 864e5).toISOString().slice(0, 10);
   const chip = (k, t) => h("button", { class: "chip" + (state.day === k ? " on" : ""), onclick: () => { state.day = k; today(); } }, t);
   const days = h("nav", { class: "chips days", "aria-label": "Day" },
-    chip("today", latest && latest !== istToday() ? "Latest" : "Today"), ...past.slice(0, 10).map((d) => chip(d, shortDate(d))), past.length ? chip("all", "All days") : null);
-  const pastLog = async (d) => (liveDays.has(d) ? await getJSON("journal/" + d) : null) || replayLog(R, d);
+    chip("today", "Today"), ...past.slice(0, 10).map((d) => chip(d, d === yesterday ? `Yesterday · ${shortDate(d)}` : shortDate(d))),
+    past.length ? chip("all", "All days") : null);
+  // The live journal is the freshest copy of its day; saved journals and replays cover the rest.
+  const logFor = async (d) => (liveLog && liveLog.date === d ? liveLog : null) || (liveDays.has(d) ? await getJSON("journal/" + d) : null) || replayLog(R, d);
 
   if (state.day === "all") {
-    const all = [...(latest ? [latest] : []), ...past];
+    const all = [...(liveLog && liveLog.date === now ? [now] : []), ...past];
     const rows = [];
     for (const d of all) {
-      const log = d === latest ? L : await pastLog(d);
-      if (log) rows.push({ d, src: d === latest ? "live" : log.mode === "replay" ? "replay" : "live", ...dayStats(log) });
+      const log = await logFor(d);
+      if (log) rows.push({ d, src: log.mode === "replay" ? "replay" : "live", ...dayStats(log) });
     }
     if (state.filter !== "TODAY" || state.day !== "all") return;
     const A = account(), total = rows.reduce((a, r) => a + r.total, 0), trades = rows.reduce((a, r) => a + r.taken, 0);
@@ -262,18 +267,24 @@ async function today() {
       h("div", { class: "macro" }, tile("Total P&L", signedRupees(total), cls(total)), tile("Return", sgn((100 * total) / A.cap, 2) + "%", cls(total)),
         tile("Days won", `${winDays} / ${rows.length}`), tile("Trades", trades)),
       h("div", { class: "sub", style: "margin-bottom:8px" }, "Fixed account size each day (no compounding). Tap a day for its trades."),
-      ...rows.map((r) => h("button", { class: "card dayrow", onclick: () => { state.day = r.d === latest ? "today" : r.d; today(); } },
-        h("div", { class: "row" }, h("div", {}, h("b", {}, shortDate(r.d)), h("div", { class: "sub" }, `${r.taken} trade${r.taken === 1 ? "" : "s"} · ${r.wins} won${r.src === "replay" ? " · replay" : ""}`)),
+      ...rows.map((r) => h("button", { class: "card dayrow", onclick: () => { state.day = r.d === now ? "today" : r.d; today(); } },
+        h("div", { class: "row" }, h("div", {}, h("b", {}, r.d === now ? "Today" : shortDate(r.d)), h("div", { class: "sub" }, `${r.taken} trade${r.taken === 1 ? "" : "s"} · ${r.wins} won${r.src === "replay" ? " · replay" : ""}`)),
           h("b", { class: cls(r.total) }, signedRupees(r.total))),
         h("div", { class: "bar" }, h("span", { class: "t" }, h("i", { style: `left:${r.total >= 0 ? 50 : 50 - (50 * Math.abs(r.total)) / maxAbs}%;width:${(50 * Math.abs(r.total)) / maxAbs}%;background:var(--${r.total >= 0 ? "up" : "dn"})` }))))));
   }
   if (state.day !== "today") {
-    const log = await pastLog(state.day);
+    const log = await logFor(state.day);
     if (state.filter !== "TODAY") return;
     return el.replaceChildren(days, ...(log ? journalView(log, false) : [h("div", { class: "empty" }, "No data saved for that day.")]));
   }
-  if (!L || !L.entries) return el.replaceChildren(days, h("div", { class: "empty" }, "No journal yet. It starts with the first signal of the day."));
-  el.replaceChildren(days, ...journalView(L, true));
+  if (liveLog && liveLog.date === now) return el.replaceChildren(days, ...journalView(liveLog, true));
+  // Nothing for today yet: say why, and point to the last session.
+  const dow = new Date(now + "T12:00:00+05:30").getUTCDay();
+  const why = dow === 0 || dow === 6 ? "The market is closed today (weekend)."
+    : "No trades yet today. Signals start after 10:05 IST, and the first update usually arrives by 10:15. A holiday also shows nothing.";
+  const last = past[0];
+  el.replaceChildren(days, h("div", { class: "empty" }, h("b", {}, `Today · ${shortDate(now)}`), h("br"), why,
+    last ? h("div", { style: "margin-top:12px" }, h("button", { class: "chip on", onclick: () => { state.day = last; today(); } }, `See ${shortDate(last)} →`)) : null));
 }
 
 async function record() {
