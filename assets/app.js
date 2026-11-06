@@ -212,7 +212,7 @@ function journalView(L, isLive) {
     h("div", { class: "macro" }, tile("Trades taken", D.taken), tile("Day P&L", signedRupees(D.total), cls(D.total)),
       tile("Booked", signedRupees(D.booked), cls(D.booked)), tile("Still open", signedRupees(D.open), cls(D.open))),
     h("div", { class: "sub" }, `${shortDate(L.date)} · ${S.signals ?? D.taken} signal${(S.signals ?? D.taken) === 1 ? "" : "s"} · ${S.open ?? 0} open · ${sgn((100 * D.total) / A.cap, 2)}% on the account` +
-      (L.mode === "replay" ? " · after-close replay (the live list was not saved for this day)" : "")),
+      (L.mode === "replay" ? " · after-close replay (no live list for this day)" : "")),
     h("details", { class: "how" }, h("summary", {}, "How this is calculated"),
       "Every signal stays listed after it leaves the main list. Each is bought/shorted at the next 5-minute open with the app's suggested " +
       "quantity (5× intraday margin cap), follows its stop / breakeven / target, and is closed by 15:15; costs included. Change the account in ⚙." +
@@ -249,7 +249,12 @@ async function today() {
     chip("today", "Today"), ...past.slice(0, 10).map((d) => chip(d, d === yesterday ? `Yesterday · ${shortDate(d)}` : shortDate(d))),
     past.length ? chip("all", "All days") : null);
   // The live journal is the freshest copy of its day; saved journals and replays cover the rest.
-  const logFor = async (d) => (liveLog && liveLog.date === d ? liveLog : null) || (liveDays.has(d) ? await getJSON("journal/" + d) : null) || replayLog(R, d);
+  // If live updates were missing all day (empty list), the after-close replay is the better record of it.
+  const logFor = async (d) => {
+    const live = (liveLog && liveLog.date === d ? liveLog : null) || (liveDays.has(d) ? await getJSON("journal/" + d) : null);
+    const replay = replayLog(R, d);
+    return live && (live.entries.length || !replay || !replay.entries.length) ? live : replay || live;
+  };
 
   if (state.day === "all") {
     const all = [...(liveLog && liveLog.date === now ? [now] : []), ...past];
@@ -277,7 +282,11 @@ async function today() {
     if (state.filter !== "TODAY") return;
     return el.replaceChildren(days, ...(log ? journalView(log, false) : [h("div", { class: "empty" }, "No data saved for that day.")]));
   }
-  if (liveLog && liveLog.date === now) return el.replaceChildren(days, ...journalView(liveLog, true));
+  if (liveLog && liveLog.date === now) {
+    const log = await logFor(now);
+    if (state.filter !== "TODAY" || state.day !== "today") return;
+    return el.replaceChildren(days, ...journalView(log, log === liveLog));
+  }
   // Nothing for today yet: say why, and point to the last session.
   const dow = new Date(now + "T12:00:00+05:30").getUTCDay();
   const why = dow === 0 || dow === 6 ? "The market is closed today (weekend)."
