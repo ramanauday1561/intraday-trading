@@ -9,7 +9,7 @@ import pandas as pd
 
 from . import demo as demomod
 from . import news as newsmod
-from .config import INDEX_SYMBOLS, IST, REGIME_WEIGHTS, UNIVERSE
+from .config import CHECKPOINT_MINUTES, DEFAULT_RISK_PCT, INDEX_SYMBOLS, IST, REGIME_WEIGHTS, UNIVERSE
 from . import archive
 from . import kite as kitemod
 import os
@@ -27,6 +27,20 @@ def _split(df5, daily):
     hist = df5[[d != last for d in df5.index.date]]
     prior = daily[[d < last for d in daily.index.date]]
     return today, hist, prior
+
+
+def to_checkpoint(i5, minutes=CHECKPOINT_MINUTES):
+    """Cut every 5-minute series back to the latest checkpoint bar (label minute divisible by `minutes`) of the
+    latest session, so live signals are evaluated on the same grid as the replays. Returns (cut_series, cut_ts)."""
+    n = i5.get(INDEX_SYMBOLS["NIFTY"])
+    if n is None or not len(n):
+        return i5, None
+    last = n.index[-1]
+    grid = n.index[(n.index.minute % minutes == 0) & (n.index.date == last.date())]
+    if not len(grid):
+        return i5, None
+    cut = grid[-1]
+    return {k: (v[v.index <= cut] if v is not None else None) for k, v in i5.items()}, cut
 
 
 def _chg(today, prev_close):
@@ -71,7 +85,7 @@ def _load_live(now, kc=None, source=None):
     return i5, d1
 
 
-def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bars=False):
+def build(now=None, force_demo=False, capital=100000.0, risk_pct=DEFAULT_RISK_PCT, return_bars=False):
     now = (now or datetime.now(IST)).astimezone(IST)
     fallbacks = []
     kc = None if force_demo else kitemod.load_client()
@@ -81,8 +95,13 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bar
     stocks = {}
     sources = ["Zerodha Kite Connect (prices, option chains; when connected)", "Yahoo Finance chart API (prices, India VIX)", "Google News RSS + ET/Moneycontrol/Mint RSS",
                "NSE public derivatives API (best effort)", "FinBERT (ProsusAI/finbert) or finance lexicon", "NumPy/pandas"]
+    full_today = {}
+    checkpoint = None
     if mode == "live":
         i5, d1 = live
+        if session_phase(now) == "ACTIVE":  # signals on the replay's 15-minute grid; journal outcomes use every bar
+            full_today = {k: v for k, v in i5.items() if v is not None}
+            i5, checkpoint = to_checkpoint(i5)
         idx_data = {}
         for k in set(INDEX_SYMBOLS.values()) | {u[3] for u in UNIVERSE}:
             if i5.get(k) is not None and d1.get(k) is not None:
@@ -193,7 +212,7 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bar
             signals.append(analyse_stock(ctx))
         except Exception as e:  # noqa: BLE001 - one bad ticker must not sink the run
             print(f"{sym}: analysis failed: {e!r}", file=sys.stderr)
-    signals.sort(key=lambda s: (s["direction"] == "NO_TRADE", -s["conviction"]))
+    signals.sort(key=lambda s: (s["direction"] == "NO_TRADE", -abs(s["composite"])))  # strongest first (day rules use this order)
     bank_t = idx_data.get("^NSEBANK")
     regime = detect_regime(vix, ind.adx(nd), index_gex, corr, False)
     macro = {"nifty": {"ltp": round(float(nt["close"].iloc[-1]), 2), "chg_pct": round(nifty_chg, 2)},
@@ -206,6 +225,7 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bar
     payload = {"schema_version": 1,
             "meta": {"generated_at": datetime.now(IST).isoformat(timespec="seconds"), "data_as_of": last_ts.isoformat(),
                      "mode": mode, "session_phase": phase, "execution_allowed": phase == "ACTIVE" or mode == "demo",
+                     "checkpoint": checkpoint.strftime("%H:%M") if checkpoint is not None else None,
                      "health": health, "universe_size": len(UNIVERSE),
                      "kite_api_key": os.environ.get("KITE_API_KEY") or None, "analysed": len(signals), "sources": sources,
                      "capital": capital, "risk_pct": risk_pct, "disclaimer": DISCLAIMER,
@@ -215,7 +235,12 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=5.0, return_bar
                               (["DEMO MODE: synthetic data - live sources unreachable."] if mode == "demo" else [])},
             "macro": macro, "signals": signals}
     if return_bars:
-        return payload, {sym: m["today"] for sym, m in stocks.items()}
+        bars = {sym: m["today"] for sym, m in stocks.items()}
+        for sym in bars:  # outcomes of journal entries use every completed bar, not just the checkpoint
+            f = full_today.get(sym + ".NS")
+            if f is not None:
+                bars[sym] = f[[d == last_ts.date() for d in f.index.date]]
+        return payload, bars
     return payload
 
 

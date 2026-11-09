@@ -7,6 +7,8 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
 };
 const VIEWS = ["TODAY", "ACTION", "LONG", "SHORT", "ALL", "RECORD", "BACKTEST"];
+// One-time move from the old 5% default to 1% (a risk the user typed in themselves is kept unless it was exactly the old default).
+if (!store.get("riskDefault1", false)) { if (store.get("riskPct", null) === 5) store.set("riskPct", 1); store.set("riskDefault1", true); }
 const state = { data: null, filter: VIEWS.includes(store.get("view", "TODAY")) ? store.get("view", "TODAY") : "TODAY", capital: store.get("capital", null), riskPct: store.get("riskPct", null) };
 
 // DOM builder: text is always set via textContent, so RSS headlines can never inject markup.
@@ -28,7 +30,7 @@ const label = (s) => String(s || "").replace(/_/g, " ").toLowerCase().replace(/^
 // suggested quantity (risk / stop distance, capped at 5x capital), with 0.06% round-trip costs.
 const COST_PCT = 0.06, LEVERAGE = 5;
 function account() {
-  return { cap: state.capital ?? state.data?.meta.capital ?? 100000, risk: state.riskPct ?? state.data?.meta.risk_pct ?? 5 };
+  return { cap: state.capital ?? state.data?.meta.capital ?? 100000, risk: state.riskPct ?? state.data?.meta.risk_pct ?? 1 };
 }
 function paper(long, fill, exit, sd, sizeMult) {
   const { cap, risk } = account();
@@ -58,6 +60,7 @@ function banners(offline) {
   const kite = (hl.kite || {}).connected;
   const parts = [m.mode === "demo" ? "Demo data — not real prices" : phase, `updated ${updated}`];
   if (m.mode === "live") parts.push(kite ? "Kite data" : "free data");
+  if (m.checkpoint && m.session_phase === "ACTIVE") parts.push(`signals as of ${m.checkpoint}`);
   let level = m.mode === "demo" ? "warn" : marketHours ? "ok" : "idle";
   if (m.mode === "live" && marketHours && age > 25) { parts.push(`last update ${Math.round(age)} min ago`); level = "warn"; }
   if (m.mode === "live" && hl.missing && hl.missing.length) { parts.push(`missing ${hl.missing.join(", ")}`); level = "warn"; }
@@ -204,6 +207,17 @@ function replayLog(R, date) {
   return { date, mode: "replay", entries, summary: { signals: entries.length, open: 0 } };
 }
 
+// Day rules (engine/dayrules.py): the day's first trade fixes the direction; no new trades after -2R of closed trades.
+function dayRulesNote(L) {
+  const es = L.entries || [];
+  if (!es.length) return null;
+  const first = es[0].direction, closed = ["STOPPED", "BREAKEVEN", "TARGET", "CLOSED_1515"];
+  const booked = es.reduce((a, e) => a + (closed.includes(e.status?.state) && e.status.r != null ? e.status.r : 0), 0);
+  const msg = booked <= -2 ? `Daily loss limit reached (${sgn(booked, 2)}R closed): no new trades today.`
+    : `Day rules: first trade was ${first}, so only ${first.toLowerCase()} trades are taken today · stop for the day at −2R (now ${sgn(booked, 2)}R closed).`;
+  return h("div", { class: "sub", style: "margin:6px 0" }, msg);
+}
+
 function journalView(L, isLive) {
   const A = account(), D = dayStats(L), S = L.summary || {};
   const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
@@ -213,6 +227,7 @@ function journalView(L, isLive) {
       tile("Booked", signedRupees(D.booked), cls(D.booked)), tile("Still open", signedRupees(D.open), cls(D.open))),
     h("div", { class: "sub" }, `${shortDate(L.date)} · ${S.signals ?? D.taken} signal${(S.signals ?? D.taken) === 1 ? "" : "s"} · ${S.open ?? 0} open · ${sgn((100 * D.total) / A.cap, 2)}% on the account` +
       (L.mode === "replay" ? " · after-close replay (no live list for this day)" : "")),
+    dayRulesNote(L),
     h("details", { class: "how" }, h("summary", {}, "How this is calculated"),
       "Every signal stays listed after it leaves the main list. Each is bought/shorted at the next 5-minute open with the app's suggested " +
       "quantity (5× intraday margin cap), follows its stop / breakeven / target, and is closed by 15:15; costs included. Change the account in ⚙." +
@@ -341,9 +356,9 @@ function list() {
         h("div", { style: "text-align:right" }, h("div", {}, h("span", { class: "pill " + s.direction }, s.direction === "NO_TRADE" ? "NO TRADE" : s.direction)),
           h("div", { class: "sub" }, label(s.setup)))),
       h("div", { class: "row", style: "margin-top:8px" }, h("span", {}, "₹" + fmt(s.price.ltp), " ", h("span", { class: cls(s.price.chg_pct) }, sgn(s.price.chg_pct) + "%")),
-        h("span", { class: "sub" }, `Conviction ${s.conviction}`)),
+        s.direction !== "NO_TRADE" && s.execution.stop_distance ? h("span", { class: "sub" }, `stop ₹${fmt(s.execution.stop_distance)} away`) : null),
       s.execution.option_idea ? h("div", { class: "opt " + s.direction }, `${s.execution.option_idea.action} ${s.execution.option_idea.strike} · exp ${s.execution.option_idea.expiry}`) : null,
-      h("div", { class: "meter" }, h("i", { style: `width:${s.conviction}%` })), tags.length ? h("div", { class: "tags" }, tags) : null);
+      tags.length ? h("div", { class: "tags" }, tags) : null);
   }));
 }
 
@@ -446,7 +461,7 @@ $("kiteBtn").onclick = () => {
   const key = state.data?.meta?.kite_api_key;
   if (key) location.href = `https://kite.zerodha.com/connect/login?v=3&api_key=${encodeURIComponent(key)}`;
 };
-$("settingsBtn").onclick = () => { refreshNotifUI(); refreshKiteUI(); $("capital").value = state.capital ?? state.data?.meta.capital ?? 100000; $("riskPct").value = state.riskPct ?? state.data?.meta.risk_pct ?? 0.5; $("settings").showModal(); };
+$("settingsBtn").onclick = () => { refreshNotifUI(); refreshKiteUI(); $("capital").value = state.capital ?? state.data?.meta.capital ?? 100000; $("riskPct").value = state.riskPct ?? state.data?.meta.risk_pct ?? 1; $("settings").showModal(); };
 $("settings").addEventListener("close", () => {
   const c = parseFloat($("capital").value), r = parseFloat($("riskPct").value);
   if (c > 0 && r > 0 && r <= 100) { state.capital = c; state.riskPct = r; store.set("capital", c); store.set("riskPct", r); }

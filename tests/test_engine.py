@@ -300,7 +300,7 @@ def test_journal_status_and_carry_over():
                 "signals": [mk(*x) for x in sigs]}
     first = journal.update(None, payload("ACTIVE", [("X", "LONG")]), {"X": bars})
     # 10 minutes later the signal is gone from the main list, but the journal keeps it and adds the new one
-    later = journal.update(first, payload("ACTIVE", [("Y", "SHORT"), ("X", "NO_TRADE")], "2026-10-28T10:10:00+05:30"), {"X": bars})
+    later = journal.update(first, payload("ACTIVE", [("Y", "LONG"), ("X", "NO_TRADE")], "2026-10-28T10:10:00+05:30"), {"X": bars})
     assert [e["symbol"] for e in later["entries"]] == ["X", "Y"] and later["entries"][1]["status"]["state"] == "NO_DATA"
     # a new day starts a fresh journal; a closed session adds nothing
     assert journal.update(later, payload("CLOSED", [("Z", "LONG")], "2026-10-29T15:25:00+05:30"), {})["entries"] == []
@@ -499,3 +499,40 @@ def test_futures_oi_snapshots(tmp_path):
     assert archive.load_oi("2026-11-05", p) == {"INFY": 2.0}   # strictly before today: yesterday's close
     archive.save_oi("2026-11-06", {"INFY": 4.0}, p, keep=2)
     assert sorted(json.load(open(p))) == ["2026-11-05", "2026-11-06"]
+
+
+def test_day_rules_direction_lock_and_loss_limit():
+    from engine import dayrules
+    assert dayrules.gate("SHORT", "10:00", []) is None                                   # first trade: anything goes
+    taken = [{"direction": "LONG", "exit_time": None, "r": None}]
+    assert dayrules.gate("LONG", "10:15", taken) is None                                 # no cap on the number of trades
+    assert dayrules.gate("SHORT", "10:15", taken)["code"] == "DAY_DIRECTION"
+    taken = [{"direction": "LONG", "exit_time": "10:20", "r": -1.0}, {"direction": "LONG", "exit_time": "10:40", "r": -1.0}]
+    assert dayrules.gate("LONG", "10:30", taken) is None                                 # second loss not closed yet at 10:30
+    assert dayrules.gate("LONG", "10:45", taken)["code"] == "DAY_LOSS_LIMIT"             # -2R booked by 10:45
+    # live: strongest signal first sets the lock; later opposite one is blocked, same-direction ones pass
+    mk = lambda sym, d: {"symbol": sym, "direction": d, "risk": {"blockers": []}}
+    sigs = [mk("A", "SHORT"), mk("B", "LONG"), mk("C", "SHORT"), mk("D", "NO_TRADE")]
+    dayrules.apply_live(sigs, [], "10:00")
+    assert [s["direction"] for s in sigs] == ["SHORT", "NO_TRADE", "SHORT", "NO_TRADE"]
+    assert sigs[1]["risk"]["blockers"][0]["code"] == "DAY_DIRECTION"
+
+
+def test_backtest_selection_applies_day_rules_without_a_cap():
+    from engine import evaluate as ev
+    t = lambda sym, d, tm, ex, r, comp=0.5: {"date": "2026-11-09", "symbol": sym, "direction": d, "signal_time": tm, "exit_time": ex,
+                                             "r_multiple": r, "net_r": r, "conviction": 50, "cost_r": 0.05, "composite": comp}
+    c = [t("A", "SHORT", "10:00", "15:15", 0.2), t("B", "LONG", "10:00", "15:15", 0.1, comp=0.3), t("C", "SHORT", "10:15", "10:30", -1.0),
+         t("D", "SHORT", "10:30", "10:45", -1.0), t("E", "SHORT", "11:00", "15:15", 0.5), t("F", "SHORT", "11:15", "15:15", 0.5)]
+    assert [x["symbol"] for x in ev.apply_filters(c)] == ["A", "B", "C", "D", "E", "F"]     # rules off: unchanged behaviour
+    # B blocked (against A), C and D taken, then -2R booked by 10:45 -> E and F blocked
+    assert [x["symbol"] for x in ev.apply_filters(c, day_rules=True)] == ["A", "C", "D"]
+
+
+def test_live_signals_use_the_15_minute_checkpoint():
+    import pandas as pd
+    from engine.pipeline import to_checkpoint
+    idx = pd.date_range("2026-11-09 09:15", "2026-11-09 10:25", freq="5min", tz="Asia/Kolkata")
+    df = pd.DataFrame({"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0, "volume": 1}, index=idx)
+    cut, ts = to_checkpoint({"^NSEI": df, "X.NS": df, "Y.NS": None})
+    assert ts.strftime("%H:%M") == "10:15" and cut["X.NS"].index[-1] == ts and cut["Y.NS"] is None

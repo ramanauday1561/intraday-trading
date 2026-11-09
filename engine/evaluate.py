@@ -9,6 +9,8 @@ from collections import defaultdict
 
 import numpy as np
 
+from . import dayrules
+
 CONV_MIN = (0, 50, 65, 80)
 MAX_COST_R = (None, 0.25, 0.15)      # skip trades whose round-trip cost exceeds this many R
 MAX_PER_DAY = (None, 3)
@@ -16,22 +18,27 @@ MIN_TRAIN_TRADES = 30
 TRAIN_FRACTION = 0.6
 
 
-def apply_filters(cands, conv_min=0, max_cost_r=None, max_per_day=None):
-    """Time-ordered selection: first qualifying signal per stock per day, optional daily cap."""
+def apply_filters(cands, conv_min=0, max_cost_r=None, max_per_day=None, day_rules=False):
+    """Time-ordered selection: first qualifying signal per stock per day, optional daily cap, and optionally the
+    live app's day rules (engine/dayrules.py). Within a checkpoint the strongest |composite| goes first, as live."""
     by_day = defaultdict(list)
     for t in cands:
         by_day[t["date"]].append(t)
     out = []
     for date in sorted(by_day):
-        taken, n = set(), 0
-        for t in sorted(by_day[date], key=lambda x: (x["signal_time"], -x["conviction"])):
+        taken, n, day = set(), 0, []
+        for t in sorted(by_day[date], key=lambda x: (x["signal_time"], -abs(x.get("composite", 0)), -x["conviction"])):
             if t["conviction"] < conv_min or (max_cost_r is not None and t["cost_r"] > max_cost_r):
                 continue
             if t["symbol"] in taken:
                 continue
             if max_per_day is not None and n >= max_per_day:
                 break
+            if day_rules and dayrules.gate(t["direction"], t["signal_time"], day):
+                continue
             out.append(t); taken.add(t["symbol"]); n += 1
+            if day_rules:
+                day.append({"direction": t["direction"], "exit_time": t.get("exit_time"), "r": t.get("r_multiple")})
     return out
 
 

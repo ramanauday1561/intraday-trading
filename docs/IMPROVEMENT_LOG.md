@@ -45,3 +45,27 @@ through fewer noise stop-outs and lower costs in R terms. It is **not** an edge:
 still negative after costs and every CI includes zero. Position size halves at the same risk %
 because the stop is twice as wide. Entry filters (ATR range etc.) still use the base stop, exactly
 as tested. Per preregistration.md the H1 forward test restarts: sessions after 2026-11-01 count.
+
+## 2026-11-09 — Day rules (pre-registered before the 2026-11-10 session)
+
+**Trigger:** 9 Nov live day: 8 trades on a flat Nifty (+0.06%), 5 short and 3 long, about -2R before costs
+(-₹8,335 at 5% risk). Three of the trades existed only in the live list (10-minute checks), not in the
+15-minute replay.
+
+**Changes (all in one rule set, `engine/dayrules.py`, used identically by the live app and the replays):**
+1. **Direction lock:** after the day's first trade, trades in the opposite direction are skipped. Within one
+   checkpoint the strongest |composite| signal counts as first.
+2. **Daily loss limit:** no new trades once trades closed earlier that day total -2R or worse.
+3. **15-minute checkpoint grid live:** live signals are evaluated on the latest 10:00, 10:15, … 14:30 bar,
+   exactly like the replays. Journal outcomes still use every completed bar.
+4. **No cap on trades per day** (owner's choice): every signal that passes all filters is taken.
+5. Default risk 1% per trade (was 5%). Conviction is no longer shown as a score, because it has not predicted results.
+
+**Evidence and its limits (in-sample, found on the same data, so likely optimistic):** in both backtests
+trades against the day's first signal averaged -0.13R. Direction lock alone on the stored trades:
+5-minute (69 sessions) -0.098R → -0.082R per trade; hourly (2 years) -0.053R → -0.016R. **Still negative
+after costs.** No edge is claimed.
+
+**Decision rule (judged only on sessions after 2026-11-09):** after 20 forward sessions, keep the day rules
+if the forward mean net R per trade is better than the same sessions replayed without them
+(`apply_filters(day_rules=False)`). The H1 forward test restarts: sessions after 2026-11-09 count.
