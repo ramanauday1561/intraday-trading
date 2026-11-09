@@ -80,13 +80,14 @@ def simulate(sig, bars_after, exit_hhmm=(15, 15)):
     long_ = sig["direction"] == "LONG"
     ex = sig["execution"]
     sd, rr = ex["stop_distance"], ex["rr"]
-    state, entry, exit_px, _, _ = exits.walk(long_, bars_after, sd, rr, ex.get("breakeven_after_r"), exit_hhmm)
+    state, entry, exit_px, exit_ts, _ = exits.walk(long_, bars_after, sd, rr, ex.get("breakeven_after_r"), exit_hhmm)
     reason = {"CLOSED_1515": "EOD", "OPEN": "EOD", "STOPPED": "STOP"}.get(state, state)  # TARGET / BREAKEVEN
     stop, target = (entry - sd, entry + rr * sd) if long_ else (entry + sd, entry - rr * sd)
     per_share = (exit_px - entry) if long_ else (entry - exit_px)
     qty = sig["execution"]["qty"]
     cost_ps = entry * COST_PCT / 100
     return {"cost_r": round(cost_ps / sd, 3), "net_r": round((per_share - cost_ps) / sd, 3), "symbol": sig["symbol"], "direction": sig["direction"], "setup": sig["setup"], "conviction": sig["conviction"],
+            "composite": sig.get("composite", 0.0), "exit_time": exit_ts.strftime("%H:%M"),
             "regime": sig["regime"], "entry": round(entry, 2), "stop": round(stop, 2), "target": round(target, 2),
             "exit": round(exit_px, 2), "reason": reason, "qty": qty, "stop_distance": sd, "size_mult": sig["risk"]["size_multiplier"],
             "r_multiple": round(per_share / sd, 3), "per_share": per_share,
@@ -279,12 +280,12 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
                         trades[variant].append(tr)
         print(date, {k: len(v) for k, v in trades.items()}, flush=True)
     cands = trades
-    trades = {k: evaluate.apply_filters(v) for k, v in cands.items()}  # baseline: first signal per stock per day
+    trades = {k: evaluate.apply_filters(v, day_rules=True) for k, v in cands.items()}  # first signal per stock per day + day rules
     news_used = sum(abs(t["news_score"]) > 0.2 for t in trades["with_news"])
     res = {"mode": "demo" if demo else "live", "period": {"from": days[0].isoformat(), "to": days[-1].isoformat(), "sessions": len(days)},
            "resolution": "1h" if hourly else "5m",
            "scan": (f"hourly bar closes {asof[0]:02d}:{asof[1]:02d}+{asof[0]+1:02d}:{asof[1]:02d} to {(last_label//60)+1:02d}:{last_label%60:02d} IST" if hourly
-                    else f"every 15 min {asof[0]:02d}:{asof[1]:02d}-14:30 IST") + ", first signal per stock per day",
+                    else f"every 15 min {asof[0]:02d}:{asof[1]:02d}-14:30 IST") + ", first signal per stock per day, day rules (direction lock, -2R daily loss limit)",
            "capital": capital, "risk_levels_pct": list(RISK_LEVELS), "news_headlines": sum(len(v) for v in news_items.values()),
            "trades_using_news": news_used, "blocker_counts": dict(blockers),
            "bias_counts": dict(bias_counts),

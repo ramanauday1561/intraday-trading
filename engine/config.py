@@ -85,3 +85,8 @@ UNIVERSE = [
 ]
 
 INDEX_SYMBOLS = {"NIFTY": "^NSEI", "BANKNIFTY": "^NSEBANK", "VIX": "^INDIAVIX"}
+
+# Day rules (pre-registered 2026-11-09, see engine/dayrules.py)
+DAY_LOSS_LIMIT_R = -2.0      # no new trades once today's closed trades total this or worse
+CHECKPOINT_MINUTES = 15      # live signals are evaluated on the same 15-minute grid as the replays
+DEFAULT_RISK_PCT = 1.0       # default paper/sizing risk per trade

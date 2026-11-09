@@ -40,7 +40,7 @@ def new_signals(current, previous):
 def message_for(s):
     e, oi = s["execution"], s["execution"].get("option_idea")
     title = f"{s['direction']} {s['symbol']}" + (f" → {oi['action']} {oi['strike']}" if oi else "")
-    body = f"Entry ₹{e['entry_trigger']} · SL ₹{e['stop']} · Target ₹{e['target']} · conviction {s['conviction']}"
+    body = f"Entry ₹{e['entry_trigger']} · SL ₹{e['stop']} · Target ₹{e['target']}"
     if oi:
         body += f" · exp {oi['expiry']}"
     return {"title": title, "body": body + ". Paper-trade idea, not advice.",

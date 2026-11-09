@@ -8,7 +8,7 @@ import time
 
 import requests
 
-from . import exits
+from . import dayrules, exits
 
 PAGES_LOG = "https://ramanauday1561.github.io/intraday-trading/data/today_log.json"
 
@@ -45,8 +45,12 @@ def update(prev, payload, bars):
     meta = payload["meta"]
     day, mode = meta["data_as_of"][:10], meta["mode"]
     entries = list(prev["entries"]) if prev and prev.get("date") == day and prev.get("mode") == mode else []
+    for e in entries:  # outcomes so far, needed by the day rules (loss limit)
+        e["status"] = status(e, bars.get(e["symbol"]))
     known = {(e["symbol"], e["direction"]) for e in entries}
     if meta["session_phase"] == "ACTIVE" or mode == "demo":
+        # Day rules block signals in payload["signals"] too, so the Actionable list and the journal agree.
+        dayrules.apply_live(payload["signals"], entries, meta["data_as_of"][11:16])
         for s in payload["signals"]:
             if s["direction"] == "NO_TRADE" or (s["symbol"], s["direction"]) in known:
                 continue
