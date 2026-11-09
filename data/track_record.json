@@ -247,7 +247,7 @@
   },
   {
    "date": "2026-11-09",
-   "engine": "08218ec",
+   "engine": "cb95815",
    "trades": [
     {
      "symbol": "TATASTEEL",
@@ -293,52 +293,22 @@
      "news_bucket": "news_opposed",
      "stop_distance": 8.05,
      "size_mult": 1.0
-    },
-    {
-     "symbol": "KOTAKBANK",
-     "direction": "LONG",
-     "setup": "MOMENTUM",
-     "signal_time": "11:30",
-     "entry": 478.95,
-     "exit": 477.2,
-     "reason": "EOD",
-     "r_multiple": -0.188,
-     "net_r": -0.219,
-     "conviction": 68,
-     "news_bucket": "no_news",
-     "stop_distance": 9.32,
-     "size_mult": 1.0
-    },
-    {
-     "symbol": "RELIANCE",
-     "direction": "LONG",
-     "setup": "MOMENTUM",
-     "signal_time": "13:00",
-     "entry": 1326.3,
-     "exit": 1325.0,
-     "reason": "EOD",
-     "r_multiple": -0.047,
-     "net_r": -0.075,
-     "conviction": 80,
-     "news_bucket": "news_aligned",
-     "stop_distance": 27.85,
-     "size_mult": 0.5
     }
    ],
-   "net_r": -0.188
+   "net_r": 0.106
   }
  ],
  "summary": {
-  "trades": 19,
-  "win_rate_pct": 47.4,
-  "avg_net_r": 0.08,
-  "total_net_r": 1.5,
-  "profit_factor": 1.42,
+  "trades": 17,
+  "win_rate_pct": 52.9,
+  "avg_net_r": 0.107,
+  "total_net_r": 1.8,
+  "profit_factor": 1.55,
   "sessions": 6,
   "sessions_with_trades": 6,
   "net_r_ci95": [
-   -0.122,
-   0.275
+   -0.118,
+   0.284
   ],
   "from": "2026-11-02",
   "to": "2026-11-09"
