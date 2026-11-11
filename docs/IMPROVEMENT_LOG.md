@@ -69,3 +69,19 @@ after costs.** No edge is claimed.
 **Decision rule (judged only on sessions after 2026-11-09):** after 20 forward sessions, keep the day rules
 if the forward mean net R per trade is better than the same sessions replayed without them
 (`apply_filters(day_rules=False)`). The H1 forward test restarts: sessions after 2026-11-09 count.
+
+## 2026-11-11 — ATR range gate experiment (pre-registered before running it)
+
+**Trigger:** 11 Nov live: the ATR_RANGE blocker vetoed 7-8 of 28 stocks at every checkpoint, often the strongest
+candidates, while in the 5-minute backtest it was ~5% of all blocks. The gate compares `rr x base stop` with 90% of
+the daily ATR, where the base stop widens with VIX (k = 1.0 / 1.25 / 1.5) and rr = 3 for strong TRENDING signals.
+So at VIX ≥ 20 every trade is blocked, and strong trending signals are always blocked, although every trade has
+used a 2R target (on a 2x stop) since 2026-11-01.
+
+**Variants (`ATR_RANGE_MODE`):** `current` (as tested so far), `rr2` (judge every signal on rr = 2), `off` (no gate).
+
+**Decision rule (fixed now, before the results):** selection = the live rules (first signal per stock per day +
+day rules). Sessions split 60/40 chronologically. A variant replaces `current` only if its TEST mean net R per trade
+beats `current`'s TEST mean in **both** the 5-minute archive replay **and** the 2-year hourly backtest, and its TRAIN
+mean is not worse than `current`'s TRAIN mean in either. If both variants qualify, the one with the higher average
+TEST mean across the two datasets wins. Otherwise keep `current`. An adoption restarts the forward test.

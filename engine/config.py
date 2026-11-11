@@ -90,3 +90,9 @@ INDEX_SYMBOLS = {"NIFTY": "^NSEI", "BANKNIFTY": "^NSEBANK", "VIX": "^INDIAVIX"}
 DAY_LOSS_LIMIT_R = -2.0      # no new trades once today's closed trades total this or worse
 CHECKPOINT_MINUTES = 15      # live signals are evaluated on the same 15-minute grid as the replays
 DEFAULT_RISK_PCT = 1.0       # default paper/sizing risk per trade
+
+# ATR range gate (experiment pre-registered 2026-11-11, docs/IMPROVEMENT_LOG.md). "current" = as tested so far:
+# target = rr x base stop, with rr = 3 for strong signals in a TRENDING regime. "rr2" = judge every signal on the
+# 2R target the trades actually use. "off" = no range gate. Env override only for backtest experiments.
+import os as _os
+ATR_RANGE_MODE = _os.environ.get("ATR_RANGE_MODE", "current")
