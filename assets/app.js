@@ -24,6 +24,8 @@ function h(tag, attrs, ...kids) {
 const fmt = (n, d = 2) => (n == null || Number.isNaN(n) ? "—" : Number(n).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d }));
 const sgn = (n, d = 2) => (n == null ? "—" : (n > 0 ? "+" : "") + fmt(n, d));
 const cls = (n) => (n > 0 ? "up" : n < 0 ? "dn" : "mu");
+// Replace an element's content, skipping null/false parts (optional pieces), so "null" is never printed.
+const fill = (el, ...kids) => el.replaceChildren(...kids.flat().filter((k) => k != null && k !== false));
 const label = (s) => String(s || "").replace(/_/g, " ").toLowerCase().replace(/^\w|\s\w/g, (m) => m.toUpperCase());
 
 // Paper money: every suggested trade is "taken" with the ⚙ capital and risk %, sized exactly like the app's
@@ -65,13 +67,13 @@ function banners(offline) {
   if (m.mode === "live" && marketHours && age > 25) { parts.push(`last update ${Math.round(age)} min ago`); level = "warn"; }
   if (m.mode === "live" && hl.missing && hl.missing.length) { parts.push(`missing ${hl.missing.join(", ")}`); level = "warn"; }
   if (offline) { parts.push("offline — showing saved data"); level = "warn"; }
-  $("status").replaceChildren(h("span", { class: "dot " + level }), parts.join(" · "));
+  fill($("status"), h("span", { class: "dot " + level }), parts.join(" · "));
 }
 
 function macro() {
   const M = state.data.macro;
   const item = (k, v, c) => h("span", { class: "strip-item" }, h("span", { class: "k" }, k), " ", h("b", { class: c || "" }, v));
-  $("macro").replaceChildren(
+  fill($("macro"), 
     item("NIFTY", `${fmt(M.nifty.ltp, 0)} ${sgn(M.nifty.chg_pct)}%`, cls(M.nifty.chg_pct)),
     M.banknifty ? item("BANK", `${fmt(M.banknifty.ltp, 0)} ${sgn(M.banknifty.chg_pct)}%`, cls(M.banknifty.chg_pct)) : null,
     item("VIX", fmt(M.india_vix, 1)),
@@ -91,9 +93,9 @@ async function backtest() {
     const H = b.hypothesis, mm = (x) => (x && x.trades ? `${x.trades} trades · win ${x.win_rate_pct}% · avg net ${sgn(x.avg_net_r, 3)}R` : "no trades yet");
     const vmap = { INSUFFICIENT_DATA: ["", "Insufficient data — no conclusion yet"], SUPPORTED: ["up", "H1 supported out-of-sample"], NOT_SUPPORTED: ["dn", "H1 not supported"] };
     const v = vmap[H.verdict] || ["", H.verdict];
-    return el.replaceChildren(switcher,
+    return fill(el, switcher,
       h("div", { class: "banner info" }, h("b", {}, "Pre-registered hypothesis H1"),
-        "Trades that oppose a material news signal have mean net R > 0 after costs. Registered 2026-10-25; restarted after rule changes on 27 Oct and 1 Nov; only sessions after 1 Nov count. See preregistration.md in the repo."),
+        "Trades that oppose a material news signal have mean net R > 0 after costs. Registered 2026-10-25; restarted after rule changes on 27 Oct, 1 Nov and 9 Nov; only sessions after 9 Nov count. See preregistration.md in the repo."),
       h("div", { class: "box" },
         h("div", { class: "hl" }, b.period ? `Forward sessions: ${b.period.from} → ${b.period.to} (${b.period.sessions})` : "No forward sessions yet — data accumulates daily."),
         h("div", { class: "hl" }, h("b", {}, "Opposed-news trades: "), mm(H.opposed), H.opposed_ci95 ? ` · 95% CI ${sgn(H.opposed_ci95[0], 3)}…${sgn(H.opposed_ci95[1], 3)}R` : ""),
@@ -101,7 +103,7 @@ async function backtest() {
         h("div", { class: "hl mu" }, "All other trades: " + mm(H.other_trades)),
         h("div", { class: "hl " + v[0] }, h("b", {}, v[1]))));
   }
-  if (!b || !b.with_news) return el.replaceChildren(switcher, h("div", { class: "empty" }, "Not available yet. Run the “Backtest” workflow in GitHub Actions."));
+  if (!b || !b.with_news) return fill(el, switcher, h("div", { class: "empty" }, "Not available yet. Run the “Backtest” workflow in GitHub Actions."));
   const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
   const pct = (n) => (n == null ? "—" : sgn(n, 1) + "%");
   const block = (title, S) => S.trades ? h("div", {},
@@ -131,7 +133,7 @@ async function backtest() {
   };
   const split = (title, obj) => h("div", { class: "box" }, h("b", {}, title), Object.entries(obj || {}).map(([k, v]) =>
     h("div", { class: "hl" }, `${label(k)}: ${v.trades} trades · win ${v.win_rate_pct}% · avg ${sgn(v.avg_r, 2)}R`)));
-  el.replaceChildren(switcher,
+  fill(el, switcher,
     h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `${b.resolution} backtest ${b.period.from} → ${b.period.to} · ${b.period.sessions} sessions · ${b.mode}`),
       `${b.scan}. ${b.news_headlines} headlines replayed point-in-time; ${b.trades_using_news} trades had a material news signal.`),
     block("With news", b.with_news), block("Price & flow only (no news)", b.without_news),
@@ -282,7 +284,7 @@ async function today() {
     const A = account(), total = rows.reduce((a, r) => a + r.total, 0), trades = rows.reduce((a, r) => a + r.taken, 0);
     const winDays = rows.filter((r) => r.total > 0).length, maxAbs = Math.max(1, ...rows.map((r) => Math.abs(r.total)));
     const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
-    return el.replaceChildren(days,
+    return fill(el, days,
       h("h4", {}, `All days · ${rupees(A.cap)} paper account at ${A.risk}% risk`),
       h("div", { class: "macro" }, tile("Total P&L", signedRupees(total), cls(total)), tile("Return", sgn((100 * total) / A.cap, 2) + "%", cls(total)),
         tile("Days won", `${winDays} / ${rows.length}`), tile("Trades", trades)),
@@ -295,26 +297,26 @@ async function today() {
   if (state.day !== "today") {
     const log = await logFor(state.day);
     if (state.filter !== "TODAY") return;
-    return el.replaceChildren(days, ...(log ? journalView(log, false) : [h("div", { class: "empty" }, "No data saved for that day.")]));
+    return fill(el, days, ...(log ? journalView(log, false) : [h("div", { class: "empty" }, "No data saved for that day.")]));
   }
   if (liveLog && liveLog.date === now) {
     const log = await logFor(now);
     if (state.filter !== "TODAY" || state.day !== "today") return;
-    return el.replaceChildren(days, ...journalView(log, log === liveLog));
+    return fill(el, days, ...journalView(log, log === liveLog));
   }
   // Nothing for today yet: say why, and point to the last session.
   const dow = new Date(now + "T12:00:00+05:30").getUTCDay();
   const why = dow === 0 || dow === 6 ? "The market is closed today (weekend)."
     : "No trades yet today. Signals start after 10:05 IST, and the first update usually arrives by 10:15. A holiday also shows nothing.";
   const last = past[0];
-  el.replaceChildren(days, h("div", { class: "empty" }, h("b", {}, `Today · ${shortDate(now)}`), h("br"), why,
+  fill(el, days, h("div", { class: "empty" }, h("b", {}, `Today · ${shortDate(now)}`), h("br"), why,
     last ? h("div", { style: "margin-top:12px" }, h("button", { class: "chip on", onclick: () => { state.day = last; today(); } }, `See ${shortDate(last)} →`)) : null));
 }
 
 async function record() {
   const el = $("list"), R = await getJSON("track_record");
   if (state.filter !== "RECORD") return;
-  if (!R || !R.days || !R.days.length) return el.replaceChildren(h("div", { class: "empty" }, "The track record starts after the first market close with this version (replayed daily at 16:15 IST)."));
+  if (!R || !R.days || !R.days.length) return fill(el, h("div", { class: "empty" }, "The track record starts after the first market close with this version (replayed daily at 16:15 IST)."));
   const S = R.summary, tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
   const maxAbs = Math.max(0.5, ...R.days.map((d) => Math.abs(d.net_r)));
   const A = account();
@@ -322,7 +324,7 @@ async function record() {
   let bal = A.cap, peak = A.cap, maxDd = 0;
   const equity = R.days.map((d) => { const p = dayPnl(d); bal += p; peak = Math.max(peak, bal); maxDd = Math.max(maxDd, (peak - bal) / peak); return { date: d.date, pnl: p, bal }; });
   const total = bal - A.cap, pnlByDate = Object.fromEntries(equity.map((x) => [x.date, x.pnl]));
-  el.replaceChildren(
+  fill(el, 
     h("div", { class: "banner " + (total >= 0 ? "info" : "medium") }, h("b", {}, `Paper account: ${rupees(A.cap)} → ${rupees(bal)}`),
       `${signedRupees(total)} (${sgn((100 * total) / A.cap, 2)}%) since ${S.from} at ${A.risk}% risk per trade, max drawdown ${fmt(100 * maxDd, 1)}%. ` +
       "Fixed account size per trade (no compounding), every suggested trade taken, costs included. Not real money."),
@@ -345,8 +347,8 @@ function list() {
   if (state.filter === "BACKTEST") return backtest();
   const f = state.filter, rows = state.data.signals.filter((s) => f === "ALL" || (f === "ACTION" ? s.direction !== "NO_TRADE" : s.direction === f));
   const el = $("list");
-  if (!rows.length) return el.replaceChildren(h("div", { class: "empty" }, f === "ACTION" ? "No actionable setups right now. Capital preserved." : "Nothing here."));
-  el.replaceChildren(...rows.map((s) => {
+  if (!rows.length) return fill(el, h("div", { class: "empty" }, f === "ACTION" ? "No actionable setups right now. Capital preserved." : "Nothing here."));
+  fill(el, ...rows.map((s) => {
     const tags = [];
     if (s.contradiction) tags.push(h("span", { class: "tag w" }, label(s.contradiction.type)));
     s.risk.warnings.slice(0, 2).forEach((w) => tags.push(h("span", { class: "tag " + (w.level === "high" ? "r" : "w") }, label(w.code))));
@@ -373,7 +375,7 @@ function openSheet(sym) {
   const s = state.data.signals.find((x) => x.symbol === sym); if (!s) return;
   const e = s.execution, r = s.risk, mi = s.microstructure, q = qty(s), act = s.direction !== "NO_TRADE";
   $("sheetTitle").textContent = `${s.symbol} · ${s.direction === "NO_TRADE" ? "No trade" : s.direction}`;
-  const b = $("sheetBody"); b.replaceChildren();
+  const b = $("sheetBody"); fill(b);
   r.warnings.forEach((w) => b.append(h("div", { class: "banner " + w.level }, h("b", {}, label(w.code)), w.message)));
   r.blockers.forEach((x) => b.append(h("div", { class: "banner info" }, h("b", {}, "Blocked · " + label(x.code)), x.message)));
   if (s.contradiction) b.append(h("div", { class: "banner medium" }, h("b", {}, label(s.contradiction.type)), s.contradiction.note));
@@ -436,7 +438,7 @@ async function load(manual) {
     const sym = new URLSearchParams(location.search).get("sym");
     if (sym && !state.deepLinked) { state.deepLinked = true; openSheet(sym); }
   } catch (err) {
-    if (!state.data) $("list").replaceChildren(h("div", { class: "empty" }, "Unable to load data. Check your connection and pull to refresh."));
+    if (!state.data) fill($("list"), h("div", { class: "empty" }, "Unable to load data. Check your connection and pull to refresh."));
     else if (manual) banners(true);
   }
 }
