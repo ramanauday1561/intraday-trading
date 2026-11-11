@@ -220,7 +220,30 @@ function dayRulesNote(L) {
   return h("div", { class: "sub", style: "margin:6px 0" }, msg);
 }
 
-function journalView(L, isLive) {
+// What the checks saw when nothing qualified: the closest candidates of the latest checkpoint and their blockers.
+const BLOCK_WORDS = { ATR_RANGE: "not enough range left", STRUCTURE: "no clean breakout", HAWKES: "weak order flow", LOW_CONVICTION: "weak override",
+  DAY_DIRECTION: "against today's direction", DAY_LOSS_LIMIT: "daily loss limit", LIQUIDITY: "low liquidity", UPPER_CIRCUIT: "near upper circuit", LOWER_CIRCUIT: "near lower circuit" };
+function checksNote(L) {
+  const times = Object.keys(L.checks || {}).sort();
+  if (!times.length) return null;
+  const last = times[times.length - 1], c = L.checks[last];
+  const closest = (c.closest || []).map((x) => `${x.symbol} ${x.bias.toLowerCase()} (${x.blockers.length ? "blocked: " + x.blockers.map((b) => BLOCK_WORDS[b] || label(b)).join(", ") : "passed"})`);
+  return h("div", { class: "sub", style: "margin:6px 0" }, `Checked ${times.length} time${times.length === 1 ? "" : "s"} (latest ${last}).` +
+    (closest.length ? ` Closest then: ${closest.join(" · ")}.` : " No stock leaned clearly either way."));
+}
+
+// The after-close replay uses final prices; when it differs from the live list, say so (the live list is what you could act on).
+function replayNote(L, replay) {
+  if (!replay || L.mode === "replay" || !L.checks) return null;
+  const live = new Set(L.entries.map((e) => e.symbol + e.direction));
+  const extra = replay.entries.filter((e) => !live.has(e.symbol + e.direction));
+  if (!extra.length) return null;
+  const D = dayStats({ entries: extra });
+  return h("div", { class: "sub", style: "margin:6px 0" }, `After-close replay (final prices) also found ${extra.map((e) => `${e.symbol} ${e.direction.toLowerCase()} ${e.signal_time}`).join(", ")}` +
+    ` (${signedRupees(D.total)}). The live data at the time did not show ${extra.length === 1 ? "it" : "them"}.`);
+}
+
+function journalView(L, isLive, replay) {
   const A = account(), D = dayStats(L), S = L.summary || {};
   const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
   return [
@@ -230,6 +253,8 @@ function journalView(L, isLive) {
     h("div", { class: "sub" }, `${shortDate(L.date)} · ${S.signals ?? D.taken} signal${(S.signals ?? D.taken) === 1 ? "" : "s"} · ${S.open ?? 0} open · ${sgn((100 * D.total) / A.cap, 2)}% on the account` +
       (L.mode === "replay" ? " · after-close replay (no live list for this day)" : "")),
     dayRulesNote(L),
+    L.entries.length ? null : checksNote(L),
+    replayNote(L, replay),
     h("details", { class: "how" }, h("summary", {}, "How this is calculated"),
       "Every signal stays listed after it leaves the main list. Each is bought/shorted at the next 5-minute open with the app's suggested " +
       "quantity (5× intraday margin cap), follows its stop / breakeven / target, and is closed by 15:15; costs included. Change the account in ⚙." +
@@ -270,7 +295,10 @@ async function today() {
   const logFor = async (d) => {
     const live = (liveLog && liveLog.date === d ? liveLog : null) || (liveDays.has(d) ? await getJSON("journal/" + d) : null);
     const replay = replayLog(R, d);
-    return live && (live.entries.length || !replay || !replay.entries.length) ? live : replay || live;
+    // A live list that was checked most of the day (12+ of the 19 checkpoints) is the real record even when empty;
+    // otherwise (refreshes missing) the after-close replay is the better account of the day.
+    const covered = live && live.checks && Object.keys(live.checks).length >= 12;
+    return live && (live.entries.length || covered || !replay || !replay.entries.length) ? live : replay || live;
   };
 
   if (state.day === "all") {
@@ -297,12 +325,12 @@ async function today() {
   if (state.day !== "today") {
     const log = await logFor(state.day);
     if (state.filter !== "TODAY") return;
-    return fill(el, days, ...(log ? journalView(log, false) : [h("div", { class: "empty" }, "No data saved for that day.")]));
+    return fill(el, days, ...(log ? journalView(log, false, replayLog(R, state.day)) : [h("div", { class: "empty" }, "No data saved for that day.")]));
   }
   if (liveLog && liveLog.date === now) {
     const log = await logFor(now);
     if (state.filter !== "TODAY" || state.day !== "today") return;
-    return fill(el, days, ...journalView(log, log === liveLog));
+    return fill(el, days, ...journalView(log, log === liveLog, replayLog(R, now)));
   }
   // Nothing for today yet: say why, and point to the last session.
   const dow = new Date(now + "T12:00:00+05:30").getUTCDay();
