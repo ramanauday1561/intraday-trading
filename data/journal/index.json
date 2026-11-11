@@ -19,6 +19,11 @@
    "date": "2026-11-09",
    "signals": 8,
    "net_r_gross": -2.03
+  },
+  {
+   "date": "2026-11-11",
+   "signals": 0,
+   "net_r_gross": 0.0
   }
  ]
 }

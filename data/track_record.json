@@ -296,22 +296,44 @@
     }
    ],
    "net_r": 0.106
+  },
+  {
+   "date": "2026-11-11",
+   "engine": "6ae9832",
+   "trades": [
+    {
+     "symbol": "HCLTECH",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "10:15",
+     "entry": 1415.0,
+     "exit": 1392.3,
+     "reason": "EOD",
+     "r_multiple": 0.642,
+     "net_r": 0.618,
+     "conviction": 49,
+     "news_bucket": "no_news",
+     "stop_distance": 35.37,
+     "size_mult": 1.0
+    }
+   ],
+   "net_r": 0.618
   }
  ],
  "summary": {
-  "trades": 17,
-  "win_rate_pct": 52.9,
-  "avg_net_r": 0.107,
-  "total_net_r": 1.8,
-  "profit_factor": 1.55,
-  "sessions": 6,
-  "sessions_with_trades": 6,
+  "trades": 18,
+  "win_rate_pct": 55.6,
+  "avg_net_r": 0.135,
+  "total_net_r": 2.4,
+  "profit_factor": 1.74,
+  "sessions": 7,
+  "sessions_with_trades": 7,
   "net_r_ci95": [
-   -0.118,
-   0.284
+   -0.067,
+   0.332
   ],
   "from": "2026-11-02",
-  "to": "2026-11-09"
+  "to": "2026-11-11"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }
