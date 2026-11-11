@@ -63,6 +63,13 @@ jobs:
         with:
           path: _site
       - id: deployment
+        continue-on-error: true   # GitHub Pages occasionally rejects a deploy; retry once below
+        uses: actions/deploy-pages@v4
+      - name: Wait before retrying the deploy
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+      - id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
       - name: Make sure the market-hours heartbeat is running
         if: always() && github.event_name != 'push'

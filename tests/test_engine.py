@@ -536,3 +536,18 @@ def test_live_signals_use_the_15_minute_checkpoint():
     df = pd.DataFrame({"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0, "volume": 1}, index=idx)
     cut, ts = to_checkpoint({"^NSEI": df, "X.NS": df, "Y.NS": None})
     assert ts.strftime("%H:%M") == "10:15" and cut["X.NS"].index[-1] == ts and cut["Y.NS"] is None
+
+
+def test_journal_records_each_checkpoint_and_its_closest_calls():
+    from engine import journal
+    mk = lambda sym, d, bias, comp, codes=(): {"symbol": sym, "name": sym, "direction": d, "bias": bias, "composite": comp, "setup": "MOMENTUM",
+                                               "conviction": 50, "price": {"ltp": 100}, "contradiction": None,
+                                               "execution": {"stop_distance": 1.0, "rr": 2.0, "option_idea": None},
+                                               "risk": {"blockers": [{"code": c} for c in codes]}}
+    pay = lambda asof, sigs: {"meta": {"data_as_of": asof, "mode": "live", "session_phase": "ACTIVE", "generated_at": asof}, "signals": sigs}
+    a = journal.update(None, pay("2026-11-11T10:00:00+05:30", [mk("A", "NO_TRADE", "SHORT", -0.5, ["ATR_RANGE"]), mk("B", "NO_TRADE", "NO_TRADE", 0.05)]), {})
+    assert a["entries"] == [] and a["checks"]["10:00"] == {"signals": 0, "closest": [{"symbol": "A", "bias": "SHORT", "composite": -0.5, "blockers": ["ATR_RANGE"]}]}
+    b = journal.update(a, pay("2026-11-11T10:15:00+05:30", [mk("C", "LONG", "LONG", 0.4)]), {})
+    assert sorted(b["checks"]) == ["10:00", "10:15"] and b["checks"]["10:15"]["signals"] == 1   # carried over, one per checkpoint
+    c = journal.update(b, pay("2026-11-12T10:00:00+05:30", []), {})
+    assert list(c["checks"]) == ["10:00"]                                                       # new day starts fresh

@@ -41,10 +41,21 @@ def status(entry, bars):
             "r": round(sgn * (px - fill) / sd, 2)}
 
 
+def checkpoint_record(signals, top=3):
+    """What one checkpoint saw: how many signals passed, and the closest candidates with what blocked them.
+    Lets the app (and us) tell 'the live app ran and nothing qualified' from 'the live app did not run'."""
+    leaning = sorted((s for s in signals if s.get("bias") not in (None, "NO_TRADE")), key=lambda s: -abs(s.get("composite", 0)))
+    return {"signals": sum(s["direction"] != "NO_TRADE" for s in signals),
+            "closest": [{"symbol": s["symbol"], "bias": s["bias"], "composite": round(s.get("composite", 0), 3),
+                         "blockers": [b["code"] for b in (s.get("risk") or {}).get("blockers", [])]} for s in leaning[:top]]}
+
+
 def update(prev, payload, bars):
     meta = payload["meta"]
     day, mode = meta["data_as_of"][:10], meta["mode"]
-    entries = list(prev["entries"]) if prev and prev.get("date") == day and prev.get("mode") == mode else []
+    same_day = bool(prev and prev.get("date") == day and prev.get("mode") == mode)
+    entries = list(prev["entries"]) if same_day else []
+    checks = dict(prev.get("checks") or {}) if same_day else {}
     for e in entries:  # outcomes so far, needed by the day rules (loss limit)
         e["status"] = status(e, bars.get(e["symbol"]))
     known = {(e["symbol"], e["direction"]) for e in entries}
@@ -62,9 +73,11 @@ def update(prev, payload, bars):
                             "breakeven_after_r": e.get("breakeven_after_r"), "size_mult": (s.get("risk") or {}).get("size_multiplier", 1.0),
                             "contradiction": (s.get("contradiction") or {}).get("type")})
             known.add((s["symbol"], s["direction"]))
+        if mode == "live":
+            checks[meta["data_as_of"][11:16]] = checkpoint_record(payload["signals"])
     for e in entries:
         e["status"] = status(e, bars.get(e["symbol"]))
     done = [e["status"]["r"] for e in entries if "r" in e["status"]]
-    return {"date": day, "mode": mode, "updated": meta["generated_at"], "entries": entries,
+    return {"date": day, "mode": mode, "updated": meta["generated_at"], "entries": entries, "checks": checks,
             "summary": {"signals": len(entries), "net_r_gross": round(sum(done), 2) if done else 0.0,
                         "open": sum(e["status"]["state"] == "OPEN" for e in entries)}}
