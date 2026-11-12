@@ -1,11 +1,11 @@
 :root{
-/* Design rule 60-30-10 (docs/DESIGN.md): Terracotta Clay 60% (backgrounds, surfaces, lines) ·
-   Sage Stone 30% (secondary text, labels, chips, info banners) · Cobalt Spark 10% (accent: buttons, active state, links, logo).
-   Green/red/amber stay only as functional profit/loss/warning colours. */
---clay:#C4673F;--sage:#A9B8A3;--cobalt:#5B8CFF;
---bg:#2A1813;--panel:#3A2119;--panel2:#4A2A20;--line:#6E3B2C;
---tx:#FBEFE9;--mu:#A9B8A3;--accent:#5B8CFF;--accent-bg:#2F5FE0;--on-accent:#FFFFFF;
---up:#4BD58C;--dn:#FF7A6B;--warn:#F5B33B;--info:#A9B8A3;
+/* Design rule 60-30-10 (docs/DESIGN.md): Sage Stone 60% (backgrounds, surfaces, lines) ·
+   Terracotta Clay 30% (secondary text, labels, chips, info banners) · Cobalt Spark 10% (accent: buttons, active state, links, logo).
+   Green/pink-red/amber stay only as functional profit/loss/warning colours. */
+--sage:#A9B8A3;--clay:#C4673F;--cobalt:#5B8CFF;
+--bg:#171D18;--panel:#212922;--panel2:#2C362D;--line:#455446;
+--tx:#F1F5EF;--mu:#E0896A;--accent:#5B8CFF;--accent-bg:#2F5FE0;--on-accent:#FFFFFF;
+--up:#4BD58C;--dn:#FF6B88;--warn:#F5C542;--info:#E0896A;
 --safe-t:env(safe-area-inset-top);--safe-b:env(safe-area-inset-bottom)}
 html{color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -18,7 +18,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-app
 .btn.ghost{color:var(--tx);font-weight:400;background:transparent;border:1px solid var(--line);padding:8px 12px;min-width:44px}
 main{max-width:760px;margin:0 auto;padding:12px 14px}
 .banner{padding:10px 12px;border-radius:10px;margin-bottom:10px;border:1px solid;font-size:14px}
-.banner.high{background:rgba(255,122,107,.14);border-color:var(--dn)}.banner.medium{background:rgba(245,179,59,.14);border-color:var(--warn)}.banner.info{background:rgba(169,184,163,.12);border-color:var(--sage)}
+.banner.high{background:rgba(255,107,136,.14);border-color:var(--dn)}.banner.medium{background:rgba(245,197,66,.14);border-color:var(--warn)}.banner.info{background:rgba(196,103,63,.14);border-color:var(--clay)}
 .banner b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.6px}
 .macro{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
 @media(min-width:560px){.macro{grid-template-columns:repeat(4,1fr)}}
@@ -33,7 +33,7 @@ main{max-width:760px;margin:0 auto;padding:12px 14px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .sym{font-weight:700;font-size:16px}.sub{color:var(--mu);font-size:12px}
 .pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:.5px}
-.pill.LONG{background:rgba(75,213,140,.18);color:var(--up)}.pill.SHORT{background:rgba(255,122,107,.18);color:var(--dn)}.pill.NO_TRADE{background:var(--panel2);color:var(--mu)}
+.pill.LONG{background:rgba(75,213,140,.18);color:var(--up)}.pill.SHORT{background:rgba(255,107,136,.18);color:var(--dn)}.pill.NO_TRADE{background:var(--panel2);color:var(--mu)}
 .up{color:var(--up)}.dn{color:var(--dn)}.muted,.mu{color:var(--mu)}
 .meter{height:6px;background:var(--panel2);border-radius:6px;overflow:hidden;margin-top:8px}.meter i{display:block;height:100%;background:var(--accent)}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.tag{font-size:11px;background:var(--panel2);border-radius:6px;padding:2px 7px;color:var(--mu)}.tag.w{color:var(--warn)}.tag.r{color:var(--dn)}
@@ -66,7 +66,7 @@ dialog h3{margin:18px 0 6px}
 dialog textarea{width:100%;font:12px ui-monospace,monospace;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px}
 dialog .btn{margin:4px 0}
 .tbar{margin:12px 0 2px}
-.tbar-track{position:relative;height:8px;border-radius:8px;background:linear-gradient(90deg,rgba(255,122,107,.28),var(--panel2) 33%,rgba(75,213,140,.28))}
+.tbar-track{position:relative;height:8px;border-radius:8px;background:linear-gradient(90deg,rgba(255,107,136,.28),var(--panel2) 33%,rgba(75,213,140,.28))}
 .tbar-fill{position:absolute;top:0;bottom:0;border-radius:8px}.tbar-fill.up{background:var(--up)}.tbar-fill.dn{background:var(--dn)}
 .tbar-tick{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--mu)}.tbar-tick.be{background:var(--accent)}
 .tbar-dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid var(--tx)}
