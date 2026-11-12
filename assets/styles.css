@@ -84,3 +84,37 @@ details.how{font-size:13px;color:var(--mu);margin:6px 0 12px}details.how summary
 .card.dayrow .bar{margin-top:8px}
 a{color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* ---- numbers-first layout (2026-11-12) ---- */
+.ico{width:1.1em;height:1.1em;flex:none;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.hero{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+.hero .cap{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mu)}
+.hero .big{font-size:40px;font-weight:750;line-height:1.1;margin:4px 0 2px}
+.hero .sm{font-size:15px;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--panel2);border-radius:12px;padding:8px 10px}
+.stat .k{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mu)}
+.stat .v{font-size:18px;font-weight:700;margin-top:2px}
+.facts{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.fact{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--mu);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.fact.acc{color:var(--accent);border-color:var(--accent)}.fact.dn{color:var(--dn);border-color:var(--dn)}
+.tcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.tcard-top .pnl{font-size:22px;font-weight:750;text-align:right;line-height:1.1}
+.tcard-top .meta{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mu);margin-top:2px}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.lvl{background:var(--panel2);border-radius:10px;padding:6px 8px}
+.lvl .k{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.4px}
+.lvl .v{font-size:14px;font-weight:650}
+.price-big{font-size:20px;font-weight:700}
+.pill .ico{width:12px;height:12px;margin-right:3px;vertical-align:-1px}
+.chip .ico{margin-right:5px}
+.btn.icon{display:inline-flex;align-items:center;justify-content:center;width:44px;padding:0}
+.btn.icon .ico{width:20px;height:20px}
+.info-tip{font-size:12px;color:var(--mu);margin:2px 0 10px}.info-tip summary{display:inline-flex;align-items:center;gap:5px;cursor:pointer;color:var(--accent);list-style:none}
+.info-tip summary::-webkit-details-marker{display:none}.info-tip[open] summary{margin-bottom:4px}
+.empty .ico{display:block;width:34px;height:34px;margin:0 auto 8px;color:var(--accent)}
+.empty .big{font-size:22px;font-weight:700;color:var(--tx)}
+.strip-item b{font-size:16px}
+.dayrow .row b.num{font-size:18px}
+[hidden]{display:none!important}
+.stat .v.small{font-size:14px;white-space:nowrap}

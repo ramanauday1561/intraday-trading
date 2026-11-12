@@ -20,9 +20,9 @@
 <header class="top">
   <div class="brand"><span class="logo">◢</span> Intraday Quant Desk</div>
   <div class="top-actions">
-    <button id="installBtn" class="btn ghost" hidden>Install</button>
-    <button id="settingsBtn" class="btn ghost" aria-label="Risk settings">⚙</button>
-    <button id="refreshBtn" class="btn ghost" aria-label="Refresh">⟳</button>
+    <button id="installBtn" class="btn ghost icon" hidden aria-label="Install">Install</button>
+    <button id="settingsBtn" class="btn ghost icon" aria-label="Settings">⚙</button>
+    <button id="refreshBtn" class="btn ghost icon" aria-label="Refresh">⟳</button>
   </div>
 </header>
 <main>
@@ -30,38 +30,36 @@
   <section id="macro" class="strip" aria-label="Market"></section>
   <nav class="chips" id="filters" aria-label="Views">
     <button data-f="TODAY" class="chip on">Today</button>
-    <button data-f="ACTION" class="chip">Actionable</button>
+    <button data-f="ACTION" class="chip">Active</button>
     <button data-f="LONG" class="chip">Long</button>
     <button data-f="SHORT" class="chip">Short</button>
     <button data-f="ALL" class="chip">All</button>
     <button data-f="RECORD" class="chip">Record</button>
-    <button data-f="BACKTEST" class="chip">Backtest</button>
+    <button data-f="BACKTEST" class="chip">Tests</button>
   </nav>
   <section id="list" class="list" aria-live="polite"><div class="empty">Loading…</div></section>
   <footer id="foot" class="foot"></footer>
 </main>
 
 <div id="sheet" class="sheet" hidden role="dialog" aria-modal="true">
-  <div class="sheet-bar"><button id="closeSheet" class="btn ghost">← Back</button><span id="sheetTitle"></span></div>
+  <div class="sheet-bar"><button id="closeSheet" class="btn ghost icon" aria-label="Back">←</button><span id="sheetTitle"></span></div>
   <div id="sheetBody" class="sheet-body"></div>
 </div>
 
 <dialog id="settings">
   <form method="dialog">
-    <h3>Risk settings</h3>
-    <label>Capital (₹)<input id="capital" type="number" min="1000" step="1000" inputmode="numeric"></label>
-    <label>Risk per trade (%)<input id="riskPct" type="number" min="0.1" max="100" step="0.1" inputmode="decimal"></label>
-    <p class="muted">Quantity is recalculated on-device from the stop distance. The same capital and risk % run your paper-money account (Today and Record tabs). Nothing leaves your phone.</p>
-    <h3>Zerodha Kite</h3>
+    <h3>Account</h3>
+    <label>Capital ₹<input id="capital" type="number" min="1000" step="1000" inputmode="numeric"></label>
+    <label>Risk per trade %<input id="riskPct" type="number" min="0.1" max="100" step="0.1" inputmode="decimal"></label>
+    <h3>Kite</h3>
     <p id="kiteStatus" class="muted"></p>
-    <button type="button" id="kiteBtn" class="btn">Connect Kite (daily login)</button>
-    <p class="muted">Kite tokens expire every morning, so log in once each trading day before 10:00. The app only reads market data; it never places orders.</p>
-    <h3>Notifications</h3>
+    <button type="button" id="kiteBtn" class="btn">Log in (daily, before 10:00)</button>
+    <h3>Alerts</h3>
     <p id="notifStatus" class="muted"></p>
-    <button type="button" id="notifBtn" class="btn">Enable notifications</button>
-    <button type="button" id="notifTest" class="btn ghost" hidden>Test on this phone</button>
+    <button type="button" id="notifBtn" class="btn">Enable alerts</button>
+    <button type="button" id="notifTest" class="btn ghost" hidden>Test</button>
     <div id="subBox" hidden>
-      <p class="muted">Last step: copy this and save it in GitHub → repo Settings → Secrets and variables → Actions → New secret named <b>PUSH_SUBSCRIPTIONS</b>.</p>
+      <p class="muted">Save as GitHub secret <b>PUSH_SUBSCRIPTIONS</b>.</p>
       <textarea id="subJson" readonly rows="5"></textarea>
       <button type="button" id="copySub" class="btn ghost">Copy</button>
     </div>

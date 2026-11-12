@@ -21,6 +21,48 @@ function h(tag, attrs, ...kids) {
   for (const k of kids.flat()) if (k != null && k !== false) e.append(k.nodeType ? k : document.createTextNode(String(k)));
   return e;
 }
+// Inline icons (Lucide-style strokes, MIT). Static markup only, so innerHTML here never touches data.
+const ICONS = {
+  sliders: '<path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
+  calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  zap: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+  up: '<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
+  down: '<path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+  flask: '<path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/><path d="M7 15h10"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  enter: '<path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/>',
+  exit: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  check: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  x: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+  wallet: '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+  ban: '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/>',
+  layers: '<path d="m12 2 10 5-10 5L2 7l10-5z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
+  hash: '<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
+  percent: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  replay: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  back: '<path d="m15 18-6-6 6-6"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+};
+function ico(name, extra) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("class", "ico" + (extra ? " " + extra : "")); s.setAttribute("aria-hidden", "true");
+  s.innerHTML = ICONS[name] || "";
+  return s;
+}
+const dirIco = (d) => (d === "LONG" ? ico("up") : d === "SHORT" ? ico("down") : ico("ban"));
+const stat = (icon, k, v, c) => h("div", { class: "stat" }, h("div", { class: "k" }, ico(icon), k), h("div", { class: "v num " + (c || "") }, v));
+const fact = (icon, text, c) => h("span", { class: "fact" + (c ? " " + c : "") }, ico(icon), text);
+const tip = (text) => h("details", { class: "info-tip" }, h("summary", {}, ico("info"), "How"), text);
 const fmt = (n, d = 2) => (n == null || Number.isNaN(n) ? "—" : Number(n).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d }));
 const sgn = (n, d = 2) => (n == null ? "—" : (n > 0 ? "+" : "") + fmt(n, d));
 const cls = (n) => (n > 0 ? "up" : n < 0 ? "dn" : "mu");
@@ -52,32 +94,29 @@ function qty(s) {
 
 // One quiet status line instead of stacked banners. Warnings only when they matter for trading right now:
 // demo data, stale data during market hours, or missing stocks.
+// One short status line: phase · time (· Kite · checkpoint). Warnings only when they matter right now.
 function banners(offline) {
   const m = state.data.meta, hl = m.health || {};
-  const phase = { ACTIVE: "Live · new signals until 14:40", MORATORIUM: "Live · first signals from 10:10", PRE_OPEN: "Pre-open · first signals from 10:10",
-    LATE: "Live · no new entries · exits by 15:15", CLOSED: "Market closed" }[m.session_phase] || m.session_phase;
-  const updated = new Date(m.generated_at).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
-  const age = (Date.now() - new Date(m.generated_at)) / 60000;
-  const marketHours = m.session_phase !== "CLOSED";
-  const kite = (hl.kite || {}).connected;
-  const parts = [m.mode === "demo" ? "Demo data — not real prices" : phase, `updated ${updated}`];
-  if (m.mode === "live") parts.push(kite ? "Kite data" : "free data");
-  if (m.checkpoint && m.session_phase === "ACTIVE") parts.push(`signals as of ${m.checkpoint}`);
+  const phase = { ACTIVE: "Live", MORATORIUM: "Opening", PRE_OPEN: "Pre-open", LATE: "Exits only", CLOSED: "Closed" }[m.session_phase] || m.session_phase;
+  const updated = new Date(m.generated_at).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false });
+  const age = (Date.now() - new Date(m.generated_at)) / 60000, marketHours = m.session_phase !== "CLOSED";
+  const parts = [m.mode === "demo" ? "Demo data" : phase, updated];
+  if (m.mode === "live" && (hl.kite || {}).connected) parts.push("Kite");
+  if (m.checkpoint && m.session_phase === "ACTIVE") parts.push("@" + m.checkpoint);
   let level = m.mode === "demo" ? "warn" : marketHours ? "ok" : "idle";
-  if (m.mode === "live" && marketHours && age > 25) { parts.push(`last update ${Math.round(age)} min ago`); level = "warn"; }
-  if (m.mode === "live" && hl.missing && hl.missing.length) { parts.push(`missing ${hl.missing.join(", ")}`); level = "warn"; }
-  if (offline) { parts.push("offline — showing saved data"); level = "warn"; }
+  if (m.mode === "live" && marketHours && age > 25) { parts.push(`${Math.round(age)} min old`); level = "warn"; }
+  if (m.mode === "live" && hl.missing && hl.missing.length) { parts.push(`missing ${hl.missing.length}`); level = "warn"; }
+  if (offline) { parts.push("offline"); level = "warn"; }
   fill($("status"), h("span", { class: "dot " + level }), parts.join(" · "));
 }
 
 function macro() {
   const M = state.data.macro;
-  const item = (k, v, c) => h("span", { class: "strip-item" }, h("span", { class: "k" }, k), " ", h("b", { class: c || "" }, v));
-  fill($("macro"), 
+  const item = (k, v, c) => h("span", { class: "strip-item" }, h("span", { class: "k" }, k), " ", h("b", { class: "num " + (c || "") }, v));
+  fill($("macro"),
     item("NIFTY", `${fmt(M.nifty.ltp, 0)} ${sgn(M.nifty.chg_pct)}%`, cls(M.nifty.chg_pct)),
     M.banknifty ? item("BANK", `${fmt(M.banknifty.ltp, 0)} ${sgn(M.banknifty.chg_pct)}%`, cls(M.banknifty.chg_pct)) : null,
-    item("VIX", fmt(M.india_vix, 1)),
-    item("", label(M.regime)));
+    item("VIX", fmt(M.india_vix, 1)));
 }
 
 async function backtest() {
@@ -87,64 +126,43 @@ async function backtest() {
     try { const r = await fetch(`data/${state.btKey}.json?t=${Date.now()}`, { cache: "no-store" }); state.bts[state.btKey] = r.ok ? await r.json() : null; } catch { state.bts[state.btKey] = null; }
   }
   const b = state.bts[state.btKey];
-  const switcher = h("nav", { class: "chips" }, [["backtest", "5-minute"], ["backtest_hourly", "Hourly (2 yr)"], ["forward_test", "Forward test"]].map(([k, t]) =>
+  const switcher = h("nav", { class: "chips" }, [["backtest", "5-min"], ["backtest_hourly", "Hourly 2y"], ["forward_test", "Forward"]].map(([k, t]) =>
     h("button", { class: "chip" + (state.btKey === k ? " on" : ""), onclick: () => { state.btKey = k; backtest(); } }, t)));
+  const ci = (c) => (c ? `${sgn(c[0], 2)}…${sgn(c[1], 2)}` : "—");
   if (state.btKey === "forward_test" && b && b.hypothesis) {
-    const H = b.hypothesis, mm = (x) => (x && x.trades ? `${x.trades} trades · win ${x.win_rate_pct}% · avg net ${sgn(x.avg_net_r, 3)}R` : "no trades yet");
-    const vmap = { INSUFFICIENT_DATA: ["", "Insufficient data — no conclusion yet"], SUPPORTED: ["up", "H1 supported out-of-sample"], NOT_SUPPORTED: ["dn", "H1 not supported"] };
-    const v = vmap[H.verdict] || ["", H.verdict];
+    const H = b.hypothesis, O = H.opposed || {};
+    const v = { INSUFFICIENT_DATA: ["clock", "Not enough data yet", ""], SUPPORTED: ["check", "Supported", "acc"], NOT_SUPPORTED: ["x", "Not supported", "dn"] }[H.verdict] || ["info", H.verdict, ""];
     return fill(el, switcher,
-      h("div", { class: "banner info" }, h("b", {}, "Pre-registered hypothesis H1"),
-        "Trades that oppose a material news signal have mean net R > 0 after costs. Registered 2026-10-25; restarted after rule changes on 27 Oct, 1 Nov and 9 Nov; only sessions after 9 Nov count. See preregistration.md in the repo."),
-      h("div", { class: "box" },
-        h("div", { class: "hl" }, b.period ? `Forward sessions: ${b.period.from} → ${b.period.to} (${b.period.sessions})` : "No forward sessions yet — data accumulates daily."),
-        h("div", { class: "hl" }, h("b", {}, "Opposed-news trades: "), mm(H.opposed), H.opposed_ci95 ? ` · 95% CI ${sgn(H.opposed_ci95[0], 3)}…${sgn(H.opposed_ci95[1], 3)}R` : ""),
-        h("div", { class: "hl" }, `Needs ≥ ${H.min_trades_required} trades before any verdict.`),
-        h("div", { class: "hl mu" }, "All other trades: " + mm(H.other_trades)),
-        h("div", { class: "hl " + v[0] }, h("b", {}, v[1]))));
+      h("div", { class: "hero" }, h("div", { class: "cap" }, ico("flask"), `H1 · opposed-news trades · ${b.period ? b.period.sessions + " days" : "no days yet"}`),
+        h("div", { class: "big num " + cls(O.avg_net_r) }, O.trades ? sgn(O.avg_net_r, 3) + "R" : "—"),
+        h("div", { class: "stats" }, stat("hash", "Trades", `${O.trades || 0}/${H.min_trades_required}`), stat("check", "Win", O.trades ? O.win_rate_pct + "%" : "—"),
+          stat("percent", "95% CI", ci(H.opposed_ci95), "small"))),
+      h("div", { class: "facts" }, fact(v[0], v[1], v[2]), fact("list", `Others: ${H.other_trades?.trades || 0} · ${sgn(H.other_trades?.avg_net_r ?? null, 3)}R`)),
+      tip("Pre-registered: trades that oppose a material news signal earn > 0R after costs. Only sessions after 9 Nov count. See preregistration.md."));
   }
-  if (!b || !b.with_news) return fill(el, switcher, h("div", { class: "empty" }, "Not available yet. Run the “Backtest” workflow in GitHub Actions."));
-  const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
-  const pct = (n) => (n == null ? "—" : sgn(n, 1) + "%");
-  const block = (title, S) => S.trades ? h("div", {},
-    h("h4", {}, title),
-    h("div", { class: "macro" }, tile("Trades", S.trades), tile("Win rate", S.win_rate_pct + "%"),
-      tile("Avg R gross ± SE", `${sgn(S.avg_r, 2)} ± ${fmt(S.avg_r_se)}`, cls(S.avg_r)), tile("Profit factor", S.profit_factor ?? "—"),
-      tile("Avg R after costs", sgn(S.avg_net_r, 3), cls(S.avg_net_r)), tile("Avg cost / trade", fmt(S.avg_cost_r, 3) + "R"),
-      tile("Return @1% risk", pct(S.return_pct_risk1), cls(S.return_pct_risk1)), tile("Return @5% risk", pct(S.return_pct_risk5), cls(S.return_pct_risk5))),
-    h("div", { class: "sub" }, `Worst day: ${pct(S.worst_day_pct_risk1)} @1% · ${pct(S.worst_day_pct_risk5)} @5%`)) : h("div", { class: "empty" }, title + ": no trades");
-  const m = (x) => (x && x.trades ? `${x.trades} trades · win ${x.win_rate_pct}% · avg net ${sgn(x.avg_net_r, 3)}R · PF ${x.profit_factor ?? "—"}` : "no trades");
-  const cfg = (c) => `conviction ≥ ${c.min_conviction}, cost ≤ ${c.max_cost_r ?? "any"}R, max ${c.max_per_day ?? "∞"}/day`;
-  const verdicts = { NO_EDGE_DEMONSTRATED: ["dn", "No edge demonstrated out-of-sample"], POSITIVE_BUT_NOT_SIGNIFICANT: ["", "Positive but not statistically significant"], EDGE_SUPPORTED_OUT_OF_SAMPLE: ["up", "Edge supported out-of-sample (CI excludes 0)"] };
-  const wfBlock = (title, S) => {
-    const w = S.walk_forward;
-    if (!w) return null;
-    const sel = w.selected;
-    return h("div", {}, h("h4", {}, `Walk-forward · ${title}`),
-      h("div", { class: "box" },
-        h("div", { class: "hl" }, `Train ${w.train_sessions[0]} → ${w.train_sessions[1]} (${w.train_sessions[2]} sessions) · Test ${w.test_sessions[0]} → ${w.test_sessions[1]} (${w.test_sessions[2]})`),
-        sel ? [h("div", { class: "hl" }, h("b", {}, "Chosen on train: "), cfg(sel.config)),
-          h("div", { class: "hl" }, "Train: " + m(sel.train)),
-          h("div", { class: "hl" }, h("b", {}, "Test (unseen): "), m(sel.test), sel.test_ci95 ? ` · 95% CI ${sgn(sel.test_ci95[0], 3)}…${sgn(sel.test_ci95[1], 3)}R` : ""),
-          h("div", { class: "hl " + verdicts[sel.verdict][0] }, h("b", {}, verdicts[sel.verdict][1]))]
-          : h("div", { class: "hl" }, "No config had enough training trades to be eligible."),
-        h("div", { class: "hl mu" }, `Baseline (no filters) on test: ${m(w.baseline_test)}${w.baseline_test_ci95 ? ` · CI ${sgn(w.baseline_test_ci95[0], 3)}…${sgn(w.baseline_test_ci95[1], 3)}R` : ""}`),
-        h("div", { class: "hl mu" }, `${w.configs_tried} filter configs were tried; best-of-many selection flatters train results, so judge the TEST line.`)));
-  };
-  const split = (title, obj) => h("div", { class: "box" }, h("b", {}, title), Object.entries(obj || {}).map(([k, v]) =>
-    h("div", { class: "hl" }, `${label(k)}: ${v.trades} trades · win ${v.win_rate_pct}% · avg ${sgn(v.avg_r, 2)}R`)));
+  if (!b || !b.with_news) return fill(el, switcher, h("div", { class: "empty" }, ico("flask"), h("div", { class: "big" }, "Not run yet")));
+  const S = b.with_news, w = S.walk_forward, sel = w && w.selected;
+  const verdict = { NO_EDGE_DEMONSTRATED: ["x", "No edge", "dn"], POSITIVE_BUT_NOT_SIGNIFICANT: ["info", "Positive, not significant", ""],
+    EDGE_SUPPORTED_OUT_OF_SAMPLE: ["check", "Edge out-of-sample", "acc"] };
+  const vv = sel ? verdict[sel.verdict] : null;
   fill(el, switcher,
-    h("div", { class: "banner " + (b.mode === "demo" ? "info" : "medium") }, h("b", {}, `${b.resolution} backtest ${b.period.from} → ${b.period.to} · ${b.period.sessions} sessions · ${b.mode}`),
-      `${b.scan}. ${b.news_headlines} headlines replayed point-in-time; ${b.trades_using_news} trades had a material news signal.`),
-    block("With news", b.with_news), block("Price & flow only (no news)", b.without_news),
-    wfBlock("with news", b.with_news), wfBlock("no news", b.without_news),
-    h("h4", {}, "Where the edge (or lack of it) comes from"),
-    split("News alignment (with-news run)", b.with_news.by_news), split("Direction", b.with_news.by_direction), split("Setup", b.with_news.by_setup), split("Regime", b.with_news.by_regime),
-    h("h4", {}, "Latest trades"),
-    ...(b.trades || []).slice(-25).reverse().map((x) => h("div", { class: "card " + x.direction },
-      h("div", { class: "row" }, h("span", { class: "sym" }, x.symbol), h("span", {}, h("span", { class: "pill " + x.direction }, x.direction), " ", h("span", { class: "sub" }, `${x.reason} · ${label(x.news_bucket)}`))),
-      h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `${x.date} ${x.signal_time} · ${fmt(x.entry)} → ${fmt(x.exit)}`), h("span", { class: cls(x.r_multiple) }, `${sgn(x.r_multiple, 2)}R`)))),
-    h("h4", {}, "Read this before trusting it"), h("div", { class: "box" }, b.caveats.map((c) => h("div", { class: "hl" }, c))));
+    h("div", { class: "hero" },
+      h("div", { class: "cap" }, ico("flask"), `${b.resolution} · ${b.period.sessions} days · avg per trade after costs`),
+      h("div", { class: "big num " + cls(S.avg_net_r) }, sgn(S.avg_net_r, 3) + "R"),
+      h("div", { class: "stats" }, stat("hash", "Trades", S.trades), stat("check", "Win", S.win_rate_pct + "%"), stat("chart", "PF", S.profit_factor ?? "—")),
+      h("div", { class: "stats" }, stat("percent", "@1% risk", sgn(S.return_pct_risk1, 1) + "%", cls(S.return_pct_risk1)),
+        stat("down", "Worst day", sgn(S.worst_day_pct_risk1, 1) + "%", "dn"), stat("wallet", "Cost", fmt(S.avg_cost_r, 3) + "R"))),
+    w ? h("div", { class: "hero" },
+      h("div", { class: "cap" }, ico("target"), `Unseen test · ${w.test_sessions[2]} days`),
+      h("div", { class: "big num " + cls(w.baseline_test.avg_net_r) }, w.baseline_test.trades ? sgn(w.baseline_test.avg_net_r, 3) + "R" : "—"),
+      h("div", { class: "stats" }, stat("hash", "Trades", w.baseline_test.trades || 0), stat("percent", "95% CI", ci(w.baseline_test_ci95), "small"),
+        stat("check", "Win", w.baseline_test.trades ? w.baseline_test.win_rate_pct + "%" : "—"))) : null,
+    vv ? h("div", { class: "facts" }, fact(vv[0], vv[1], vv[2]), fact("info", `No-news run: ${sgn(b.without_news.avg_net_r, 3)}R`)) : null,
+    tip(`${b.scan}. ${b.news_headlines} headlines replayed point-in-time. ${(b.caveats || []).join(" ")}`),
+    ...(b.trades || []).slice(-20).reverse().map((x) => h("div", { class: "card " + x.direction },
+      h("div", { class: "tcard-top" },
+        h("div", {}, h("div", { class: "sym" }, x.symbol), h("div", { class: "meta" }, h("span", { class: "pill " + x.direction }, dirIco(x.direction), x.direction), `${x.date.slice(5)} ${x.signal_time}`)),
+        h("div", { class: "pnl num " + cls(x.r_multiple) }, `${sgn(x.r_multiple, 2)}R`)))));
 }
 
 async function getJSON(name) {
@@ -178,8 +196,7 @@ function tradeBar(e, st) {
       h("span", { style: "left:0" }, moved ? "SL→entry" : "SL"),
       h("span", { style: `left:${zero}%` }, "Entry"),
       be != null ? h("span", { style: `left:${pos(be)}%` }, `+${be}R`) : null,
-      h("span", { style: "left:100%" }, "Target")),
-    h("div", { class: "sub tbar-note" }, note));
+      h("span", { style: "left:100%" }, "Target")));
 }
 
 const istToday = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
@@ -210,68 +227,69 @@ function replayLog(R, date) {
 }
 
 // Day rules (engine/dayrules.py): the day's first trade fixes the direction; no new trades after -2R of closed trades.
-function dayRulesNote(L) {
-  const es = L.entries || [];
-  if (!es.length) return null;
-  const first = es[0].direction, closed = ["STOPPED", "BREAKEVEN", "TARGET", "CLOSED_1515"];
-  const booked = es.reduce((a, e) => a + (closed.includes(e.status?.state) && e.status.r != null ? e.status.r : 0), 0);
-  const msg = booked <= -2 ? `Daily loss limit reached (${sgn(booked, 2)}R closed): no new trades today.`
-    : `Day rules: first trade was ${first}, so only ${first.toLowerCase()} trades are taken today · stop for the day at −2R (now ${sgn(booked, 2)}R closed).`;
-  return h("div", { class: "sub", style: "margin:6px 0" }, msg);
+// Day rules, checks and replay differences as short icon facts instead of sentences.
+function dayFacts(L, replay) {
+  const es = L.entries || [], out = [];
+  const closed = ["STOPPED", "BREAKEVEN", "TARGET", "CLOSED_1515"];
+  if (es.length) {
+    const first = es[0].direction, booked = es.reduce((a, e) => a + (closed.includes(e.status?.state) && e.status.r != null ? e.status.r : 0), 0);
+    out.push(fact(first === "LONG" ? "up" : "down", first === "LONG" ? "Longs only" : "Shorts only"));
+    out.push(booked <= -2 ? fact("ban", "Loss limit hit", "dn") : fact("shield", `${sgn(booked, 2)}R of −2R`));
+  } else {
+    const times = Object.keys(L.checks || {}).sort();
+    if (times.length) {
+      out.push(fact("clock", `${times.length} checks`));
+      (L.checks[times[times.length - 1]].closest || []).slice(0, 2).forEach((x) =>
+        out.push(fact(x.bias === "LONG" ? "up" : "down", `${x.symbol} · ${x.blockers.length ? x.blockers.map((b) => BLOCK_SHORT[b] || label(b)).join(", ") : "ok"}`)));
+    }
+  }
+  if (replay && L.mode !== "replay" && L.checks) {
+    const live = new Set(es.map((e) => e.symbol + e.direction));
+    const extra = replay.entries.filter((e) => !live.has(e.symbol + e.direction));
+    if (extra.length) out.push(fact("replay", `Replay: ${extra.map((e) => e.symbol).join(", ")} ${signedRupees(dayStats({ entries: extra }).total)}`, "acc"));
+  }
+  return out.length ? h("div", { class: "facts" }, out) : null;
 }
 
-// What the checks saw when nothing qualified: the closest candidates of the latest checkpoint and their blockers.
+const BLOCK_SHORT = { ATR_RANGE: "range", STRUCTURE: "no breakout", HAWKES: "weak flow", LOW_CONVICTION: "weak", DAY_DIRECTION: "against day",
+  DAY_LOSS_LIMIT: "loss limit", LIQUIDITY: "illiquid", UPPER_CIRCUIT: "circuit", LOWER_CIRCUIT: "circuit", SESSION_LATE: "late", SESSION_CLOSED: "closed",
+  SESSION_PRE_OPEN: "pre-open", SESSION_MORATORIUM: "too early" };
 const BLOCK_WORDS = { ATR_RANGE: "not enough range left", STRUCTURE: "no clean breakout", HAWKES: "weak order flow", LOW_CONVICTION: "weak override",
   DAY_DIRECTION: "against today's direction", DAY_LOSS_LIMIT: "daily loss limit", LIQUIDITY: "low liquidity", UPPER_CIRCUIT: "near upper circuit", LOWER_CIRCUIT: "near lower circuit" };
-function checksNote(L) {
-  const times = Object.keys(L.checks || {}).sort();
-  if (!times.length) return null;
-  const last = times[times.length - 1], c = L.checks[last];
-  const closest = (c.closest || []).map((x) => `${x.symbol} ${x.bias.toLowerCase()} (${x.blockers.length ? "blocked: " + x.blockers.map((b) => BLOCK_WORDS[b] || label(b)).join(", ") : "passed"})`);
-  return h("div", { class: "sub", style: "margin:6px 0" }, `Checked ${times.length} time${times.length === 1 ? "" : "s"} (latest ${last}).` +
-    (closest.length ? ` Closest then: ${closest.join(" · ")}.` : " No stock leaned clearly either way."));
-}
 
-// The after-close replay uses final prices; when it differs from the live list, say so (the live list is what you could act on).
-function replayNote(L, replay) {
-  if (!replay || L.mode === "replay" || !L.checks) return null;
-  const live = new Set(L.entries.map((e) => e.symbol + e.direction));
-  const extra = replay.entries.filter((e) => !live.has(e.symbol + e.direction));
-  if (!extra.length) return null;
-  const D = dayStats({ entries: extra });
-  return h("div", { class: "sub", style: "margin:6px 0" }, `After-close replay (final prices) also found ${extra.map((e) => `${e.symbol} ${e.direction.toLowerCase()} ${e.signal_time}`).join(", ")}` +
-    ` (${signedRupees(D.total)}). The live data at the time did not show ${extra.length === 1 ? "it" : "them"}.`);
+const STATE_SHORT = { OPEN: ["clock", "Open"], TARGET: ["target", "Target"], STOPPED: ["x", "Stopped"], BREAKEVEN: ["shield", "Breakeven"],
+  CLOSED_1515: ["exit", "15:15"], PENDING: ["clock", "Waiting"], NO_DATA: ["alert", "No data"] };
+const lvl = (icon, k, v) => h("div", { class: "lvl" }, h("div", { class: "k" }, ico(icon), k), h("div", { class: "v num" }, v));
+
+function tradeCard(e, isLive) {
+  const st = e.status || {}, oi = e.option_idea, ss = STATE_SHORT[st.state] || ["info", st.state || "—"];
+  const p = paper(e.direction === "LONG", st.fill, st.price, e.stop_distance, e.size_mult);
+  return h("button", { class: "card " + e.direction, onclick: () => (isLive ? openSheet(e.symbol) : null) },
+    h("div", { class: "tcard-top" },
+      h("div", {}, h("div", { class: "sym" }, e.symbol),
+        h("div", { class: "meta" }, h("span", { class: "pill " + e.direction }, dirIco(e.direction), e.direction), ico("clock"), e.signal_time, ico(ss[0]), ss[1])),
+      h("div", {}, h("div", { class: "pnl num " + cls(p?.pnl) }, p && p.q > 0 ? signedRupees(p.pnl) : "—"),
+        h("div", { class: "sub num " + cls(st.r), style: "text-align:right" }, st.r != null ? sgn(st.r, 2) + "R" : ""))),
+    tradeBar(e, st),
+    st.fill != null ? h("div", { class: "levels" }, lvl("enter", "Entry", fmt(st.fill)), lvl("shield", "Stop", fmt(st.stop_now ?? st.stop)),
+      lvl("target", "Target", fmt(st.target)), lvl(st.state === "OPEN" ? "clock" : "exit", st.state === "OPEN" ? "Now" : "Exit", fmt(st.price))) : null,
+    p && p.q > 0 ? h("div", { class: "sub num", style: "margin-top:6px" }, `${p.q} sh · ${rupees(p.invested)}`) : null,
+    oi ? h("div", { class: "opt " + e.direction }, ico("layers"), ` ${oi.action} ${oi.strike} · ${oi.expiry}`) : null);
 }
 
 function journalView(L, isLive, replay) {
-  const A = account(), D = dayStats(L), S = L.summary || {};
-  const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
+  const A = account(), D = dayStats(L);
   return [
-    h("h4", {}, `Paper money · ${rupees(A.cap)} account at ${A.risk}% risk per trade`),
-    h("div", { class: "macro" }, tile("Trades taken", D.taken), tile("Day P&L", signedRupees(D.total), cls(D.total)),
-      tile("Booked", signedRupees(D.booked), cls(D.booked)), tile("Still open", signedRupees(D.open), cls(D.open))),
-    h("div", { class: "sub" }, `${shortDate(L.date)} · ${S.signals ?? D.taken} signal${(S.signals ?? D.taken) === 1 ? "" : "s"} · ${S.open ?? 0} open · ${sgn((100 * D.total) / A.cap, 2)}% on the account` +
-      (L.mode === "replay" ? " · after-close replay (no live list for this day)" : "")),
-    dayRulesNote(L),
-    L.entries.length ? null : checksNote(L),
-    replayNote(L, replay),
-    h("details", { class: "how" }, h("summary", {}, "How this is calculated"),
-      "Every signal stays listed after it leaves the main list. Each is bought/shorted at the next 5-minute open with the app's suggested " +
-      "quantity (5× intraday margin cap), follows its stop / breakeven / target, and is closed by 15:15; costs included. Change the account in ⚙." +
-      " Past days come from the live list saved after each close; earlier days, before saving started, show the after-close replay."),
-    ...(L.entries.length ? L.entries.map((e) => {
-      const st = e.status || {}, oi = e.option_idea;
-      return h("button", { class: "card " + e.direction, onclick: () => (isLive ? openSheet(e.symbol) : null) },
-        h("div", { class: "row" }, h("div", {}, h("div", { class: "sym" }, e.symbol), h("div", { class: "sub" }, `${e.signal_time} · ${label(e.setup)}${e.contradiction ? " · " + label(e.contradiction) : ""}`)),
-          h("div", { style: "text-align:right" }, h("span", { class: "pill " + e.direction }, e.direction),
-            h("div", { class: "sub " + cls(st.r) }, `${STATE_LABEL[st.state] || st.state}${st.r != null ? " · " + sgn(st.r, 2) + "R" : ""}`))),
-        tradeBar(e, st),
-        st.fill != null ? h("div", { class: "sub", style: "margin-top:6px" }, `Entry ₹${fmt(st.fill)} · SL ₹${fmt(st.stop_now ?? st.stop)}${st.stop_now != null && st.stop_now === st.fill ? " (moved to entry)" : ""} · T ₹${fmt(st.target)} · ${st.state === "OPEN" ? "now" : "exit"} ₹${fmt(st.price)}${st.at ? " at " + st.at : ""}`) : null,
-        (() => { const p = paper(e.direction === "LONG", st.fill, st.price, e.stop_distance, e.size_mult);
-          return p && p.q > 0 ? h("div", { class: "row", style: "margin-top:6px" }, h("span", { class: "sub" }, `Paper: ${p.q} sh · ${rupees(p.invested)} position`),
-            h("b", { class: cls(p.pnl) }, signedRupees(p.pnl) + (st.state === "OPEN" ? " (open)" : ""))) : null; })(),
-        oi ? h("div", { class: "opt " + e.direction }, `${oi.action} ${oi.strike} · exp ${oi.expiry}`) : null);
-    }) : [h("div", { class: "empty" }, isLive ? "No signals so far today." : "No signals that day.")]),
+    h("div", { class: "hero" },
+      h("div", { class: "cap" }, ico("wallet"), `Day P&L · ${rupees(A.cap)} @ ${A.risk}%`, L.mode === "replay" ? h("span", { class: "fact", style: "margin-left:auto" }, ico("replay"), "replay") : null),
+      h("div", { class: "big num " + cls(D.total) }, signedRupees(D.total)),
+      h("div", { class: "sm num " + cls(D.total) }, sgn((100 * D.total) / A.cap, 2) + "%"),
+      h("div", { class: "stats" }, stat("hash", "Trades", D.taken), stat("check", "Booked", signedRupees(D.booked), cls(D.booked)),
+        stat("clock", "Open", signedRupees(D.open), cls(D.open)))),
+    dayFacts(L, replay),
+    tip("Each signal is taken at the next 5-minute open with the suggested size (max 5× margin), follows its stop, breakeven and target, and closes by 15:15. Costs included. Account size in settings."),
+    ...(L.entries.length ? L.entries.map((e) => tradeCard(e, isLive))
+      : [h("div", { class: "empty" }, ico("clock"), h("div", { class: "big" }, "No trades"), isLive ? "Signals 10:05–14:40" : null)]),
   ];
 }
 
@@ -288,8 +306,8 @@ async function today() {
   const yesterday = new Date(Date.parse(now + "T12:00:00Z") - 864e5).toISOString().slice(0, 10);
   const chip = (k, t) => h("button", { class: "chip" + (state.day === k ? " on" : ""), onclick: () => { state.day = k; today(); } }, t);
   const days = h("nav", { class: "chips days", "aria-label": "Day" },
-    chip("today", "Today"), ...past.slice(0, 10).map((d) => chip(d, d === yesterday ? `Yesterday · ${shortDate(d)}` : shortDate(d))),
-    past.length ? chip("all", "All days") : null);
+    chip("today", "Today"), ...past.slice(0, 10).map((d) => chip(d, d === yesterday ? "Yesterday" : shortDate(d))),
+    past.length ? chip("all", "All") : null);
   // The live journal is the freshest copy of its day; saved journals and replays cover the rest.
   // If live updates were missing all day (empty list), the after-close replay is the better record of it.
   const logFor = async (d) => {
@@ -313,13 +331,16 @@ async function today() {
     const winDays = rows.filter((r) => r.total > 0).length, maxAbs = Math.max(1, ...rows.map((r) => Math.abs(r.total)));
     const tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
     return fill(el, days,
-      h("h4", {}, `All days · ${rupees(A.cap)} paper account at ${A.risk}% risk`),
-      h("div", { class: "macro" }, tile("Total P&L", signedRupees(total), cls(total)), tile("Return", sgn((100 * total) / A.cap, 2) + "%", cls(total)),
-        tile("Days won", `${winDays} / ${rows.length}`), tile("Trades", trades)),
-      h("div", { class: "sub", style: "margin-bottom:8px" }, "Fixed account size each day (no compounding). Tap a day for its trades."),
+      h("div", { class: "hero" },
+        h("div", { class: "cap" }, ico("trophy"), `All days · ${rupees(A.cap)} @ ${A.risk}%`),
+        h("div", { class: "big num " + cls(total) }, signedRupees(total)),
+        h("div", { class: "sm num " + cls(total) }, sgn((100 * total) / A.cap, 2) + "%"),
+        h("div", { class: "stats" }, stat("check", "Days won", `${winDays}/${rows.length}`), stat("hash", "Trades", trades),
+          stat("wallet", "Per day", signedRupees(rows.length ? total / rows.length : 0), cls(total)))),
       ...rows.map((r) => h("button", { class: "card dayrow", onclick: () => { state.day = r.d === now ? "today" : r.d; today(); } },
-        h("div", { class: "row" }, h("div", {}, h("b", {}, r.d === now ? "Today" : shortDate(r.d)), h("div", { class: "sub" }, `${r.taken} trade${r.taken === 1 ? "" : "s"} · ${r.wins} won${r.src === "replay" ? " · replay" : ""}`)),
-          h("b", { class: cls(r.total) }, signedRupees(r.total))),
+        h("div", { class: "row" }, h("div", {}, h("b", {}, r.d === now ? "Today" : shortDate(r.d)),
+          h("div", { class: "meta sub", style: "display:flex;gap:5px;align-items:center" }, ico("hash"), `${r.taken}`, ico("check"), `${r.wins}`, r.src === "replay" ? ico("replay") : null)),
+          h("b", { class: "num " + cls(r.total) }, signedRupees(r.total))),
         h("div", { class: "bar" }, h("span", { class: "t" }, h("i", { style: `left:${r.total >= 0 ? 50 : 50 - (50 * Math.abs(r.total)) / maxAbs}%;width:${(50 * Math.abs(r.total)) / maxAbs}%;background:var(--${r.total >= 0 ? "up" : "dn"})` }))))));
   }
   if (state.day !== "today") {
@@ -332,41 +353,41 @@ async function today() {
     if (state.filter !== "TODAY" || state.day !== "today") return;
     return fill(el, days, ...journalView(log, log === liveLog, replayLog(R, now)));
   }
-  // Nothing for today yet: say why, and point to the last session.
-  const dow = new Date(now + "T12:00:00+05:30").getUTCDay();
-  const why = dow === 0 || dow === 6 ? "The market is closed today (weekend)."
-    : "No trades yet today. Signals start after 10:05 IST, and the first update usually arrives by 10:15. A holiday also shows nothing.";
+  // Nothing for today yet: say why in a few words, and point to the last session.
+  const dow = new Date(now + "T12:00:00+05:30").getUTCDay(), weekend = dow === 0 || dow === 6;
   const last = past[0];
-  fill(el, days, h("div", { class: "empty" }, h("b", {}, `Today · ${shortDate(now)}`), h("br"), why,
-    last ? h("div", { style: "margin-top:12px" }, h("button", { class: "chip on", onclick: () => { state.day = last; today(); } }, `See ${shortDate(last)} →`)) : null));
+  fill(el, days, h("div", { class: "empty" }, ico(weekend ? "calendar" : "clock"), h("div", { class: "big" }, weekend ? "Market closed" : "Starts 10:05"),
+    weekend ? null : "First update ~10:15",
+    last ? h("div", { style: "margin-top:12px" }, h("button", { class: "chip on", onclick: () => { state.day = last; today(); } }, `${shortDate(last)} →`)) : null));
 }
 
 async function record() {
   const el = $("list"), R = await getJSON("track_record");
   if (state.filter !== "RECORD") return;
-  if (!R || !R.days || !R.days.length) return fill(el, h("div", { class: "empty" }, "The track record starts after the first market close with this version (replayed daily at 16:15 IST)."));
-  const S = R.summary, tile = (k, v, c) => h("div", { class: "tile" }, h("div", { class: "k" }, k), h("div", { class: "v " + (c || "") }, v));
+  if (!R || !R.days || !R.days.length) return fill(el, h("div", { class: "empty" }, ico("chart"), h("div", { class: "big" }, "No record yet"), "Starts after the first close"));
+  const S = R.summary, A = account();
   const maxAbs = Math.max(0.5, ...R.days.map((d) => Math.abs(d.net_r)));
-  const A = account();
   const dayPnl = (d) => d.trades.reduce((a, t) => { const p = paper(t.direction === "LONG", t.entry, t.exit, t.stop_distance, t.size_mult); return a + (p ? p.pnl : 0); }, 0);
   let bal = A.cap, peak = A.cap, maxDd = 0;
   const equity = R.days.map((d) => { const p = dayPnl(d); bal += p; peak = Math.max(peak, bal); maxDd = Math.max(maxDd, (peak - bal) / peak); return { date: d.date, pnl: p, bal }; });
   const total = bal - A.cap, pnlByDate = Object.fromEntries(equity.map((x) => [x.date, x.pnl]));
-  fill(el, 
-    h("div", { class: "banner " + (total >= 0 ? "info" : "medium") }, h("b", {}, `Paper account: ${rupees(A.cap)} → ${rupees(bal)}`),
-      `${signedRupees(total)} (${sgn((100 * total) / A.cap, 2)}%) since ${S.from} at ${A.risk}% risk per trade, max drawdown ${fmt(100 * maxDd, 1)}%. ` +
-      "Fixed account size per trade (no compounding), every suggested trade taken, costs included. Not real money."),
-    h("div", { class: "banner info" }, h("b", {}, `Track record ${S.from} → ${S.to}`), R.note),
-    h("div", { class: "macro" }, tile("Sessions", S.sessions), tile("Trades", S.trades || 0),
-      tile("Win rate", S.trades ? S.win_rate_pct + "%" : "—"), tile("Avg net R", S.trades ? sgn(S.avg_net_r, 3) : "—", cls(S.avg_net_r)),
-      tile("Total net R", S.trades ? sgn(S.total_net_r, 1) : "—", cls(S.total_net_r)),
-      tile("95% CI (avg)", S.net_r_ci95 ? `${sgn(S.net_r_ci95[0], 2)}…${sgn(S.net_r_ci95[1], 2)}` : "need more days")),
-    h("h4", {}, "By day"),
-    ...R.days.slice().reverse().map((d) => h("div", { class: "box", style: "margin-bottom:8px" },
-      h("div", { class: "row" }, h("b", {}, d.date), h("span", { class: cls(d.net_r) }, `${d.trades.length} trade${d.trades.length === 1 ? "" : "s"} · ${sgn(d.net_r, 2)}R · ${signedRupees(pnlByDate[d.date] || 0)}`)),
+  fill(el,
+    h("div", { class: "hero" },
+      h("div", { class: "cap" }, ico("wallet"), `Paper · ${rupees(A.cap)} @ ${A.risk}% · since ${S.from}`),
+      h("div", { class: "big num " + cls(total) }, signedRupees(total)),
+      h("div", { class: "sm num" }, `${rupees(bal)} · `, h("span", { class: cls(total) }, sgn((100 * total) / A.cap, 2) + "%")),
+      h("div", { class: "stats" }, stat("hash", "Trades", S.trades || 0), stat("check", "Win", S.trades ? S.win_rate_pct + "%" : "—"),
+        stat("down", "Max DD", fmt(100 * maxDd, 1) + "%")),
+      h("div", { class: "stats" }, stat("calendar", "Days", S.sessions), stat("target", "Avg R", S.trades ? sgn(S.avg_net_r, 2) : "—", cls(S.avg_net_r)),
+        stat("percent", "95% CI", S.net_r_ci95 ? `${sgn(S.net_r_ci95[0], 1)}…${sgn(S.net_r_ci95[1], 1)}` : "—", "small"))),
+    tip("After-close replays of each day with the live rules. Fixed account size per trade, every trade taken, costs included. Not real money. " + (R.note || "")),
+    ...R.days.slice().reverse().map((d) => h("div", { class: "box dayrow", style: "margin-bottom:8px" },
+      h("div", { class: "row" }, h("div", {}, h("b", {}, shortDate(d.date)), h("div", { class: "sub num" }, `${d.trades.length} · ${sgn(d.net_r, 2)}R`)),
+        h("b", { class: "num " + cls(pnlByDate[d.date] || 0) }, signedRupees(pnlByDate[d.date] || 0))),
       h("div", { class: "bar" }, h("span", { class: "t" }, h("i", { style: `left:${d.net_r >= 0 ? 50 : 50 - 50 * Math.abs(d.net_r) / maxAbs}%;width:${50 * Math.abs(d.net_r) / maxAbs}%;background:var(--${d.net_r >= 0 ? "up" : "dn"})` }))),
       d.trades.map((t) => { const p = paper(t.direction === "LONG", t.entry, t.exit, t.stop_distance, t.size_mult);
-        return h("div", { class: "hl sub" }, `${t.signal_time} ${t.symbol} ${t.direction} · ${fmt(t.entry)} → ${fmt(t.exit)} (${label(t.reason)}) · ${sgn(t.net_r, 2)}R` + (p ? ` · ${p.q} sh ${signedRupees(p.pnl)}` : "")); }))));
+        return h("div", { class: "hl sub num", style: "display:flex;gap:6px;align-items:center" }, dirIco(t.direction), `${t.signal_time} ${t.symbol}`,
+          h("span", { style: "margin-left:auto", class: cls(t.net_r) }, `${sgn(t.net_r, 2)}R`), p ? h("b", { class: cls(p.pnl) }, signedRupees(p.pnl)) : null); }))));
 }
 
 function list() {
@@ -375,19 +396,21 @@ function list() {
   if (state.filter === "BACKTEST") return backtest();
   const f = state.filter, rows = state.data.signals.filter((s) => f === "ALL" || (f === "ACTION" ? s.direction !== "NO_TRADE" : s.direction === f));
   const el = $("list");
-  if (!rows.length) return fill(el, h("div", { class: "empty" }, f === "ACTION" ? "No actionable setups right now. Capital preserved." : "Nothing here."));
+  if (!rows.length) return fill(el, h("div", { class: "empty" }, ico("zap"), h("div", { class: "big" }, f === "ACTION" ? "No setups now" : "Nothing here")));
   fill(el, ...rows.map((s) => {
+    const e = s.execution, act = s.direction !== "NO_TRADE";
     const tags = [];
     if (s.contradiction) tags.push(h("span", { class: "tag w" }, label(s.contradiction.type)));
-    s.risk.warnings.slice(0, 2).forEach((w) => tags.push(h("span", { class: "tag " + (w.level === "high" ? "r" : "w") }, label(w.code))));
-    s.risk.blockers.slice(0, 2).forEach((b) => tags.push(h("span", { class: "tag" }, label(b.code))));
+    s.risk.warnings.slice(0, 2).forEach((w) => tags.push(h("span", { class: "tag " + (w.level === "high" ? "r" : "w") }, ico("alert"), " ", label(w.code))));
+    s.risk.blockers.slice(0, 3).forEach((b) => tags.push(h("span", { class: "tag" }, ico("ban"), " ", BLOCK_SHORT[b.code] || label(b.code))));
     return h("button", { class: "card " + s.direction, onclick: () => openSheet(s.symbol) },
-      h("div", { class: "row" }, h("div", {}, h("div", { class: "sym" }, s.symbol), h("div", { class: "sub" }, `${s.name} · ${s.sector}`)),
-        h("div", { style: "text-align:right" }, h("div", {}, h("span", { class: "pill " + s.direction }, s.direction === "NO_TRADE" ? "NO TRADE" : s.direction)),
-          h("div", { class: "sub" }, label(s.setup)))),
-      h("div", { class: "row", style: "margin-top:8px" }, h("span", {}, "₹" + fmt(s.price.ltp), " ", h("span", { class: cls(s.price.chg_pct) }, sgn(s.price.chg_pct) + "%")),
-        s.direction !== "NO_TRADE" && s.execution.stop_distance ? h("span", { class: "sub" }, `stop ₹${fmt(s.execution.stop_distance)} away`) : null),
-      s.execution.option_idea ? h("div", { class: "opt " + s.direction }, `${s.execution.option_idea.action} ${s.execution.option_idea.strike} · exp ${s.execution.option_idea.expiry}`) : null,
+      h("div", { class: "tcard-top" },
+        h("div", {}, h("div", { class: "sym" }, s.symbol),
+          h("div", { class: "meta" }, h("span", { class: "pill " + s.direction }, dirIco(s.direction), act ? s.direction : "NO TRADE"), label(s.setup))),
+        h("div", {}, h("div", { class: "price-big num" }, "₹" + fmt(s.price.ltp)), h("div", { class: "sub num " + cls(s.price.chg_pct), style: "text-align:right" }, sgn(s.price.chg_pct) + "%"))),
+      act ? h("div", { class: "levels" }, lvl("enter", "Entry", fmt(e.entry_trigger)), lvl("shield", "Stop", fmt(e.stop)), lvl("target", "Target", fmt(e.target)),
+        lvl("hash", "Qty", qty(s).q)) : null,
+      e.option_idea ? h("div", { class: "opt " + s.direction }, ico("layers"), ` ${e.option_idea.action} ${e.option_idea.strike} · ${e.option_idea.expiry}`) : null,
       tags.length ? h("div", { class: "tags" }, tags) : null);
   }));
 }
@@ -404,29 +427,29 @@ function openSheet(sym) {
   const e = s.execution, r = s.risk, mi = s.microstructure, q = qty(s), act = s.direction !== "NO_TRADE";
   $("sheetTitle").textContent = `${s.symbol} · ${s.direction === "NO_TRADE" ? "No trade" : s.direction}`;
   const b = $("sheetBody"); fill(b);
-  r.warnings.forEach((w) => b.append(h("div", { class: "banner " + w.level }, h("b", {}, label(w.code)), w.message)));
-  r.blockers.forEach((x) => b.append(h("div", { class: "banner info" }, h("b", {}, "Blocked · " + label(x.code)), x.message)));
-  if (s.contradiction) b.append(h("div", { class: "banner medium" }, h("b", {}, label(s.contradiction.type)), s.contradiction.note));
+  b.append(h("div", { class: "hero" },
+    h("div", { class: "cap" }, h("span", { class: "pill " + s.direction }, dirIco(s.direction), act ? s.direction : "NO TRADE"), label(s.setup)),
+    h("div", { class: "big num" }, "₹" + fmt(s.price.ltp)), h("div", { class: "sm num " + cls(s.price.chg_pct) }, sgn(s.price.chg_pct) + "%"),
+    act ? h("div", { class: "levels" }, lvl("enter", "Entry", fmt(e.entry_trigger)), lvl("shield", "Stop", fmt(e.stop)), lvl("target", "Target", fmt(e.target)), lvl("hash", "Qty", q.q)) : null));
+  const reasons = [...r.warnings.map((w) => fact("alert", label(w.code), w.level === "high" ? "dn" : "")), ...r.blockers.map((x) => fact("ban", BLOCK_WORDS[x.code] || label(x.code)))];
+  if (s.contradiction) reasons.push(fact("info", label(s.contradiction.type), "acc"));
+  if (reasons.length) b.append(h("div", { class: "facts" }, reasons),
+    tip([...r.warnings.map((w) => w.message), ...r.blockers.map((x) => x.message), s.contradiction ? s.contradiction.note : ""].filter(Boolean).join(" ")));
   const oi = e.option_idea;
-  if (oi) b.append(h("h4", {}, "Option idea (approximate)"),
-    h("div", { class: "box opt-box " + s.direction },
-      h("div", { class: "opt-big" }, `${oi.action} ${oi.strike} · expiry ${oi.expiry} (${oi.days_to_expiry}d)`),
-      oi.live ? h("div", { class: "sub" }, `${oi.tradingsymbol} · 1 lot = ${oi.lot_size} sh · ≈ ${rupees(oi.lot_cost)} per lot · live from Kite`) : null,
-      h("div", { class: "grid", style: "margin-top:8px" },
-        kv(oi.live ? "Premium (live)" : "Premium (est.)", "₹" + fmt(oi.premium_est)), kv("Exit if premium ≤ (est.)", "₹" + fmt(oi.premium_stop_est)),
-        kv("Target premium (est.)", "₹" + fmt(oi.premium_target_est)), kv("Stock stop / target", `₹${fmt(e.stop)} / ₹${fmt(e.target)}`)),
-      h("div", { class: "sub", style: "margin-top:8px" }, oi.note + " Exit on the STOCK levels if they are hit first; they are the real thesis.")));
-  b.append(h("h4", {}, "Execution & risk matrix"),
+  if (oi) b.append(h("div", { class: "box opt-box " + s.direction },
+      h("div", { class: "opt-big" }, ico("layers"), ` ${oi.action} ${oi.strike} · ${oi.expiry} (${oi.days_to_expiry}d)`),
+      oi.live ? h("div", { class: "sub" }, `${oi.tradingsymbol} · lot ${oi.lot_size} · ≈ ${rupees(oi.lot_cost)}`) : null,
+      h("div", { class: "levels" }, lvl("wallet", "Premium", fmt(oi.premium_est)), lvl("shield", "Exit ≤", fmt(oi.premium_stop_est)), lvl("target", "Target", fmt(oi.premium_target_est)),
+        lvl("info", oi.live ? "live" : "est.", oi.live ? "Kite" : "model"))));
+  b.append(h("h4", {}, "Risk"),
     h("div", { class: "grid" },
-      kv("Entry trigger", "₹" + fmt(e.entry_trigger)), kv("Risk : Reward", e.risk_reward),
-      kv("Stop-loss", `₹${fmt(e.stop)}`), kv("Distance to stop", `₹${fmt(e.stop_distance)} (${fmt(e.stop_distance_pct)}%)`),
+      kv("Risk : Reward", e.risk_reward), kv("Stop distance", `₹${fmt(e.stop_distance)} (${fmt(e.stop_distance_pct)}%)`),
       kv("Move stop to entry at", e.breakeven_trigger != null ? `₹${fmt(e.breakeven_trigger)} (+${e.breakeven_after_r}R)` : "—"),
-      kv("Target", "₹" + fmt(e.target) + (e.gap_close_target ? ` (gap close ₹${fmt(e.gap_close_target)})` : "")),
-      kv("Suggested qty", act ? `${q.q} sh` : "—"), kv("Capital at risk", act ? "₹" + fmt(q.risk, 0) : "—"),
+      e.gap_close_target ? kv("Gap close", "₹" + fmt(e.gap_close_target)) : null,
+      kv("Capital at risk", act ? "₹" + fmt(q.risk, 0) : "—"),
       kv("VWAP fail-safe", "₹" + fmt(e.invalidation_vwap)), kv("Daily ATR", `₹${fmt(s.price.atr_daily)} (${fmt(s.price.atr_pct)}%)`)),
-    h("h4", {}, "Structural invalidation"), h("div", { class: "box inval" }, e.invalidation_text),
-    h("h4", {}, "Thesis"), h("div", { class: "box" }, s.thesis),
-    h("h4", {}, "Pillar scores (weight by regime: " + label(s.regime) + ")"),
+    tip(`${s.thesis} Invalidation: ${e.invalidation_text}`),
+    h("h4", {}, "Scores · " + label(s.regime)),
     bar("Fundamental", s.pillars.fundamental.score, s.pillars.fundamental.weight), bar("Price action", s.pillars.price_action.score, s.pillars.price_action.weight),
     bar("Institutional", s.pillars.institutional.score, s.pillars.institutional.weight), bar("Macro", s.pillars.macro.score, s.pillars.macro.weight),
     h("div", { class: "sub" }, `Composite ${sgn(s.composite)}`),
@@ -444,7 +467,7 @@ function openSheet(sym) {
     h("div", { class: "box" }, s.fundamental.headlines.length ? s.fundamental.headlines.map((x) =>
       h("div", { class: "hl" }, x.url ? h("a", { href: x.url, target: "_blank", rel: "noopener noreferrer" }, x.title) : x.title,
         h("div", { class: "sub" }, `${x.source} · Tier ${x.tier} ${label(x.event)} · sentiment ${sgn(x.sentiment)}${x.mcap_ratio_pct ? " · order = " + x.mcap_ratio_pct + "% of mcap" : ""}`))) : h("span", { class: "muted" }, "No material headlines in the last 36h.")),
-    h("p", { class: "muted" }, state.data.meta.disclaimer));
+    tip(state.data.meta.disclaimer));
   $("sheet").hidden = false; $("sheet").scrollTop = 0;
   history.pushState({ sheet: sym }, "");
 }
@@ -483,9 +506,8 @@ window.addEventListener("popstate", closeSheet);
 function refreshKiteUI() {
   const m = state.data?.meta || {}, k = (m.health || {}).kite || {};
   $("kiteBtn").hidden = !m.kite_api_key;
-  $("kiteStatus").textContent = !m.kite_api_key ? "Add the KITE_API_KEY and KITE_API_SECRET repository secrets to enable Kite."
-    : k.connected ? `Connected today ✓ ${k.bars_from_kite || 0} price series and ${k.option_chains || 0} option chains from Kite.`
-    : "Not connected today — the app is using free data (Yahoo, no option chains).";
+  $("kiteStatus").textContent = !m.kite_api_key ? "Not set up (add KITE_API_KEY / KITE_API_SECRET secrets)."
+    : k.connected ? `✓ Connected · ${k.bars_from_kite || 0} prices · ${k.option_chains || 0} chains` : "Not connected · free data";
 }
 $("kiteBtn").onclick = () => {
   const key = state.data?.meta?.kite_api_key;
@@ -505,7 +527,7 @@ const isStandalone = () => matchMedia("(display-mode: standalone)").matches || n
 const urlKey = (b64) => { const p = "=".repeat((4 - (b64.length % 4)) % 4); const raw = atob((b64 + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(raw, (c) => c.charCodeAt(0)); };
 function showSub(sub) {
   $("subJson").value = JSON.stringify(sub); $("subBox").hidden = false; $("notifTest").hidden = false;
-  $("notifStatus").textContent = "Notifications are on for this phone.";
+  $("notifStatus").textContent = "✓ On for this phone";
   $("notifBtn").textContent = "Re-show subscription";
 }
 async function refreshNotifUI() {
@@ -516,7 +538,7 @@ async function refreshNotifUI() {
   if (Notification.permission === "denied") { $("notifStatus").textContent = "Notifications are blocked for this app. On iPhone: Settings → Notifications → Intraday → Allow."; return; }
   const reg = await navigator.serviceWorker.ready;
   const sub = await reg.pushManager.getSubscription();
-  if (sub) showSub(sub); else $("notifStatus").textContent = "Get an alert when a new LONG/SHORT signal appears (market hours only).";
+  if (sub) showSub(sub); else $("notifStatus").textContent = "New LONG/SHORT signals, market hours";
 }
 $("notifBtn").onclick = async () => {
   try {
@@ -557,5 +579,9 @@ if ("serviceWorker" in navigator) {
     document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
   }).catch(() => {}));
 }
+const TABS = { TODAY: ["calendar", "Today"], ACTION: ["zap", "Active"], LONG: ["up", "Long"], SHORT: ["down", "Short"], ALL: ["list", "All"], RECORD: ["chart", "Record"], BACKTEST: ["flask", "Tests"] };
+document.querySelectorAll("#filters .chip").forEach((c) => { const t = TABS[c.dataset.f]; if (t) c.replaceChildren(ico(t[0]), t[1]); });
+$("settingsBtn").replaceChildren(ico("sliders")); $("refreshBtn").replaceChildren(ico("refresh")); $("installBtn").replaceChildren(ico("download"));
+$("closeSheet").replaceChildren(ico("back"));
 document.querySelectorAll("#filters .chip").forEach((c) => c.classList.toggle("on", c.dataset.f === state.filter)); // restore last view
 load();
