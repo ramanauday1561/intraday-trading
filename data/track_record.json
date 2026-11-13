@@ -340,22 +340,59 @@
     }
    ],
    "net_r": -0.46
+  },
+  {
+   "date": "2026-11-13",
+   "engine": "f99517c",
+   "trades": [
+    {
+     "symbol": "INFY",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "12:45",
+     "entry": 1139.5,
+     "exit": 1138.5,
+     "reason": "EOD",
+     "r_multiple": 0.03,
+     "net_r": 0.009,
+     "conviction": 60,
+     "news_bucket": "no_news",
+     "stop_distance": 33.49,
+     "size_mult": 1.0
+    },
+    {
+     "symbol": "DRREDDY",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "14:30",
+     "entry": 1378.6,
+     "exit": 1380.0,
+     "reason": "EOD",
+     "r_multiple": -0.075,
+     "net_r": -0.12,
+     "conviction": 75,
+     "news_bucket": "no_news",
+     "stop_distance": 18.55,
+     "size_mult": 1.0
+    }
+   ],
+   "net_r": -0.111
   }
  ],
  "summary": {
-  "trades": 19,
-  "win_rate_pct": 52.6,
-  "avg_net_r": 0.104,
-  "total_net_r": 2.0,
-  "profit_factor": 1.53,
-  "sessions": 8,
-  "sessions_with_trades": 8,
+  "trades": 21,
+  "win_rate_pct": 52.4,
+  "avg_net_r": 0.089,
+  "total_net_r": 1.9,
+  "profit_factor": 1.48,
+  "sessions": 9,
+  "sessions_with_trades": 9,
   "net_r_ci95": [
-   -0.089,
-   0.285
+   -0.104,
+   0.266
   ],
   "from": "2026-11-02",
-  "to": "2026-11-12"
+  "to": "2026-11-13"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }
