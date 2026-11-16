@@ -251,9 +251,21 @@ def test_fresh_signals_once_and_only_recent(eng, tmp_path):
     assert len(eng.state["trades"]) == 1
 
 
-def test_money_and_guard(eng):
+def test_money_is_this_apps_own_and_guard(eng):
+    json.dump({"2026-11-16": {"start": 18668.1, "net": -1604.18}, "2026-11-13": {"v": 2, "net": 300.0, "pnl": 320.0, "charges": 20.0, "trades": 1}},
+              open(eng.history_path, "w"))                  # a whole-account row from the first version is ignored
     m = eng.money()
-    assert m["today"]["start"] == 40000.0 and m["today"]["pnl"] == -100.0 and m["free_to_trade"] == 39000.0 and len(m["history"]) == 1
+    assert m["today"] == {"v": 2, "pnl": 0.0, "charges": 0.0, "net": 0.0, "trades": 0, "start": 20300.0, "now": 20300.0}
+    assert m["free"] == 20000.0 and m["kite_free"] == 39000.0 and [d["d"] for d in m["history"]] == ["2026-11-13", "2026-11-17"]
+    t = enter(eng)
+    eng.kite.px["INFY"] = (1041.0, 1040.9, 1041.1)
+    eng.tick()
+    eng.kite.fill(t["exit_id"], 1040.9)
+    eng.tick()
+    m = eng.money()
+    assert m["today"]["net"] == t["net"] and m["today"]["charges"] == 10.0 and m["today"]["now"] == round(20300 + t["net"], 2)
+    eng.kite = None
+    assert eng.money()["kite_free"] is None                 # no login: the app's own numbers still show
     g = S.Guard("x" * 24)
     assert g.ok("x" * 24) and not g.ok("no")
 

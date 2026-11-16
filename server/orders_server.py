@@ -338,40 +338,38 @@ class Engine:
                     self.log(t, f"Kite: {e}")
 
     def money(self):
-        """The account's money today from Kite (the whole account: this server's trades and anything else in it),
-        and one row of totals a day kept on this server."""
-        k = self.kite
-        if not k:
-            raise ValueError("no Kite login today: log in on the Kite page first")
-        f = k.funds()
-        av = f.get("available") or {}
-        pnl = sum(float(p.get("pnl") or 0) for p in k.positions())
-        done = [o for o in k.orders().values() if o.get("status") == "COMPLETE" and int(o.get("filled_quantity") or 0)]
-        ch, src = 0.0, "kite"
-        if done:
-            ch, src = self._charges([(o["tradingsymbol"], o["transaction_type"], int(o["filled_quantity"]), float(o["average_price"]),
-                                      o.get("exchange") or "NSE", o.get("product") or "MIS") for o in done])
-        start = float(av.get("opening_balance") or 0)
+        """This app's own money only (17 Nov 2026, asked by the owner: "both the repos money should be different"):
+        its trades' real fills after Kite's charges, on top of the capital set aside for it. The Kite account is one
+        pool shared with the NIFTY app, so its balance is shown only as "free in Kite". One row of totals a day is
+        kept on this server."""
         with self.lock:
+            self._new_day()
             mine = [t for t in self.state["trades"] if t.get("avg_in") and not t.get("practice")]
-            day = {"start": round(start, 2), "pnl": round(pnl, 2), "charges": ch, "net": round(pnl - ch, 2),
-                   "now": round(start + pnl - ch, 2), "orders": len(done),
-                   "app_net": round(self._pnl_today(), 2), "app_trades": len(mine)}
+            net = round(sum(self._pnl(t) for t in mine), 2)
+            ch = round(sum(t.get("charges", t.get("charges_est", 0)) for t in mine), 2)
+            day = {"v": 2, "pnl": round(net + ch, 2), "charges": ch, "net": net, "trades": len(mine)}
             hist = {}
             if self.history_path:
                 try:
-                    hist = json.load(open(self.history_path))
-                except (OSError, ValueError):
+                    hist = {d: v for d, v in json.load(open(self.history_path)).items() if v.get("v") == 2}   # older rows were the whole account
+                except (OSError, ValueError, AttributeError):
                     pass
                 hist[self.state["day"]] = day
-                hist = dict(sorted(hist.items())[-90:])
                 with open(self.history_path + ".tmp", "w") as fh:
                     json.dump(hist, fh)
                 os.replace(self.history_path + ".tmp", self.history_path)
-            return {"day": self.state["day"], "now": self.now().isoformat(timespec="seconds"), "today": day,
-                    "charges_source": src, "free_to_trade": round(float(f.get("net") or 0), 2),
-                    "capital": self.limits["capital"], "used": round(self.used(), 2),
-                    "history": [{"d": d, **v} for d, v in hist.items()]}
+            cap, used = self.limits["capital"], round(self.used(), 2)
+            start = round(cap + sum(v["net"] for d, v in hist.items() if d != self.state["day"]), 2)
+            out = {"day": self.state["day"], "now": self.now().isoformat(timespec="seconds"), "capital": cap, "used": used,
+                   "today": {**day, "start": start, "now": round(start + net, 2)}, "free": round(max(0.0, cap - used), 2),
+                   "kite_free": None, "history": [{"d": d, **v} for d, v in sorted(hist.items())[-90:]]}
+            k = self.kite
+        if k:                                                           # outside the lock: a slow Kite must not hold the loop
+            try:
+                out["kite_free"] = round(float(k.funds().get("net") or 0), 2)
+            except Exception as e:
+                print(f"funds: {type(e).__name__}", flush=True)
+        return out
 
     # ------------------------------------------------------------------ the 2-second loop
     def tick(self):

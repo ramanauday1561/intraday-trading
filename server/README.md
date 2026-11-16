@@ -37,7 +37,8 @@ Run it again to update, and after every update of the commodities server (that u
 ## Every day
 
 Log in to Kite once before 10:00 (the NIFTY app's Kite page, or Settings → Log in to Kite here: it is the same login).
-The Money tab shows the real Kite account and this server's trades, with **Close now** and **Stop everything**.
+The Money tab shows this app's own money only (its trades' real fills after Kite's charges, on top of its capital; the
+Kite balance, shared with the NIFTY app, is one small line), with **Close now** and **Stop everything**.
 
 ## Good to know
 

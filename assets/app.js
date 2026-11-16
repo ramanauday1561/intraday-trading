@@ -403,15 +403,16 @@ async function money() {
   const T = M.today, parts = [];
   if (T) {
     parts.push(h("div", { class: "hero" },
-      h("div", { class: "cap" }, ico("wallet"), "Kite account · today after charges"),
-      h("div", { class: "big num " + cls(T.net) }, signed2(T.net)),
-      h("div", { class: "stats" }, stat("enter", "Started", money2(T.start), "small"), stat("wallet", "Now", money2(T.now), "small"), stat("check", "Free", money2(M.free_to_trade), "small"))),
-      h("div", { class: "facts" }, fact("chart", "Trades " + signed2(T.pnl), T.pnl < 0 ? "dn" : ""), fact("percent", "Charges " + money2(T.charges) + (M.charges_source === "estimate" ? " (est.)" : "")), fact("hash", T.orders + " orders")));
-  } else parts.push(h("div", { class: "facts" }, fact("alert", M.error || "No Kite numbers", "dn")));
+      h("div", { class: "cap" }, ico("wallet"), "This app · today after charges"),
+      h("div", { class: "big num " + cls(T.net) }, T.net ? signed2(T.net) : money2(0)),
+      h("div", { class: "stats" }, stat("enter", "Started", money2(T.start), "small"), stat("wallet", "Now", money2(T.now), "small"), stat("check", "Free", money2(M.free), "small"))),
+      h("div", { class: "facts" }, fact("chart", "Trades " + (T.pnl ? signed2(T.pnl) : money2(0)), T.pnl < 0 ? "dn" : ""), fact("percent", "Charges " + money2(T.charges)), fact("hash", T.trades + " trades"),
+        M.kite_free == null ? null : fact("link", "Free in Kite " + money2(M.kite_free) + " (shared with NIFTY)", M.kite_free < M.capital ? "dn" : "")));
+  } else parts.push(h("div", { class: "facts" }, fact("alert", M.error || "No numbers", "dn")));
   const L = S.limits, mode = { real: "REAL MONEY", practice: "PRACTICE · no orders", off: "OFF" }[S.mode] || S.mode;
   parts.push(h("div", { class: "facts" }, fact(S.mode === "real" ? "zap" : "ban", mode, S.mode === "real" ? "acc" : ""), fact(S.kite ? "check" : "x", S.kite ? "Kite login ✓" : "No Kite login", S.kite ? "" : "dn"),
     fact("layers", `${money2(S.used)} of ${rupees(L.capital)} used`), fact("shield", `${L.risk_pct}% a trade · stop at −${rupees(L.max_loss_day)}`),
-    fact("chart", "App today " + signed2(S.day_pnl), S.day_pnl < 0 ? "dn" : ""), S.practice_pnl ? fact("flask", "Practice " + signed2(S.practice_pnl)) : null,
+    S.practice_pnl ? fact("flask", "Practice " + signed2(S.practice_pnl)) : null,
     S.locked ? fact("ban", "Locked: " + S.locked, "dn") : null));
   if (!S.trades.length) parts.push(h("div", { class: "empty" }, ico("clock"), h("div", { class: "big" }, "No trades yet"), "Signals are checked 10:05–14:35"));
   for (const t of [...S.trades].reverse()) {
@@ -426,7 +427,7 @@ async function money() {
   parts.push(h("div", { style: "margin:12px 0" }, h("button", { class: "btn ghost", style: "width:100%;color:var(--dn);border-color:var(--dn)",
     onclick: () => act(() => api("/api/stop", "POST"), "Close everything and take no more trades today?") }, "Stop everything")));
   const hist = (M.history || []).filter((d) => d.d !== S.day).reverse();
-  for (const d of hist) parts.push(h("div", { class: "card dayrow", style: "cursor:default" }, h("div", { class: "row" }, h("div", {}, h("b", {}, shortDate(d.d)), h("div", { class: "sub" }, `${d.orders} orders · charges ${money2(d.charges || 0)}`)), h("b", { class: "num " + cls(d.net) }, signed2(d.net ?? 0)))));
+  for (const d of hist) parts.push(h("div", { class: "card dayrow", style: "cursor:default" }, h("div", { class: "row" }, h("div", {}, h("b", {}, shortDate(d.d)), h("div", { class: "sub" }, `${d.trades} trades · charges ${money2(d.charges || 0)}`)), h("b", { class: "num " + cls(d.net) }, signed2(d.net ?? 0)))));
   fill(el, ...parts);
 }
 setInterval(() => { if (!document.hidden && state.filter === "MONEY" && SRV.url() && SRV.code()) money(); }, 15000);
