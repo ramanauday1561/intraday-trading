@@ -169,7 +169,8 @@ async function backtest() {
 
 // The order server on the VPS (address and passcode typed once in Settings, kept on this phone only). It also runs the
 // engine and serves its files at /data/; the app shows whichever copy is newer, the VPS's or GitHub Pages'.
-const SRV = { url: () => String(store.get("srvUrl", "") || "").trim().replace(/\/+$/, ""), code: () => String(store.get("srvCode", "") || "").trim() };
+const SRV_DEFAULT = "https://intraday.189-72-149-115.sslip.io"; // the owner's VPS; public (only the passcode is secret)
+const SRV = { url: () => String(store.get("srvUrl", "") || SRV_DEFAULT).trim().replace(/\/+$/, ""), code: () => String(store.get("srvCode", "") || "").trim() };
 async function srvData(name) {
   if (!SRV.url()) return null;
   try { const r = await fetch(`${SRV.url()}/data/${name}.json?t=${Date.now()}`, { cache: "no-store", signal: AbortSignal.timeout(5000) }); return r.ok ? await r.json() : null; } catch { return null; }
@@ -579,7 +580,7 @@ function refreshKiteUI() {
   const m = state.data?.meta || {}, k = (m.health || {}).kite || {};
   const sv = state.server;
   $("kiteBtn").hidden = !m.kite_api_key;
-  $("kiteStatus").textContent = sv ? (sv.kite ? "✓ Logged in today (order server)" : "Not logged in today. Log in before 10:00: it is the same login as the NIFTY app, once a day for both.")
+  $("kiteStatus").textContent = sv ? (sv.kite ? "✓ Logged in today · order server ready" : "Not logged in today. Log in before 10:00: it is the same login as the NIFTY app, once a day for both.")
     : !m.kite_api_key ? "Not set up (add KITE_API_KEY / KITE_API_SECRET secrets)."
     : k.connected ? `✓ Connected · ${k.bars_from_kite || 0} prices · ${k.option_chains || 0} chains` : "Not connected · free data";
 }
