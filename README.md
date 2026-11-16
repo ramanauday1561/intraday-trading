@@ -21,7 +21,10 @@ Yahoo Finance chart API · NSE public endpoints · Google News & publisher RSS �
 - **Notifications** – ⚙ → Enable notifications (iPhone: open from the Home Screen icon, iOS 16.4+). Needs the `VAPID_PRIVATE_KEY` and `PUSH_SUBSCRIPTIONS` repository secrets.
 
 ## Zerodha Kite (optional)
-Log in once each trading day from ⚙ → Connect Kite to switch from free data to Zerodha candles, option chains, futures OI and real lot sizes. Read-only: the app never places orders. Setup: [docs/KITE_SETUP.md](docs/KITE_SETUP.md).
+Log in once each trading day from ⚙ → Connect Kite to switch from free data to Zerodha candles, option chains, futures OI and real lot sizes. Setup: [docs/KITE_SETUP.md](docs/KITE_SETUP.md).
+
+## Real orders (since 16 Nov 2026)
+GitHub Actions and the pages never place orders. A separate order server on the owner's VPS trades each new signal with real money, within fixed limits: [server/README.md](server/README.md). The **Money** tab shows the real Kite account.
 
 ## Reliable refresh
 GitHub's built-in schedule can skip runs. For a dependable 10-minute refresh, follow [docs/RELIABLE_REFRESH.md](docs/RELIABLE_REFRESH.md) (free cron-job.org timer + a repo-scoped token).
@@ -44,7 +47,7 @@ Regime weight matrix (trending / range / event / macro-shock + a transitional bl
 ## Honest limitations
 - Free data is delayed/incomplete; NSE frequently blocks cloud IPs, so GEX/IV-skew/OI may be missing (weights renormalise, UI shows `n/a`). Tick-level data and pre-open order-book depth are not available from open sources; 5-minute bars are used instead.
 - SUE needs analyst consensus (not open): a headline beat/miss proxy is used. Market caps in `engine/config.py` are static approximations. MQSOS is not computable; a 20-day turnover proxy is used.
-- The Hawkes estimate, regime thresholds and scoring weights are heuristics, **not backtested**. No orders are ever placed. Not investment advice.
+- The Hawkes estimate, regime thresholds and scoring weights are heuristics, **not backtested**. Not investment advice.
 
 ## Render mirror (optional)
 

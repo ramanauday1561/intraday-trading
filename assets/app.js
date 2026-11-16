@@ -6,7 +6,7 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
 };
-const VIEWS = ["TODAY", "ACTION", "LONG", "SHORT", "ALL", "RECORD", "BACKTEST"];
+const VIEWS = ["TODAY", "MONEY", "ACTION", "LONG", "SHORT", "ALL", "RECORD", "BACKTEST"];
 // One-time move from the old 5% default to 1% (a risk the user typed in themselves is kept unless it was exactly the old default).
 if (!store.get("riskDefault1", false)) { if (store.get("riskPct", null) === 5) store.set("riskPct", 1); store.set("riskDefault1", true); }
 const state = { data: null, filter: VIEWS.includes(store.get("view", "TODAY")) ? store.get("view", "TODAY") : "TODAY", capital: store.get("capital", null), riskPct: store.get("riskPct", null) };
@@ -102,6 +102,8 @@ function banners(offline) {
   const age = (Date.now() - new Date(m.generated_at)) / 60000, marketHours = m.session_phase !== "CLOSED";
   const parts = [m.mode === "demo" ? "Demo data" : phase, updated];
   if (m.mode === "live" && (hl.kite || {}).connected) parts.push("Kite");
+  if (state.src === "vps") parts.push("VPS");
+  if (state.server && state.server.mode === "real" && !state.server.kite && marketHours) { parts.push("no Kite login"); level = "warn"; }
   if (m.checkpoint && m.session_phase === "ACTIVE") parts.push("@" + m.checkpoint);
   let level = m.mode === "demo" ? "warn" : marketHours ? "ok" : "idle";
   if (m.mode === "live" && marketHours && age > 25) { parts.push(`${Math.round(age)} min old`); level = "warn"; }
@@ -165,7 +167,23 @@ async function backtest() {
         h("div", { class: "pnl num " + cls(x.r_multiple) }, `${sgn(x.r_multiple, 2)}R`)))));
 }
 
+// The order server on the VPS (address and passcode typed once in Settings, kept on this phone only). It also runs the
+// engine and serves its files at /data/; the app shows whichever copy is newer, the VPS's or GitHub Pages'.
+const SRV = { url: () => String(store.get("srvUrl", "") || "").trim().replace(/\/+$/, ""), code: () => String(store.get("srvCode", "") || "").trim() };
+async function srvData(name) {
+  if (!SRV.url()) return null;
+  try { const r = await fetch(`${SRV.url()}/data/${name}.json?t=${Date.now()}`, { cache: "no-store", signal: AbortSignal.timeout(5000) }); return r.ok ? await r.json() : null; } catch { return null; }
+}
+async function api(path, method) {
+  let r;
+  try { r = await fetch(SRV.url() + path, { method: method || "GET", cache: "no-store", headers: { Authorization: "Bearer " + SRV.code() }, signal: AbortSignal.timeout(20000) }); }
+  catch { throw new Error("The order server cannot be reached."); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "The order server answered " + r.status);
+  return j;
+}
 async function getJSON(name) {
+  if (name === "today_log" && state.src === "vps") { const v = await srvData(name); if (v) return v; }
   try { const r = await fetch(`data/${name}.json?t=${Date.now()}`, { cache: "no-store" }); return r.ok ? await r.json() : null; } catch { return null; }
 }
 const STATE_LABEL = { OPEN: "Open", TARGET: "Target hit", STOPPED: "Stopped out", BREAKEVEN: "Breakeven exit", CLOSED_1515: "Closed 15:15", PENDING: "Waiting for entry", NO_DATA: "No data" };
@@ -361,6 +379,57 @@ async function today() {
     last ? h("div", { style: "margin-top:12px" }, h("button", { class: "chip on", onclick: () => { state.day = last; today(); } }, `${shortDate(last)} →`)) : null));
 }
 
+// Money: the real Kite account (whole account, after charges) and the order server's own trades.
+const money2 = (n) => (n < 0 ? "−₹" : "₹") + fmt(Math.abs(n), 2);
+const signed2 = (n) => (n > 0 ? "+" : "") + money2(n);
+const T_STATE = { entering: "Entering", open: "Open", exiting: "Closing", closed: "Closed", practice: "Open (practice)", "not entered": "Not entered" };
+async function money() {
+  const el = $("list");
+  if (!SRV.url() || !SRV.code()) {
+    return fill(el, h("div", { class: "empty" }, ico("wallet"), h("div", { class: "big" }, "Order server not set"), "Add its address and passcode in Settings.",
+      h("div", { style: "margin-top:12px" }, h("button", { class: "btn", onclick: () => $("settingsBtn").click() }, "Open Settings"))));
+  }
+  if (!state.money) fill(el, h("div", { class: "empty" }, "Loading…"));
+  let S, M;
+  try { S = await api("/api/state"); } catch (e) {
+    if (state.filter === "MONEY") fill(el, h("div", { class: "empty" }, ico("alert"), h("div", { class: "big" }, "No answer"), e.message));
+    return;
+  }
+  try { M = await api("/api/money"); } catch (e) { M = { error: e.message }; }
+  if (state.filter !== "MONEY") return;
+  state.money = true;
+  const act = async (fn, ask) => { if (!confirm(ask)) return; try { await fn(); } catch (e) { alert(e.message); } money(); };
+  const T = M.today, parts = [];
+  if (T) {
+    parts.push(h("div", { class: "hero" },
+      h("div", { class: "cap" }, ico("wallet"), "Kite account · today after charges"),
+      h("div", { class: "big num " + cls(T.net) }, signed2(T.net)),
+      h("div", { class: "stats" }, stat("enter", "Started", money2(T.start), "small"), stat("wallet", "Now", money2(T.now), "small"), stat("check", "Free", money2(M.free_to_trade), "small"))),
+      h("div", { class: "facts" }, fact("chart", "Trades " + signed2(T.pnl), T.pnl < 0 ? "dn" : ""), fact("percent", "Charges " + money2(T.charges) + (M.charges_source === "estimate" ? " (est.)" : "")), fact("hash", T.orders + " orders")));
+  } else parts.push(h("div", { class: "facts" }, fact("alert", M.error || "No Kite numbers", "dn")));
+  const L = S.limits, mode = { real: "REAL MONEY", practice: "PRACTICE · no orders", off: "OFF" }[S.mode] || S.mode;
+  parts.push(h("div", { class: "facts" }, fact(S.mode === "real" ? "zap" : "ban", mode, S.mode === "real" ? "acc" : ""), fact(S.kite ? "check" : "x", S.kite ? "Kite login ✓" : "No Kite login", S.kite ? "" : "dn"),
+    fact("layers", `${money2(S.used)} of ${rupees(L.capital)} used`), fact("shield", `${L.risk_pct}% a trade · stop at −${rupees(L.max_loss_day)}`),
+    fact("chart", "App today " + signed2(S.day_pnl), S.day_pnl < 0 ? "dn" : ""), S.practice_pnl ? fact("flask", "Practice " + signed2(S.practice_pnl)) : null,
+    S.locked ? fact("ban", "Locked: " + S.locked, "dn") : null));
+  if (!S.trades.length) parts.push(h("div", { class: "empty" }, ico("clock"), h("div", { class: "big" }, "No trades yet"), "Signals are checked 10:05–14:35"));
+  for (const t of [...S.trades].reverse()) {
+    const liveT = ["entering", "open", "practice"].includes(t.status), pnl = t.net ?? (t.avg_in && t.ltp && t.status !== "not entered" ? (t.side === "LONG" ? 1 : -1) * (t.ltp - t.avg_in) * t.filled : null);
+    parts.push(h("div", { class: "card " + t.side, style: "cursor:default" },
+      h("div", { class: "row" }, h("div", {}, h("span", { class: "sym" }, t.symbol), " ", h("span", { class: "sub" }, `${t.side === "LONG" ? "Buy" : "Sell"} ${t.filled || t.qty} · ${t.signal || ""}${t.practice ? " · practice" : ""}`)),
+        h("b", { class: "num " + cls(pnl) }, pnl == null ? "—" : signed2(pnl))),
+      h("div", { class: "sub num", style: "margin-top:4px" }, `${T_STATE[t.status] || t.status}${t.why ? " · " + t.why : ""}`),
+      t.avg_in ? h("div", { class: "sub num", style: "margin-top:2px" }, `In ${fmt(t.avg_in)} · ${t.avg_out ? "Out " + fmt(t.avg_out) : "Now " + fmt(t.ltp)} · Stop ${fmt(t.stop)} · Target ${fmt(t.target)}`) : null,
+      liveT ? h("div", { style: "margin-top:8px" }, h("button", { class: "btn ghost", onclick: () => act(() => api(`/api/trades/${t.id}/exit`, "POST"), `Close ${t.symbol} now?`) }, "Close now")) : null));
+  }
+  parts.push(h("div", { style: "margin:12px 0" }, h("button", { class: "btn ghost", style: "width:100%;color:var(--dn);border-color:var(--dn)",
+    onclick: () => act(() => api("/api/stop", "POST"), "Close everything and take no more trades today?") }, "Stop everything")));
+  const hist = (M.history || []).filter((d) => d.d !== S.day).reverse();
+  for (const d of hist) parts.push(h("div", { class: "card dayrow", style: "cursor:default" }, h("div", { class: "row" }, h("div", {}, h("b", {}, shortDate(d.d)), h("div", { class: "sub" }, `${d.orders} orders · charges ${money2(d.charges || 0)}`)), h("b", { class: "num " + cls(d.net) }, signed2(d.net ?? 0)))));
+  fill(el, ...parts);
+}
+setInterval(() => { if (!document.hidden && state.filter === "MONEY" && SRV.url() && SRV.code()) money(); }, 15000);
+
 async function record() {
   const el = $("list"), R = await getJSON("track_record");
   if (state.filter !== "RECORD") return;
@@ -392,6 +461,7 @@ async function record() {
 
 function list() {
   if (state.filter === "TODAY") return today();
+  if (state.filter === "MONEY") return money();
   if (state.filter === "RECORD") return record();
   if (state.filter === "BACKTEST") return backtest();
   const f = state.filter, rows = state.data.signals.filter((s) => f === "ALL" || (f === "ACTION" ? s.direction !== "NO_TRADE" : s.direction === f));
@@ -482,9 +552,11 @@ function render() { banners(); macro(); list(); foot(); }
 
 async function load(manual) {
   try {
-    const r = await fetch(`${DATA_URL}?t=${Date.now()}`, { cache: "no-store" });
-    if (!r.ok) throw new Error(r.status);
-    state.data = await r.json();
+    const [r, v, sv] = await Promise.all([fetch(`${DATA_URL}?t=${Date.now()}`, { cache: "no-store" }).catch(() => null), srvData("signals"), srvData("server")]);
+    const pg = r && r.ok ? await r.json() : null;
+    if (!pg && !v) throw new Error("no data");
+    const useVps = !!v && (!pg || new Date(v.meta.generated_at) >= new Date(pg.meta.generated_at));
+    state.data = useVps ? v : pg; state.src = useVps ? "vps" : "pages"; state.server = sv;
     render();
     const sym = new URLSearchParams(location.search).get("sym");
     if (sym && !state.deepLinked) { state.deepLinked = true; openSheet(sym); }
@@ -505,18 +577,23 @@ $("closeSheet").onclick = () => history.back();
 window.addEventListener("popstate", closeSheet);
 function refreshKiteUI() {
   const m = state.data?.meta || {}, k = (m.health || {}).kite || {};
+  const sv = state.server;
   $("kiteBtn").hidden = !m.kite_api_key;
-  $("kiteStatus").textContent = !m.kite_api_key ? "Not set up (add KITE_API_KEY / KITE_API_SECRET secrets)."
+  $("kiteStatus").textContent = sv ? (sv.kite ? "✓ Logged in today (order server)" : "Not logged in today. Log in before 10:00: it is the same login as the NIFTY app, once a day for both.")
+    : !m.kite_api_key ? "Not set up (add KITE_API_KEY / KITE_API_SECRET secrets)."
     : k.connected ? `✓ Connected · ${k.bars_from_kite || 0} prices · ${k.option_chains || 0} chains` : "Not connected · free data";
 }
 $("kiteBtn").onclick = () => {
   const key = state.data?.meta?.kite_api_key;
   if (key) location.href = `https://kite.zerodha.com/connect/login?v=3&api_key=${encodeURIComponent(key)}`;
 };
-$("settingsBtn").onclick = () => { refreshNotifUI(); refreshKiteUI(); $("capital").value = state.capital ?? state.data?.meta.capital ?? 100000; $("riskPct").value = state.riskPct ?? state.data?.meta.risk_pct ?? 1; $("settings").showModal(); };
+$("settingsBtn").onclick = () => { refreshNotifUI(); refreshKiteUI(); $("srvUrl").value = SRV.url(); $("srvCode").value = SRV.code(); $("capital").value = state.capital ?? state.data?.meta.capital ?? 100000; $("riskPct").value = state.riskPct ?? state.data?.meta.risk_pct ?? 1; $("settings").showModal(); };
 $("settings").addEventListener("close", () => {
   const c = parseFloat($("capital").value), r = parseFloat($("riskPct").value);
   if (c > 0 && r > 0 && r <= 100) { state.capital = c; state.riskPct = r; store.set("capital", c); store.set("riskPct", r); }
+  const before = SRV.url() + SRV.code();
+  store.set("srvUrl", $("srvUrl").value.trim()); store.set("srvCode", $("srvCode").value.trim());
+  if (before !== SRV.url() + SRV.code()) return load();
   if (state.data) list(); // paper-money figures depend on the account size
 });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
@@ -579,7 +656,7 @@ if ("serviceWorker" in navigator) {
     document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
   }).catch(() => {}));
 }
-const TABS = { TODAY: ["calendar", "Today"], ACTION: ["zap", "Active"], LONG: ["up", "Long"], SHORT: ["down", "Short"], ALL: ["list", "All"], RECORD: ["chart", "Record"], BACKTEST: ["flask", "Tests"] };
+const TABS = { TODAY: ["calendar", "Today"], MONEY: ["wallet", "Money"], ACTION: ["zap", "Active"], LONG: ["up", "Long"], SHORT: ["down", "Short"], ALL: ["list", "All"], RECORD: ["chart", "Record"], BACKTEST: ["flask", "Tests"] };
 document.querySelectorAll("#filters .chip").forEach((c) => { const t = TABS[c.dataset.f]; if (t) c.replaceChildren(ico(t[0]), t[1]); });
 $("settingsBtn").replaceChildren(ico("sliders")); $("refreshBtn").replaceChildren(ico("refresh")); $("installBtn").replaceChildren(ico("download"));
 $("closeSheet").replaceChildren(ico("back"));
