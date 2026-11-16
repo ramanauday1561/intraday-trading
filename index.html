@@ -30,6 +30,7 @@
   <section id="macro" class="strip" aria-label="Market"></section>
   <nav class="chips" id="filters" aria-label="Views">
     <button data-f="TODAY" class="chip on">Today</button>
+    <button data-f="MONEY" class="chip">Money</button>
     <button data-f="ACTION" class="chip">Active</button>
     <button data-f="LONG" class="chip">Long</button>
     <button data-f="SHORT" class="chip">Short</button>
@@ -53,7 +54,10 @@
     <label>Risk per trade %<input id="riskPct" type="number" min="0.1" max="100" step="0.1" inputmode="decimal"></label>
     <h3>Kite</h3>
     <p id="kiteStatus" class="muted"></p>
-    <button type="button" id="kiteBtn" class="btn">Log in (daily, before 10:00)</button>
+    <button type="button" id="kiteBtn" class="btn">Log in to Kite (daily, before 10:00)</button>
+    <h3>Order server</h3>
+    <label>Address<input id="srvUrl" type="url" inputmode="url" autocomplete="off" autocapitalize="off" placeholder="https://intraday.…sslip.io"></label>
+    <label>Passcode<input id="srvCode" type="password" autocomplete="off"></label>
     <h3>Alerts</h3>
     <p id="notifStatus" class="muted"></p>
     <button type="button" id="notifBtn" class="btn">Enable alerts</button>
