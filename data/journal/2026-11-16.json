@@ -1,0 +1,779 @@
+{
+ "date": "2026-11-16",
+ "mode": "live",
+ "updated": "2026-11-16T17:23:36+05:30",
+ "entries": [
+  {
+   "symbol": "BAJFINANCE",
+   "name": "Bajaj Finance",
+   "direction": "SHORT",
+   "setup": "MEAN_REVERSION",
+   "conviction": 41,
+   "signal_bar": "2026-11-16T10:15:00+05:30",
+   "signal_time": "10:15",
+   "ref_price": 1105.15,
+   "stop_distance": 25.23,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 1110,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 8,
+    "premium_est": 25.14,
+    "premium_stop_est": 12.52,
+    "premium_target_est": 50.37,
+    "live": false,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 0.375,
+   "contradiction": "PRICED_IN_EXHAUSTION",
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 1105.15,
+    "stop": 1130.38,
+    "stop_now": 1130.38,
+    "target": 1054.69,
+    "price": 1108.0,
+    "at": "15:15",
+    "r": -0.11
+   }
+  },
+  {
+   "symbol": "WIPRO",
+   "name": "Wipro",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 71,
+   "signal_bar": "2026-11-16T10:30:00+05:30",
+   "signal_time": "10:30",
+   "ref_price": 194.15,
+   "stop_distance": 3.38,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 195,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 8,
+    "premium_est": 3.93,
+    "premium_stop_est": 2.24,
+    "premium_target_est": 7.31,
+    "live": false,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 194.09,
+    "stop": 197.47,
+    "stop_now": 197.47,
+    "target": 187.33,
+    "price": 192.56,
+    "at": "15:15",
+    "r": 0.45
+   }
+  },
+  {
+   "symbol": "HINDALCO",
+   "name": "Hindalco",
+   "direction": "SHORT",
+   "setup": "TRAP_FADE",
+   "conviction": 42,
+   "signal_bar": "2026-11-16T13:15:00+05:30",
+   "signal_time": "13:15",
+   "ref_price": 932.45,
+   "stop_distance": 17.65,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 930,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 8,
+    "premium_est": 11.91,
+    "premium_stop_est": 3.09,
+    "premium_target_est": 29.57,
+    "live": false,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": "DISTRIBUTION_TRAP",
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 932.5,
+    "stop": 950.15,
+    "stop_now": 950.15,
+    "target": 897.2,
+    "price": 925.5,
+    "at": "15:15",
+    "r": 0.4
+   }
+  },
+  {
+   "symbol": "TATASTEEL",
+   "name": "Tata Steel",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 60,
+   "signal_bar": "2026-11-16T14:30:00+05:30",
+   "signal_time": "14:30",
+   "ref_price": 182.09,
+   "stop_distance": 3.4,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 182.5,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 8,
+    "premium_est": 3.18,
+    "premium_stop_est": 1.47,
+    "premium_target_est": 6.58,
+    "live": false,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 182.09,
+    "stop": 185.49,
+    "stop_now": 185.49,
+    "target": 175.29,
+    "price": 181.52,
+    "at": "15:15",
+    "r": 0.17
+   }
+  }
+ ],
+ "checks": {
+  "10:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "KOTAKBANK",
+     "bias": "LONG",
+     "composite": 0.488,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ITC",
+     "bias": "LONG",
+     "composite": 0.416,
+     "blockers": [
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HDFCBANK",
+     "bias": "LONG",
+     "composite": 0.389,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "10:15": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "KOTAKBANK",
+     "bias": "LONG",
+     "composite": 0.489,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.438,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "ITC",
+     "bias": "LONG",
+     "composite": 0.412,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "10:30": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "RELIANCE",
+     "bias": "SHORT",
+     "composite": -0.567,
+     "blockers": [
+      "ATR_RANGE"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.428,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "WIPRO",
+     "bias": "SHORT",
+     "composite": -0.425,
+     "blockers": []
+    }
+   ]
+  },
+  "10:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "RELIANCE",
+     "bias": "SHORT",
+     "composite": -0.526,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.502,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.498,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "11:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.629,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "WIPRO",
+     "bias": "SHORT",
+     "composite": -0.504,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "TCS",
+     "bias": "SHORT",
+     "composite": -0.457,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "11:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.568,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "WIPRO",
+     "bias": "SHORT",
+     "composite": -0.552,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.462,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "11:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.536,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.492,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "WIPRO",
+     "bias": "SHORT",
+     "composite": -0.492,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "11:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.594,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.49,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "WIPRO",
+     "bias": "SHORT",
+     "composite": -0.456,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.623,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "POWERGRID",
+     "bias": "LONG",
+     "composite": 0.511,
+     "blockers": [
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HDFCBANK",
+     "bias": "LONG",
+     "composite": 0.498,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.655,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HDFCBANK",
+     "bias": "LONG",
+     "composite": 0.639,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "POWERGRID",
+     "bias": "LONG",
+     "composite": 0.516,
+     "blockers": [
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.614,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HDFCBANK",
+     "bias": "LONG",
+     "composite": 0.611,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "POWERGRID",
+     "bias": "LONG",
+     "composite": 0.529,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "HDFCBANK",
+     "bias": "LONG",
+     "composite": 0.57,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "POWERGRID",
+     "bias": "LONG",
+     "composite": 0.543,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "NTPC",
+     "bias": "LONG",
+     "composite": 0.421,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "HDFCBANK",
+     "bias": "LONG",
+     "composite": 0.581,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.413,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HINDUNILVR",
+     "bias": "LONG",
+     "composite": 0.39,
+     "blockers": [
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:15": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "NTPC",
+     "bias": "LONG",
+     "composite": 0.41,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "POWERGRID",
+     "bias": "LONG",
+     "composite": 0.409,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "WIPRO",
+     "bias": "SHORT",
+     "composite": -0.408,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "13:30": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.497,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.478,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "WIPRO",
+     "bias": "SHORT",
+     "composite": -0.374,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:45": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.641,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.47,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.447,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "14:00": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.544,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.528,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.461,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "14:15": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.498,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "DRREDDY",
+     "bias": "SHORT",
+     "composite": -0.45,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.417,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "14:30": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.558,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "DRREDDY",
+     "bias": "SHORT",
+     "composite": -0.408,
+     "blockers": [
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.362,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  }
+ },
+ "summary": {
+  "signals": 4,
+  "net_r_gross": 0.91,
+  "open": 0
+ }
+}
