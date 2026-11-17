@@ -2,7 +2,7 @@
  "days": [
   {
    "date": "2026-11-02",
-   "engine": "c24ccdc",
+   "engine": "d06a823",
    "trades": [
     {
      "symbol": "ONGC",
@@ -10,51 +10,21 @@
      "setup": "MOMENTUM",
      "signal_time": "10:45",
      "entry": 229.25,
-     "exit": 234.83,
+     "exit": 233.37,
      "reason": "EOD",
-     "r_multiple": 1.972,
-     "net_r": 1.923,
+     "r_multiple": 1.456,
+     "net_r": 1.363,
      "conviction": 89,
      "news_bucket": "news_aligned",
      "stop_distance": 2.83,
      "size_mult": 1.0
-    },
-    {
-     "symbol": "INFY",
-     "direction": "SHORT",
-     "setup": "MOMENTUM",
-     "signal_time": "12:30",
-     "entry": 1160.7,
-     "exit": 1157.3,
-     "reason": "EOD",
-     "r_multiple": 0.116,
-     "net_r": 0.092,
-     "conviction": 45,
-     "news_bucket": "no_news",
-     "stop_distance": 29.35,
-     "size_mult": 0.5
-    },
-    {
-     "symbol": "CIPLA",
-     "direction": "SHORT",
-     "setup": "MOMENTUM",
-     "signal_time": "13:00",
-     "entry": 1368.1,
-     "exit": 1387.0,
-     "reason": "EOD",
-     "r_multiple": -0.942,
-     "net_r": -0.983,
-     "conviction": 52,
-     "news_bucket": "no_news",
-     "stop_distance": 20.06,
-     "size_mult": 1.0
     }
    ],
-   "net_r": 1.032
+   "net_r": 1.363
   },
   {
    "date": "2026-11-03",
-   "engine": "c9d342a",
+   "engine": "d06a823",
    "trades": [
     {
      "symbol": "AXISBANK",
@@ -62,10 +32,10 @@
      "setup": "MOMENTUM",
      "signal_time": "10:30",
      "entry": 1232.6,
-     "exit": 1230.8,
+     "exit": 1231.1,
      "reason": "EOD",
-     "r_multiple": -0.103,
-     "net_r": -0.145,
+     "r_multiple": -0.086,
+     "net_r": -0.172,
      "conviction": 100,
      "news_bucket": "no_news",
      "stop_distance": 17.53,
@@ -77,21 +47,21 @@
      "setup": "MOMENTUM",
      "signal_time": "10:30",
      "entry": 11752.0,
-     "exit": 11828.0,
+     "exit": 11811.0,
      "reason": "EOD",
-     "r_multiple": 0.426,
-     "net_r": 0.386,
-     "conviction": 96,
+     "r_multiple": 0.331,
+     "net_r": 0.247,
+     "conviction": 97,
      "news_bucket": "news_aligned",
      "stop_distance": 178.44,
      "size_mult": 0.5
     }
    ],
-   "net_r": 0.241
+   "net_r": 0.075
   },
   {
    "date": "2026-11-04",
-   "engine": "cc22896",
+   "engine": "d06a823",
    "trades": [
     {
      "symbol": "WIPRO",
@@ -99,51 +69,36 @@
      "setup": "MEAN_REVERSION",
      "signal_time": "10:15",
      "entry": 195.33,
-     "exit": 193.35,
+     "exit": 193.26,
      "reason": "EOD",
-     "r_multiple": 0.443,
-     "net_r": 0.417,
+     "r_multiple": 0.463,
+     "net_r": 0.408,
      "conviction": 41,
      "news_bucket": "news_opposed",
      "stop_distance": 4.47,
      "size_mult": 1.0
     },
     {
-     "symbol": "SUNPHARMA",
-     "direction": "LONG",
+     "symbol": "INFY",
+     "direction": "SHORT",
      "setup": "MOMENTUM",
      "signal_time": "10:45",
-     "entry": 1806.0,
-     "exit": 1773.4,
+     "entry": 1132.5,
+     "exit": 1121.3,
      "reason": "EOD",
-     "r_multiple": -0.982,
-     "net_r": -1.014,
-     "conviction": 88,
-     "news_bucket": "news_aligned",
-     "stop_distance": 33.21,
-     "size_mult": 0.5
-    },
-    {
-     "symbol": "BEL",
-     "direction": "LONG",
-     "setup": "MOMENTUM",
-     "signal_time": "13:30",
-     "entry": 397.2,
-     "exit": 396.5,
-     "reason": "EOD",
-     "r_multiple": -0.122,
-     "net_r": -0.164,
-     "conviction": 92,
-     "news_bucket": "news_aligned",
-     "stop_distance": 5.72,
+     "r_multiple": 0.312,
+     "net_r": 0.272,
+     "conviction": 90,
+     "news_bucket": "news_opposed",
+     "stop_distance": 35.94,
      "size_mult": 1.0
     }
    ],
-   "net_r": -0.761
+   "net_r": 0.68
   },
   {
    "date": "2026-11-05",
-   "engine": "eaa130b",
+   "engine": "d06a823",
    "trades": [
     {
      "symbol": "DRREDDY",
@@ -151,36 +106,21 @@
      "setup": "MOMENTUM",
      "signal_time": "11:30",
      "entry": 1364.3,
-     "exit": 1366.8,
+     "exit": 1366.5,
      "reason": "EOD",
-     "r_multiple": -0.124,
-     "net_r": -0.164,
-     "conviction": 59,
+     "r_multiple": -0.109,
+     "net_r": -0.194,
+     "conviction": 57,
      "news_bucket": "no_news",
      "stop_distance": 20.18,
      "size_mult": 1.0
-    },
-    {
-     "symbol": "SBIN",
-     "direction": "LONG",
-     "setup": "MOMENTUM",
-     "signal_time": "13:45",
-     "entry": 1007.8,
-     "exit": 1006.5,
-     "reason": "EOD",
-     "r_multiple": -0.092,
-     "net_r": -0.135,
-     "conviction": 100,
-     "news_bucket": "news_aligned",
-     "stop_distance": 14.11,
-     "size_mult": 1.0
     }
    ],
-   "net_r": -0.299
+   "net_r": -0.194
   },
   {
    "date": "2026-11-06",
-   "engine": "9171f4e",
+   "engine": "d06a823",
    "trades": [
     {
      "symbol": "CIPLA",
@@ -188,10 +128,10 @@
      "setup": "MOMENTUM",
      "signal_time": "10:30",
      "entry": 1405.4,
-     "exit": 1407.4,
+     "exit": 1404.5,
      "reason": "EOD",
-     "r_multiple": 0.085,
-     "net_r": 0.049,
+     "r_multiple": -0.038,
+     "net_r": -0.114,
      "conviction": 72,
      "news_bucket": "no_news",
      "stop_distance": 23.43,
@@ -203,28 +143,13 @@
      "setup": "MOMENTUM",
      "signal_time": "12:30",
      "entry": 1292.0,
-     "exit": 1320.0,
+     "exit": 1316.1,
      "reason": "EOD",
-     "r_multiple": 1.174,
-     "net_r": 1.142,
+     "r_multiple": 1.01,
+     "net_r": 0.941,
      "conviction": 96,
      "news_bucket": "no_news",
      "stop_distance": 23.85,
-     "size_mult": 1.0
-    },
-    {
-     "symbol": "SUNPHARMA",
-     "direction": "LONG",
-     "setup": "MOMENTUM",
-     "signal_time": "13:30",
-     "entry": 1861.1,
-     "exit": 1860.4,
-     "reason": "EOD",
-     "r_multiple": -0.02,
-     "net_r": -0.051,
-     "conviction": 66,
-     "news_bucket": "no_news",
-     "stop_distance": 35.87,
      "size_mult": 1.0
     },
     {
@@ -233,47 +158,32 @@
      "setup": "MOMENTUM",
      "signal_time": "13:45",
      "entry": 4940.3,
-     "exit": 4980.0,
+     "exit": 4967.0,
      "reason": "EOD",
-     "r_multiple": 0.382,
-     "net_r": 0.354,
+     "r_multiple": 0.257,
+     "net_r": 0.197,
      "conviction": 72,
      "news_bucket": "no_news",
      "stop_distance": 103.8,
      "size_mult": 1.0
     }
    ],
-   "net_r": 1.494
+   "net_r": 1.024
   },
   {
    "date": "2026-11-09",
-   "engine": "f0c2021",
+   "engine": "d06a823",
    "trades": [
-    {
-     "symbol": "TATASTEEL",
-     "direction": "SHORT",
-     "setup": "TRAP_FADE",
-     "signal_time": "10:00",
-     "entry": 187.9,
-     "exit": 184.85,
-     "reason": "EOD",
-     "r_multiple": 0.718,
-     "net_r": 0.691,
-     "conviction": 44,
-     "news_bucket": "news_opposed",
-     "stop_distance": 4.25,
-     "size_mult": 1.0
-    },
     {
      "symbol": "M&M",
      "direction": "SHORT",
      "setup": "MEAN_REVERSION",
      "signal_time": "10:45",
      "entry": 3251.1,
-     "exit": 3292.0,
+     "exit": 3288.4,
      "reason": "EOD",
-     "r_multiple": -0.601,
-     "net_r": -0.63,
+     "r_multiple": -0.549,
+     "net_r": -0.609,
      "conviction": 42,
      "news_bucket": "news_opposed",
      "stop_distance": 68.0,
@@ -285,21 +195,21 @@
      "setup": "TRAP_FADE",
      "signal_time": "11:00",
      "entry": 394.8,
-     "exit": 394.2,
+     "exit": 394.1,
      "reason": "EOD",
-     "r_multiple": 0.075,
-     "net_r": 0.045,
+     "r_multiple": 0.087,
+     "net_r": 0.025,
      "conviction": 41,
      "news_bucket": "news_opposed",
      "stop_distance": 8.05,
      "size_mult": 1.0
     }
    ],
-   "net_r": 0.106
+   "net_r": -0.584
   },
   {
    "date": "2026-11-11",
-   "engine": "5ae12e6",
+   "engine": "d06a823",
    "trades": [
     {
      "symbol": "HCLTECH",
@@ -307,21 +217,21 @@
      "setup": "MOMENTUM",
      "signal_time": "10:15",
      "entry": 1415.0,
-     "exit": 1392.3,
+     "exit": 1391.3,
      "reason": "EOD",
-     "r_multiple": 0.642,
-     "net_r": 0.618,
+     "r_multiple": 0.67,
+     "net_r": 0.62,
      "conviction": 49,
      "news_bucket": "no_news",
      "stop_distance": 35.37,
      "size_mult": 1.0
     }
    ],
-   "net_r": 0.618
+   "net_r": 0.62
   },
   {
    "date": "2026-11-12",
-   "engine": "b420847",
+   "engine": "d06a823",
    "trades": [
     {
      "symbol": "DRREDDY",
@@ -329,21 +239,21 @@
      "setup": "MOMENTUM",
      "signal_time": "13:00",
      "entry": 1377.9,
-     "exit": 1388.0,
+     "exit": 1382.3,
      "reason": "EOD",
-     "r_multiple": -0.425,
-     "net_r": -0.46,
+     "r_multiple": -0.185,
+     "net_r": -0.258,
      "conviction": 67,
      "news_bucket": "no_news",
      "stop_distance": 23.77,
      "size_mult": 1.0
     }
    ],
-   "net_r": -0.46
+   "net_r": -0.258
   },
   {
    "date": "2026-11-13",
-   "engine": "f99517c",
+   "engine": "d06a823",
    "trades": [
     {
      "symbol": "INFY",
@@ -351,10 +261,10 @@
      "setup": "MOMENTUM",
      "signal_time": "12:45",
      "entry": 1139.5,
-     "exit": 1138.5,
+     "exit": 1139.0,
      "reason": "EOD",
-     "r_multiple": 0.03,
-     "net_r": 0.009,
+     "r_multiple": 0.015,
+     "net_r": -0.028,
      "conviction": 60,
      "news_bucket": "no_news",
      "stop_distance": 33.49,
@@ -366,21 +276,21 @@
      "setup": "MOMENTUM",
      "signal_time": "14:30",
      "entry": 1378.6,
-     "exit": 1380.0,
+     "exit": 1378.7,
      "reason": "EOD",
-     "r_multiple": -0.075,
-     "net_r": -0.12,
+     "r_multiple": -0.005,
+     "net_r": -0.094,
      "conviction": 75,
      "news_bucket": "no_news",
      "stop_distance": 18.55,
      "size_mult": 1.0
     }
    ],
-   "net_r": -0.111
+   "net_r": -0.122
   },
   {
    "date": "2026-11-16",
-   "engine": "4a85b43",
+   "engine": "d06a823",
    "trades": [
     {
      "symbol": "BAJFINANCE",
@@ -388,10 +298,10 @@
      "setup": "MEAN_REVERSION",
      "signal_time": "10:15",
      "entry": 1105.15,
-     "exit": 1108.0,
+     "exit": 1106.45,
      "reason": "EOD",
-     "r_multiple": -0.113,
-     "net_r": -0.139,
+     "r_multiple": -0.052,
+     "net_r": -0.107,
      "conviction": 41,
      "news_bucket": "no_news",
      "stop_distance": 25.23,
@@ -403,10 +313,10 @@
      "setup": "MOMENTUM",
      "signal_time": "10:30",
      "entry": 2404.4,
-     "exit": 2388.2,
+     "exit": 2396.9,
      "reason": "EOD",
-     "r_multiple": 0.346,
-     "net_r": 0.315,
+     "r_multiple": 0.16,
+     "net_r": 0.096,
      "conviction": 73,
      "news_bucket": "no_news",
      "stop_distance": 46.79,
@@ -418,10 +328,10 @@
      "setup": "MOMENTUM",
      "signal_time": "10:30",
      "entry": 194.09,
-     "exit": 192.56,
+     "exit": 192.62,
      "reason": "EOD",
-     "r_multiple": 0.453,
-     "net_r": 0.418,
+     "r_multiple": 0.435,
+     "net_r": 0.363,
      "conviction": 71,
      "news_bucket": "no_news",
      "stop_distance": 3.38,
@@ -433,10 +343,10 @@
      "setup": "TRAP_FADE",
      "signal_time": "13:15",
      "entry": 932.5,
-     "exit": 925.5,
+     "exit": 926.75,
      "reason": "EOD",
-     "r_multiple": 0.397,
-     "net_r": 0.365,
+     "r_multiple": 0.326,
+     "net_r": 0.259,
      "conviction": 43,
      "news_bucket": "news_opposed",
      "stop_distance": 17.65,
@@ -448,30 +358,30 @@
      "setup": "MOMENTUM",
      "signal_time": "14:30",
      "entry": 182.09,
-     "exit": 181.52,
+     "exit": 181.6,
      "reason": "EOD",
-     "r_multiple": 0.168,
-     "net_r": 0.136,
+     "r_multiple": 0.144,
+     "net_r": 0.077,
      "conviction": 53,
      "news_bucket": "no_news",
      "stop_distance": 3.4,
      "size_mult": 1.0
     }
    ],
-   "net_r": 1.095
+   "net_r": 0.688
   }
  ],
  "summary": {
-  "trades": 26,
-  "win_rate_pct": 57.7,
-  "avg_net_r": 0.114,
-  "total_net_r": 3.0,
-  "profit_factor": 1.74,
+  "trades": 20,
+  "win_rate_pct": 60.0,
+  "avg_net_r": 0.165,
+  "total_net_r": 3.3,
+  "profit_factor": 3.09,
   "sessions": 10,
   "sessions_with_trades": 10,
   "net_r_ci95": [
-   -0.045,
-   0.251
+   -0.024,
+   0.376
   ],
   "from": "2026-11-02",
   "to": "2026-11-16"
