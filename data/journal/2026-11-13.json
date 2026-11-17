@@ -1,0 +1,748 @@
+{
+ "date": "2026-11-13",
+ "mode": "live",
+ "updated": "2026-11-13T16:21:16+05:30",
+ "entries": [
+  {
+   "symbol": "TCS",
+   "name": "Tata Consultancy Services",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 67,
+   "signal_bar": "2026-11-13T11:30:00+05:30",
+   "signal_time": "11:30",
+   "ref_price": 2420.1,
+   "stop_distance": 59.62,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 2420,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 11,
+    "premium_est": 46.34,
+    "premium_stop_est": 16.53,
+    "premium_target_est": 105.96,
+    "live": false,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 2421.2,
+    "stop": 2480.82,
+    "stop_now": 2480.82,
+    "target": 2301.96,
+    "price": 2410.0,
+    "at": "15:15",
+    "r": 0.19
+   }
+  },
+  {
+   "symbol": "INFY",
+   "name": "Infosys",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 84,
+   "signal_bar": "2026-11-13T14:00:00+05:30",
+   "signal_time": "14:00",
+   "ref_price": 1137.2,
+   "stop_distance": 33.49,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 1140,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 11,
+    "premium_est": 29.16,
+    "premium_stop_est": 12.41,
+    "premium_target_est": 62.65,
+    "live": false,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 1137.2,
+    "stop": 1170.69,
+    "stop_now": 1170.69,
+    "target": 1070.22,
+    "price": 1138.5,
+    "at": "15:15",
+    "r": -0.04
+   }
+  },
+  {
+   "symbol": "DRREDDY",
+   "name": "Dr. Reddy's",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 75,
+   "signal_bar": "2026-11-13T14:30:00+05:30",
+   "signal_time": "14:30",
+   "ref_price": 1379.4,
+   "stop_distance": 18.55,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 1380,
+    "type": "PE",
+    "expiry": "2026-11-24",
+    "days_to_expiry": 11,
+    "premium_est": 25.9,
+    "premium_stop_est": 16.62,
+    "premium_target_est": 44.45,
+    "live": false,
+    "note": "Approximate strike step and expiry; confirm on the NSE option chain. Options trade in lots; premium estimates ignore time decay and IV changes."
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 1378.6,
+    "stop": 1397.15,
+    "stop_now": 1397.15,
+    "target": 1341.5,
+    "price": 1380.0,
+    "at": "15:25",
+    "r": -0.08
+   }
+  }
+ ],
+ "checks": {
+  "10:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "LT",
+     "bias": "LONG",
+     "composite": 0.518,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HAL",
+     "bias": "LONG",
+     "composite": 0.481,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BAJFINANCE",
+     "bias": "LONG",
+     "composite": 0.472,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "10:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "HCLTECH",
+     "bias": "LONG",
+     "composite": 0.556,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "HAL",
+     "bias": "LONG",
+     "composite": 0.539,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "LONG",
+     "composite": 0.453,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "10:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "HAL",
+     "bias": "LONG",
+     "composite": 0.622,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HCLTECH",
+     "bias": "LONG",
+     "composite": 0.582,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "TCS",
+     "bias": "LONG",
+     "composite": 0.559,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "10:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "HINDUNILVR",
+     "bias": "LONG",
+     "composite": 0.566,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HAL",
+     "bias": "LONG",
+     "composite": 0.525,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "HCLTECH",
+     "bias": "LONG",
+     "composite": 0.493,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "11:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "HINDUNILVR",
+     "bias": "LONG",
+     "composite": 0.51,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "KOTAKBANK",
+     "bias": "SHORT",
+     "composite": -0.478,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.462,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "11:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.569,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ITC",
+     "bias": "SHORT",
+     "composite": -0.455,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "KOTAKBANK",
+     "bias": "SHORT",
+     "composite": -0.419,
+     "blockers": [
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "11:30": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.606,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.508,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "DRREDDY",
+     "bias": "SHORT",
+     "composite": -0.404,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "11:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.565,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.515,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BAJFINANCE",
+     "bias": "SHORT",
+     "composite": -0.502,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.581,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.47,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BAJFINANCE",
+     "bias": "SHORT",
+     "composite": -0.456,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.698,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.595,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.541,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.638,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.58,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "DRREDDY",
+     "bias": "SHORT",
+     "composite": -0.534,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "12:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.626,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.537,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.534,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.553,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "DRREDDY",
+     "bias": "SHORT",
+     "composite": -0.546,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.503,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.548,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ONGC",
+     "bias": "LONG",
+     "composite": 0.474,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.417,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "13:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.462,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.456,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "DRREDDY",
+     "bias": "SHORT",
+     "composite": -0.419,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "13:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.608,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.605,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "DRREDDY",
+     "bias": "SHORT",
+     "composite": -0.526,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "14:00": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.582,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "DRREDDY",
+     "bias": "SHORT",
+     "composite": -0.52,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.509,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "14:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.625,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HCLTECH",
+     "bias": "SHORT",
+     "composite": -0.564,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "WIPRO",
+     "bias": "SHORT",
+     "composite": -0.523,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "14:30": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.588,
+     "blockers": [
+      "ATR_RANGE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HCLTECH",
+     "bias": "SHORT",
+     "composite": -0.405,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "WIPRO",
+     "bias": "SHORT",
+     "composite": -0.394,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  }
+ },
+ "summary": {
+  "signals": 3,
+  "net_r_gross": 0.07,
+  "open": 0
+ }
+}

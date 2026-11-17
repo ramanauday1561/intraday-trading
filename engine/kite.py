@@ -135,6 +135,11 @@ def load_client():
     key, secret = os.environ.get("KITE_API_KEY"), os.environ.get("KITE_API_SECRET")
     if not key or not secret:
         return None
+    shared = [p for p in os.environ.get("KITE_SHARED_SESSION", "").split(":") if p]
+    if shared:  # on the VPS: the commodities-trading login (same API key), one login a day for both apps
+        from . import shared_session
+        tok = shared_session.load(shared, secret)
+        return Kite(key, tok) if tok else None
     sess = read_session(secret)
     if not session_fresh(sess):
         return None
