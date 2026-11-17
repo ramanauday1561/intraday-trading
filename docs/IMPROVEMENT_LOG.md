@@ -102,3 +102,26 @@ flat at 15:05). Trigger: almost every live trade since 9 Nov closed at the time 
 **both** the 5-minute (Yahoo 60 days + archive) and the 2-year hourly backtests, with TRAIN not worse in either.
 Otherwise keep `2R`. Selection = the live rules (first signal per stock per day + day rules). An adoption restarts
 the forward test.
+
+**Results (2026-11-17, real charges, 15:05 exit, live selection rules):**
+
+| Experiment | Data | Variant | TRAIN mean R [95% CI] | TEST mean R [95% CI] |
+|---|---|---|---|---|
+| A | 1h, 2y | current | −0.101 [−0.178, −0.023] | −0.119 [−0.204, −0.030] |
+| A | 1h, 2y | rr2 | identical to current | identical to current |
+| A | 1h, 2y | off | — | −0.118 |
+| A | 5m, 75 days | current | −0.154 | +0.001 |
+| A | 5m | rr2 | −0.159 | +0.000 |
+| A | 5m | off | −0.154 | −0.010 |
+| B | 1h, 2y | 2R | −0.101 [−0.179, −0.021] | −0.077 [−0.166, +0.017] |
+| B | 1h, 2y | none | −0.099 [−0.179, −0.017] | −0.076 [−0.168, +0.020] |
+| B | 5m, 75 days | 2R | −0.154 [−0.229, −0.085] | +0.001 [−0.140, +0.158] |
+| B | 5m | none | −0.163 [−0.238, −0.093] | +0.001 [−0.140, +0.158] |
+
+**Decisions:** A — keep `current` (no variant beats it on TEST in both datasets). B — keep `2R` (`none` ties on the
+5-minute TEST and is worse on 5-minute TRAIN). No engine change; the forward test continues.
+
+**Finding that matters more than either experiment:** with real charges, the 2-year hourly backtest loses about
+0.08–0.12R a trade and the 5-minute TRAIN period loses 0.15R, with confidence intervals below zero. Live paper so far
+(2–16 Nov, 20 trades) is +0.165R a trade but its CI still includes zero. Next evidence: a multi-year 5-minute test from
+Kite history on the VPS (`server/README.md`, "Long backtests with Kite history").
