@@ -26,8 +26,8 @@ Log in once each trading day from ⚙ → Connect Kite to switch from free data 
 ## Real orders (since 16 Nov 2026)
 GitHub Actions and the pages never place orders. A separate order server on the owner's VPS trades each new signal with real money, within fixed limits: [server/README.md](server/README.md). The **Money** tab shows the real Kite account.
 
-## Reliable refresh
-GitHub's built-in schedule can skip runs. For a dependable 10-minute refresh, follow [docs/RELIABLE_REFRESH.md](docs/RELIABLE_REFRESH.md) (free cron-job.org timer + a repo-scoped token).
+## Live refresh
+The VPS runs the live engine every few minutes during market hours (systemd timer): [server/README.md](server/README.md).
 
 ## Install on your phone
 - **Android/Chrome**: open the site → *Install* button (or ⋮ → Install app).

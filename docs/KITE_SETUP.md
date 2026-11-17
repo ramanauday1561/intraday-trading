@@ -11,8 +11,8 @@ interest, implied volatility, lot sizes) and futures open interest. It never pla
 2. **Redirect URL** in the Kite developer console (developers.kite.trade → your app):
    `https://ramanauday1561.github.io/intraday-trading/kite.html`
 3. *(Optional, for one-tap login)* Open the app → ⚙ → **Connect Kite**, log in, and on the page you return to
-   save a fine-grained GitHub token limited to this repository with **Actions: Read and write** only (the same
-   kind of token as for cron-job.org). It is kept only on your phone.
+   save a fine-grained GitHub token limited to this repository with **Actions: Read and write** only. It is kept
+   only on your phone.
 
 ## Every trading day (before 10:00)
 
