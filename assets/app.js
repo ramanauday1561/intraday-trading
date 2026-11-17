@@ -72,7 +72,14 @@ const label = (s) => String(s || "").replace(/_/g, " ").toLowerCase().replace(/^
 
 // Paper money: every suggested trade is "taken" with the ⚙ capital and risk %, sized exactly like the app's
 // suggested quantity (risk / stop distance, capped at 5x capital), with 0.06% round-trip costs.
-const COST_PCT = 0.06, LEVERAGE = 5;
+const LEVERAGE = 5;
+// Zerodha intraday charges + slippage for one round trip (same schedule as engine/charges.py).
+function charges(entry, exit, q, long) {
+  if (!(q > 0)) return 0;
+  const [buy, sell] = long ? [entry, exit] : [exit, entry], bv = buy * q, sv = sell * q;
+  const brk = Math.min(20, bv * 0.0003) + Math.min(20, sv * 0.0003), exch = (bv + sv) * 0.0000297, sebi = (bv + sv) * 0.000001;
+  return brk + exch + sebi + (brk + exch + sebi) * 0.18 + sv * 0.00025 + bv * 0.00003 + (bv + sv) * 0.0001;
+}
 function account() {
   return { cap: state.capital ?? state.data?.meta.capital ?? 100000, risk: state.riskPct ?? state.data?.meta.risk_pct ?? 1 };
 }
@@ -80,7 +87,7 @@ function paper(long, fill, exit, sd, sizeMult) {
   const { cap, risk } = account();
   if (!(sd > 0) || fill == null || exit == null) return null;
   const q = Math.max(0, Math.min(Math.floor((cap * risk / 100) * (sizeMult ?? 1) / sd), Math.floor((cap * LEVERAGE) / fill)));
-  const pnl = (long ? 1 : -1) * (exit - fill) * q - (fill * q * COST_PCT) / 100;
+  const pnl = (long ? 1 : -1) * (exit - fill) * q - charges(fill, exit, q, long);
   return { q, invested: q * fill, pnl };
 }
 const rupees = (n) => (n < 0 ? "−₹" : "₹") + fmt(Math.abs(n), 0);
@@ -187,7 +194,7 @@ async function getJSON(name) {
   if (name === "today_log" && state.src === "vps") { const v = await srvData(name); if (v) return v; }
   try { const r = await fetch(`data/${name}.json?t=${Date.now()}`, { cache: "no-store" }); return r.ok ? await r.json() : null; } catch { return null; }
 }
-const STATE_LABEL = { OPEN: "Open", TARGET: "Target hit", STOPPED: "Stopped out", BREAKEVEN: "Breakeven exit", CLOSED_1515: "Closed 15:15", PENDING: "Waiting for entry", NO_DATA: "No data" };
+const STATE_LABEL = { OPEN: "Open", TARGET: "Target hit", STOPPED: "Stopped out", BREAKEVEN: "Breakeven exit", CLOSED_1515: "Closed 15:05", PENDING: "Waiting for entry", NO_DATA: "No data" };
 
 // Where the price sits on the trade's path: stop-loss (-1R) on the left, entry, the breakeven trigger
 // (+1R) and the target (+rr R) on the right. Works the same for longs and shorts because it is in R.
@@ -201,7 +208,7 @@ function tradeBar(e, st) {
   if (st.state === "TARGET") note = "Target reached.";
   else if (st.state === "STOPPED") note = "Stop-loss hit.";
   else if (st.state === "BREAKEVEN") note = "Came back to entry after +1R: closed at breakeven.";
-  else if (st.state === "CLOSED_1515") note = `Closed at 15:15 at ${sgn(st.r, 2)}R.`;
+  else if (st.state === "CLOSED_1515") note = `Closed at 15:05 at ${sgn(st.r, 2)}R.`;
   else if (st.r < 0) note = `${Math.round(-st.r * 100)}% of the way to the stop-loss.`;
   else if (be != null && st.r < be && !moved) note = `${Math.round((st.r / be) * 100)}% of the way to the breakeven trigger (then the stop moves to entry).`;
   else note = `${Math.round((st.r / rr) * 100)}% of the way to the target${moved ? "; stop is now at entry" : ""}.`;
@@ -240,7 +247,7 @@ function replayLog(R, date) {
     return { symbol: t.symbol, direction: t.direction, setup: t.setup, signal_time: t.signal_time, conviction: t.conviction, stop_distance: sd, rr: 2,
       breakeven_after_r: 1, size_mult: t.size_mult, option_idea: null, contradiction: null,
       status: { state: REASON[t.reason] || t.reason, fill: t.entry, stop: sd ? t.entry - sgn * sd : null, target: sd ? t.entry + sgn * 2 * sd : null,
-        price: t.exit, at: t.reason === "EOD" ? "15:15" : "", r: t.r_multiple } };
+        price: t.exit, at: t.reason === "EOD" ? "15:05" : "", r: t.r_multiple } };
   });
   return { date, mode: "replay", entries, summary: { signals: entries.length, open: 0 } };
 }
@@ -277,7 +284,7 @@ const BLOCK_WORDS = { ATR_RANGE: "not enough range left", STRUCTURE: "no clean b
   DAY_DIRECTION: "against today's direction", DAY_LOSS_LIMIT: "daily loss limit", LIQUIDITY: "low liquidity", UPPER_CIRCUIT: "near upper circuit", LOWER_CIRCUIT: "near lower circuit" };
 
 const STATE_SHORT = { OPEN: ["clock", "Open"], TARGET: ["target", "Target"], STOPPED: ["x", "Stopped"], BREAKEVEN: ["shield", "Breakeven"],
-  CLOSED_1515: ["exit", "15:15"], PENDING: ["clock", "Waiting"], NO_DATA: ["alert", "No data"] };
+  CLOSED_1515: ["exit", "Close"], PENDING: ["clock", "Waiting"], NO_DATA: ["alert", "No data"] };
 const lvl = (icon, k, v) => h("div", { class: "lvl" }, h("div", { class: "k" }, ico(icon), k), h("div", { class: "v num" }, v));
 
 function tradeCard(e, isLive) {
@@ -306,7 +313,7 @@ function journalView(L, isLive, replay) {
       h("div", { class: "stats" }, stat("hash", "Trades", D.taken), stat("check", "Booked", signedRupees(D.booked), cls(D.booked)),
         stat("clock", "Open", signedRupees(D.open), cls(D.open)))),
     dayFacts(L, replay),
-    tip("Each signal is taken at the next 5-minute open with the suggested size (max 5× margin), follows its stop, breakeven and target, and closes by 15:15. Costs included. Account size in settings."),
+    tip("Each signal is taken at the next 5-minute open with the suggested size (max 5× margin), follows its stop, breakeven and target, and closes by 15:05. Costs included. Account size in settings."),
     ...(L.entries.length ? L.entries.map((e) => tradeCard(e, isLive))
       : [h("div", { class: "empty" }, ico("clock"), h("div", { class: "big" }, "No trades"), isLive ? "Signals 10:05–14:40" : null)]),
   ];
@@ -451,7 +458,7 @@ async function record() {
         stat("down", "Max DD", fmt(100 * maxDd, 1) + "%")),
       h("div", { class: "stats" }, stat("calendar", "Days", S.sessions), stat("target", "Avg R", S.trades ? sgn(S.avg_net_r, 2) : "—", cls(S.avg_net_r)),
         stat("percent", "95% CI", S.net_r_ci95 ? `${sgn(S.net_r_ci95[0], 1)}…${sgn(S.net_r_ci95[1], 1)}` : "—", "small"))),
-    tip("After-close replays of each day with the live rules. Fixed account size per trade, every trade taken, costs included. Not real money. " + (R.note || "")),
+    tip("After-close replays of each day with the live rules. Fixed account size per trade, every trade taken, Zerodha charges included. Not real money. " + (R.note || "")),
     ...R.days.slice().reverse().map((d) => h("div", { class: "box dayrow", style: "margin-bottom:8px" },
       h("div", { class: "row" }, h("div", {}, h("b", {}, shortDate(d.date)), h("div", { class: "sub num" }, `${d.trades.length} · ${sgn(d.net_r, 2)}R`)),
         h("b", { class: "num " + cls(pnlByDate[d.date] || 0) }, signedRupees(pnlByDate[d.date] || 0))),

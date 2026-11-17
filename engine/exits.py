@@ -1,7 +1,7 @@
 """One exit walker shared by the live journal, the backtest and the exit-policy study, so the rules
 the app shows are exactly the rules that were tested."""
 
-EXIT_HHMM = (15, 15)
+EXIT_HHMM = (15, 5)   # flat at 15:05, as the VPS order server does (stocks enter the closing auction at 15:15)
 
 
 def walk(long_, bars, sd, rr=None, breakeven_r=None, exit_hhmm=EXIT_HHMM):

@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  actions: write   # to publish the new record (a bot push does not start the Pages deploy)
 
 concurrency:
   group: archive
@@ -66,3 +67,9 @@ jobs:
           git pull --rebase origin main
           git push
           du -sh archive
+      - name: Publish the updated record to the app
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run pages.yml --ref main

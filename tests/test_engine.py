@@ -551,3 +551,14 @@ def test_journal_records_each_checkpoint_and_its_closest_calls():
     assert sorted(b["checks"]) == ["10:00", "10:15"] and b["checks"]["10:15"]["signals"] == 1   # carried over, one per checkpoint
     c = journal.update(b, pay("2026-11-12T10:00:00+05:30", []), {})
     assert list(c["checks"]) == ["10:00"]                                                       # new day starts fresh
+
+
+def test_zerodha_intraday_charges():
+    from engine import charges
+    # Rs 50,000 a side, flat price: brokerage 15+15, STT 12.5, exchange 2.97, SEBI 0.10, GST 18% of 33.07, stamp 1.5
+    c = charges.intraday(1000, 1000, 50, True, slippage=False)
+    assert abs(c - (30 + 12.5 + 2.97 + 0.1 + 0.18 * 33.07 + 1.5)) < 0.05
+    assert charges.intraday(1000, 1000, 50, True) - c == 10.0                      # 0.01% slippage a side
+    assert charges.intraday(5000, 5000, 100, True, slippage=False) > 40            # brokerage capped at Rs 20 an order
+    assert charges.intraday(1000, 1010, 50, False, slippage=False) != charges.intraday(1000, 1010, 50, True, slippage=False)
+    assert charges.sized_qty(1000, 20, 20000, 5) == 50 and charges.sized_qty(100, 0.1, 20000, 5) == 1000   # margin cap

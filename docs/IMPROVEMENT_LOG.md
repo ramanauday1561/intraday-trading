@@ -85,3 +85,20 @@ day rules). Sessions split 60/40 chronologically. A variant replaces `current` o
 beats `current`'s TEST mean in **both** the 5-minute archive replay **and** the 2-year hourly backtest, and its TRAIN
 mean is not worse than `current`'s TRAIN mean in either. If both variants qualify, the one with the higher average
 TEST mean across the two datasets wins. Otherwise keep `current`. An adoption restarts the forward test.
+
+## 2026-11-17 — Realism fixes, then two pre-registered experiments
+
+**Realism fixes (not tuning; they make the tests match what the VPS order server does):**
+- Costs: Zerodha's published intraday schedule (`engine/charges.py`: brokerage min(Rs 20, 0.03%) an order, STT 0.025%
+  sell side, exchange 0.00297%, SEBI, GST 18%, stamp 0.003% buy side) + 0.01% slippage a side, at the server's
+  Rs 20,000 / 5% sizing. ≈ 0.126% of position value a round trip (≈ 0.06R), about double the old flat 0.06%.
+- Exit time 15:05 instead of 15:15 (the server closes at 15:05; stocks enter the closing auction at 15:15).
+
+**Experiment A — ATR range gate** (rule registered 2026-11-11 above), re-run on the new baseline.
+
+**Experiment B — profit target (`EXIT_TARGET_MODE`):** `2R` (current) vs `none` (no target: stop, breakeven after +1R,
+flat at 15:05). Trigger: almost every live trade since 9 Nov closed at the time exit without reaching 2R.
+**Decision rule (fixed before running):** same as A — `none` replaces `2R` only if its TEST mean net R beats `2R`'s in
+**both** the 5-minute (Yahoo 60 days + archive) and the 2-year hourly backtests, with TRAIN not worse in either.
+Otherwise keep `2R`. Selection = the live rules (first signal per stock per day + day rules). An adoption restarts
+the forward test.

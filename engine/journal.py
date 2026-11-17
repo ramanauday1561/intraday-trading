@@ -2,7 +2,7 @@
 
 Signals are snapshots, so one can appear at 10:10 and be gone by 10:20. The journal keeps the first
 appearance of each (symbol, direction) and tracks it with the backtest's own rules: entry at the next
-bar's open, stop/target from the signal, stop wins ties, flat at 15:15. State is carried between
+bar's open, stop/target from the signal, stop wins ties, flat at 15:05. State is carried between
 10-minute runs by reading the previously deployed copy from GitHub Pages."""
 import time
 

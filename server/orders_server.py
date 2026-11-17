@@ -45,7 +45,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from engine import shared_session  # noqa: E402
+from engine import charges as zcharges, shared_session  # noqa: E402
 
 IST = ZoneInfo("Asia/Kolkata")
 API = "https://api.kite.trade"
@@ -58,7 +58,6 @@ BAR_MIN, SIGNAL_MAX_AGE = 5, 300    # a signal is acted on up to this many secon
 MAX_DRIFT = 0.5                 # ... and only while the price is within this many stop distances of the signal's
 LEVERAGE = 5.0                  # as engine/config.py: notional capped at 5x capital, and the margin guess
 MIN_FIT = 0.5                   # a signal that fits less than this share of its size in the margin left is skipped
-FALLBACK_CHARGES_PCT = 0.06     # round trip, % of the entry value, when Kite's charges API cannot be reached
 SESSION_URL = "https://raw.githubusercontent.com/ramanauday1561/commodities-trading/kite-session/session.json"
 LIVE = ("entering", "open", "exiting")
 
@@ -206,12 +205,13 @@ class Engine:
         return self.ticks.get(symbol)
 
     def _charges(self, legs):
-        """(rupees, "kite" or "estimate"): Kite's charges for these legs, or FALLBACK_CHARGES_PCT of the entry value."""
+        """(rupees, "kite" or "estimate"): Kite's charges for these legs, or Zerodha's published schedule when Kite cannot be reached."""
         try:
             return self.kite.charges(legs), "kite"
         except Exception as e:                                          # never block an exit on a charges lookup
             print(f"charges: {type(e).__name__}", flush=True)
-            return round(sum(x[2] * x[3] for x in legs) / 2 * FALLBACK_CHARGES_PCT / 100, 2), "estimate"
+            (_, side, qty, p_in), (_, _, _, p_out) = legs[0][:4], legs[1][:4]           # Zerodha's schedule (engine/charges.py)
+            return zcharges.intraday(p_in, p_out, qty, side == "BUY", slippage=False), "estimate"
 
     def _margin(self, sym, side, qty, price):
         try:

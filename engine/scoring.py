@@ -165,7 +165,7 @@ def analyse_stock(c):
         blockers.append({"code": "SESSION_" + phase, "message": {
             "MORATORIUM": "Opening window: no entries until the 10:00 bar completes (first signals from the 10:10 refresh), the window the backtests test.",
             "PRE_OPEN": "Pre-open call auction in progress; first signals from the 10:10 IST refresh.",
-            "LATE": "No fresh entries after the 14:30 bar (the backtests' last checkpoint); open trades run to 15:15.", "CLOSED": "Market closed; showing the last completed session."}[phase]})
+            "LATE": "No fresh entries after the 14:30 bar (the backtests' last checkpoint); open trades run to 15:05.", "CLOSED": "Market closed; showing the last completed session."}[phase]})
     if turnover_cr < MIN_TURNOVER_CR:
         blockers.append({"code": "LIQUIDITY", "message": f"Avg turnover Rs {turnover_cr:.0f} cr below the Rs {MIN_TURNOVER_CR:.0f} cr F&O criterion."})
     target_dist = (2.0 if ATR_RANGE_MODE == "rr2" else rr) * stop_dist
