@@ -3,10 +3,8 @@ name: Market-hours heartbeat
 # Keeps the 10-minute refresh going during market hours without relying on any single outside trigger.
 # One run loops from ~08:55 to 15:35 IST: every 2 minutes it checks when "Analyse & deploy" last started and
 # dispatches it if that was 9.5+ minutes ago, so it only fills gaps left by cron-job.org / GitHub's schedule.
-# It is started by its own schedule, by any "Analyse & deploy" run, or by hand. Only one runs at a time.
+# RETIRED 2026-11-17: the VPS now runs the live engine on a systemd timer. Kept for manual use only (e.g. VPS outage).
 on:
-  schedule:
-    - cron: "13,43 3-9 * * 1-5"   # 08:43-15:13 IST: many chances to start, since GitHub may skip schedules
   workflow_dispatch:
 
 permissions:

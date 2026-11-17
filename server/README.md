@@ -50,3 +50,22 @@ Kite balance, shared with the NIFTY app, is one small line), with **Close now** 
 - Trades, fills and P&L stay on the server's disk (`/var/lib/intraday-orders`) and the phone; nothing goes to the repo.
 - The signals have not passed their backtests. This trades them anyway, at the owner's request.
 - Logs: `journalctl -u intraday-orders -f` and `journalctl -u intraday-signals -n 30`.
+
+## Long backtests with Kite history (run on the VPS, after market hours)
+
+Yahoo gives only 60 days of 5-minute data. Kite gives years. After the morning Kite login, once:
+
+```
+cd /opt/intraday-orders && set -a && . /etc/intraday-orders.env && set +a
+ARCHIVE_DIR=/var/lib/intraday-history nice -n 19 venv/bin/python -m engine.download_kite --days 1500
+```
+
+Then compare variants on that history (offline: no Yahoo, no news; takes hours, so `nice` keeps the order server
+responsive; run it after 15:30):
+
+```
+ARCHIVE_DIR=/var/lib/intraday-history nice -n 19 venv/bin/python -m engine.experiment \
+  --param EXIT_TARGET_MODE --values 2R none --offline --out /var/lib/intraday-history/exp_target.json
+ARCHIVE_DIR=/var/lib/intraday-history nice -n 19 venv/bin/python -m engine.experiment \
+  --param ATR_RANGE_MODE --values current rr2 off --offline --out /var/lib/intraday-history/exp_atr.json
+```

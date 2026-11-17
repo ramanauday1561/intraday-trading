@@ -49,7 +49,8 @@ LPP_PCT = 0.40
 LPP_MIN_PREMIUM = 50.0
 RISK_FREE = 0.065
 LEVERAGE = 5.0                  # intraday (MIS) leverage cap on position notional
-COST_PCT = 0.06                 # assumed round-trip brokerage+taxes+slippage, % of notional
+COST_PCT = 0.06                 # legacy flat estimate; costs now use engine/charges.py (Zerodha's intraday schedule)
+COST_CAPITAL, COST_RISK_PCT = 20000.0, 5.0   # account the charges are modelled at (the VPS order server's defaults)
 
 # Approximate market caps (INR crore) for order-value materiality. Static: refresh periodically.
 # (symbol, name, sector, sector_index, mcap_cr)
@@ -90,6 +91,10 @@ INDEX_SYMBOLS = {"NIFTY": "^NSEI", "BANKNIFTY": "^NSEBANK", "VIX": "^INDIAVIX"}
 DAY_LOSS_LIMIT_R = -2.0      # no new trades once today's closed trades total this or worse
 CHECKPOINT_MINUTES = 15      # live signals are evaluated on the same 15-minute grid as the replays
 DEFAULT_RISK_PCT = 1.0       # default paper/sizing risk per trade
+
+# Target experiment (pre-registered 2026-11-17, docs/IMPROVEMENT_LOG.md): "2R" = current target; "none" = no target,
+# only the stop, breakeven after +1R and the 15:05 exit. Env override only for backtest experiments.
+EXIT_TARGET_MODE = __import__("os").environ.get("EXIT_TARGET_MODE", "2R")
 
 # ATR range gate (experiment pre-registered 2026-11-11, docs/IMPROVEMENT_LOG.md). "current" = as tested so far:
 # target = rr x base stop, with rr = 3 for strong signals in a TRENDING regime. "rr2" = judge every signal on the

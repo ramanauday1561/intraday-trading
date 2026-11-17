@@ -4,7 +4,7 @@ python -m engine.backtest [--date YYYY-MM-DD] [--no-news-fetch]
 
 At each 15-min checkpoint (10:00-14:30 IST) the engine sees only bars up to that moment and only
 headlines published BEFORE that moment (Google News RSS items carry their own pubDate). Entry is the
-next bar's open; stop/target are walked bar by bar (stop wins ties); open trades exit at 15:15.
+next bar's open; stop/target are walked bar by bar (stop wins ties); open trades exit at 15:05 (exits.EXIT_HHMM).
 Each stock takes at most one trade per day. Two variants run on identical data: WITH news and
 WITHOUT news, so the contribution of the fundamental pillar is measurable."""
 import argparse
@@ -21,7 +21,9 @@ import pandas as pd
 from . import demo as demomod
 from . import news as newsmod
 from . import evaluate, exits
-from .config import ENTRY_FIRST_BAR, ENTRY_LAST_BAR, COST_PCT, INDEX_SYMBOLS, IST, LEVERAGE, UNIVERSE
+from .config import ENTRY_FIRST_BAR, ENTRY_LAST_BAR, COST_CAPITAL, COST_RISK_PCT, INDEX_SYMBOLS, IST, LEVERAGE, UNIVERSE
+from . import charges
+from .config import EXIT_TARGET_MODE
 from .pipeline import _index_corr, to_json
 from .scoring import analyse_stock
 
@@ -73,29 +75,36 @@ def _fetch_news(start, end, window_days=7, workers=4):
     return {k: list({i["title"]: i for i in v}.values()) for k, v in items.items()}
 
 
-def simulate(sig, bars_after, exit_hhmm=(15, 15)):
+def cost_per_share(entry, exit_px, sd, long_, size_mult=1.0, capital=COST_CAPITAL, risk_pct=COST_RISK_PCT):
+    """Zerodha intraday charges + slippage per share, for the quantity this account would trade (engine/charges.py)."""
+    q = charges.sized_qty(entry, sd, capital, risk_pct, size_mult, LEVERAGE)
+    q = q or 1
+    return charges.intraday(entry, exit_px, q, long_) / q
+
+
+def simulate(sig, bars_after, exit_hhmm=exits.EXIT_HHMM):
     """Walk bars after the signal with the engine's exit policy. Entry = next bar open. Returns trade dict or None."""
     if bars_after is None or len(bars_after) < 2:
         return None
     long_ = sig["direction"] == "LONG"
     ex = sig["execution"]
-    sd, rr = ex["stop_distance"], ex["rr"]
+    sd, rr = ex["stop_distance"], (None if EXIT_TARGET_MODE == "none" else ex["rr"])
     state, entry, exit_px, exit_ts, _ = exits.walk(long_, bars_after, sd, rr, ex.get("breakeven_after_r"), exit_hhmm)
     reason = {"CLOSED_1515": "EOD", "OPEN": "EOD", "STOPPED": "STOP"}.get(state, state)  # TARGET / BREAKEVEN
     stop, target = (entry - sd, entry + rr * sd) if long_ else (entry + sd, entry - rr * sd)
     per_share = (exit_px - entry) if long_ else (entry - exit_px)
     qty = sig["execution"]["qty"]
-    cost_ps = entry * COST_PCT / 100
+    cost_ps = cost_per_share(entry, exit_px, sd, long_, sig["risk"]["size_multiplier"])
     return {"cost_r": round(cost_ps / sd, 3), "net_r": round((per_share - cost_ps) / sd, 3), "symbol": sig["symbol"], "direction": sig["direction"], "setup": sig["setup"], "conviction": sig["conviction"],
             "composite": sig.get("composite", 0.0), "exit_time": exit_ts.strftime("%H:%M"),
             "regime": sig["regime"], "entry": round(entry, 2), "stop": round(stop, 2), "target": round(target, 2),
             "exit": round(exit_px, 2), "reason": reason, "qty": qty, "stop_distance": sd, "size_mult": sig["risk"]["size_multiplier"],
             "r_multiple": round(per_share / sd, 3), "per_share": per_share,
-            "gross_pnl": round(per_share * qty, 0), "costs": round(entry * qty * COST_PCT / 100, 0),
-            "net_pnl": round(per_share * qty - entry * qty * COST_PCT / 100, 0)}
+            "gross_pnl": round(per_share * qty, 0), "costs": round(charges.intraday(entry, exit_px, qty, long_), 0),
+            "net_pnl": round(per_share * qty - charges.intraday(entry, exit_px, qty, long_), 0)}
 
 
-def simulate_policy(long_, bars_after, sd, rr, breakeven, exit_hhmm=(15, 15)):
+def simulate_policy(long_, bars_after, sd, rr, breakeven, exit_hhmm=exits.EXIT_HHMM):
     """Gross R of one exit policy (see exits.walk); breakeven after +1R when `breakeven` is true."""
     _, entry, exit_px, _, _ = exits.walk(long_, bars_after, sd, rr, 1.0 if breakeven else None, exit_hhmm)
     return (1 if long_ else -1) * (exit_px - entry) / sd, entry
@@ -111,14 +120,14 @@ def exit_variants(sig, bars_after):
     for pid, mult, rr, be in evaluate.EXIT_POLICIES:
         sd = sd0 * mult
         gross, entry = simulate_policy(long_, bars_after, sd, rr, be)
-        out[pid] = round(gross - entry * COST_PCT / 100 / sd, 4)
+        out[pid] = round(gross - cost_per_share(entry, entry, sd, long_, sig["risk"]["size_multiplier"]) / sd, 4)
     return out
 
 
 def _pnl_at(t, risk_pct, capital):
     """Re-size a trade for another risk % (same leverage cap)."""
     q = min(int(capital * risk_pct / 100 * t["size_mult"] / t["stop_distance"]), int(capital * LEVERAGE / t["entry"]))
-    return t["per_share"] * q - t["entry"] * q * COST_PCT / 100
+    return t["per_share"] * q - charges.intraday(t["entry"], t["exit"], q, t["direction"] == "LONG")
 
 
 def _stats(trades, capital, days):
@@ -251,7 +260,7 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
                         sec_chg = 100 * (float(s_seen["close"].iloc[-1]) / float(sd_prior["close"].iloc[-1]) - 1)
                 nw = newsmod.analyse_symbol(sym, name, mcap, news_items.get(sym, []), now=(cut + timedelta(minutes=bar_min)).tz_convert("UTC").to_pydatetime()) \
                     if news_items.get(sym) else NEUTRAL_NEWS
-                for variant, nws in (("with_news", nw), ("without_news", NEUTRAL_NEWS)):
+                for variant, nws in ((("with_news", nw), ("without_news", NEUTRAL_NEWS)) if news_items else (("with_news", nw),)):
                     ctx = {"symbol": sym, "name": name, "sector": sector, "today": seen, "hist": hist, "daily": sdaily[sym],
                            "prev_close": float(sdaily[sym]["close"].iloc[-1]), "now": cut.to_pydatetime(), "phase": "ACTIVE", "vix": vix,
                            "vix_chg": 100 * (vix / vix_prev - 1), "index_corr": corr, "index_gex": None,
@@ -279,6 +288,8 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
                                    "contradiction": (sig["contradiction"] or {}).get("type")})
                         trades[variant].append(tr)
         print(date, {k: len(v) for k, v in trades.items()}, flush=True)
+    if not news_items:  # no headlines at all: both variants are the same run, computed once
+        trades["without_news"] = list(trades["with_news"])
     cands = trades
     trades = {k: evaluate.apply_filters(v, day_rules=True) for k, v in cands.items()}  # first signal per stock per day + day rules
     news_used = sum(abs(t["news_score"]) > 0.2 for t in trades["with_news"])
@@ -308,7 +319,7 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
         "Sentiment uses a finance lexicon (not FinBERT) unless USE_FINBERT=1. Earnings surprise is a headline beat/miss proxy.",
         "NSE derivatives (GEX, OI, IV skew) and pre-open depth are not replayable; those inputs are omitted.",
         "5-minute run: Yahoo serves ~60 sessions plus whatever the daily archive job has saved since. Hourly run: ~2 years but coarse bars (stop/target ordering inside an hour is unknowable; stops win ties), weaker order-flow signals, and thin old headlines. Treat avg R +/- its standard error, not the P&L, as the evidence.",
-        "Entry = next 5-min bar open; stop wins ties inside a bar; exit by 15:15; costs %.2f%% round trip; max one trade per stock per day." % COST_PCT,
+        "Entry = next 5-min bar open; stop wins ties inside a bar; exit by 15:05; Zerodha intraday charges (brokerage, STT, exchange, SEBI, GST, stamp) + 0.01%% slippage a side at Rs %.0f / %.0f%% risk sizing; max one trade per stock per day." % (COST_CAPITAL, COST_RISK_PCT),
         "avg R is BEFORE costs; avg net R and all P&L figures include them. Walk-forward: filters are chosen on the first 60% of sessions and judged once on the last 40%; every config tried is listed (multiple-testing disclosure). EDGE_SUPPORTED requires the 95% session-bootstrap CI of net R to exclude zero.",
         "P&L is shown at 1%%, 5%% (app default) and 50%% risk per trade; all are capped at %dx notional, and 50%% is for comparison only." % LEVERAGE]
     return res

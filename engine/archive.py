@@ -114,6 +114,9 @@ def update():
 JOURNAL_DIR = os.environ.get("JOURNAL_DIR", os.path.join("data", "journal"))
 
 
+VPS_LOG = "https://intraday.189-72-149-115.sslip.io/data/today_log.json"  # the owner's VPS (public data folder)
+
+
 def save_journal(log, root=None):
     """Keep the day's live journal (what the app actually showed) as data/journal/<date>.json and refresh
     data/journal/index.json. Only live days are kept; re-saving a date overwrites it (a partial save made
@@ -191,6 +194,12 @@ if __name__ == "__main__":
             print(f"saved futures OI for {len(oi)} stocks ({day})")
     elif "--save-journal" in sys.argv:
         from . import journal
-        print("saved live journal for", save_journal(journal.fetch_previous()))
+        # The VPS runs the live engine (with Kite) and serves its journal; GitHub Pages is the fallback copy.
+        vps = journal.fetch_previous(os.environ.get("INTRADAY_VPS_LOG", VPS_LOG))
+        pages = journal.fetch_previous()
+        rank = lambda L: (L.get("date") or "", len(L.get("checks") or {}), len(L.get("entries") or [])) if L else ("", 0, 0)
+        log = vps if rank(vps) >= rank(pages) else pages
+        print("journal source:", "VPS" if log is vps and vps else "GitHub Pages")
+        print("saved live journal for", save_journal(log))
     else:
         update()
