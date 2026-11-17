@@ -32,7 +32,8 @@ bash intraday-setup.sh
 ```
 
 It prints the server address and, the first time, the passcode: enter both in the app under Settings → Order server.
-Run it again to update, and after every update of the commodities server (that update rewrites the web config).
+Run it again to update. The commodities setup rewrites the web config; a watcher (`intraday-caddy.path`) puts this
+server's address back within seconds.
 
 ## Every day
 
