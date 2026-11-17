@@ -164,7 +164,7 @@ def _group(trades, key):
     return g
 
 
-def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True, hourly=False, after=None, diag=False):
+def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True, hourly=False, after=None, diag=False, keep_candidates=False):
     asof = asof or ((10, 15) if hourly else ENTRY_FIRST_BAR)
     bar_min, step, last_label = (60, 60, 13 * 60 + 15) if hourly else (5, 15, ENTRY_LAST_BAR[0] * 60 + ENTRY_LAST_BAR[1])
     frames = _frames(demo, hourly)
@@ -298,6 +298,8 @@ def run(asof=None, capital=100000.0, demo=False, only_date=None, fetch_news=True
         res[k]["candidates"] = len(cands[k])
     res["hypothesis"] = evaluate.hypothesis_report(trades["with_news"], after is None)
     res["forward_after"] = after.isoformat() if after else None
+    if keep_candidates:  # for engine.experiment: raw candidates (before selection) and the session list
+        res["_cands"], res["_days"] = cands["with_news"], days
     res["trades"] = [{kk: vv for kk, vv in t.items() if kk not in ("per_share", "exits")} for t in sorted(trades["with_news"], key=lambda t: (t["date"], t["signal_time"]))][-400:]
     for t in res["trades"]:
         t.pop("exits", None)

@@ -7,7 +7,7 @@ import pandas as pd
 from . import indicators as ind
 from . import lpp as lppmod
 from . import options_idea
-from .config import (BAR_MINUTES, ENTRY_FIRST_BAR, ENTRY_LAST_BAR, EXIT_BREAKEVEN_R, EXIT_STOP_MULT, EXIT_TARGET_R, LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
+from .config import (ATR_RANGE_MODE, BAR_MINUTES, ENTRY_FIRST_BAR, ENTRY_LAST_BAR, EXIT_BREAKEVEN_R, EXIT_STOP_MULT, EXIT_TARGET_R, LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
                      SCORE_THRESHOLD, VPIN_TOXIC)
 from .market import oi_quadrant
 
@@ -168,8 +168,8 @@ def analyse_stock(c):
             "LATE": "No fresh entries after the 14:30 bar (the backtests' last checkpoint); open trades run to 15:15.", "CLOSED": "Market closed; showing the last completed session."}[phase]})
     if turnover_cr < MIN_TURNOVER_CR:
         blockers.append({"code": "LIQUIDITY", "message": f"Avg turnover Rs {turnover_cr:.0f} cr below the Rs {MIN_TURNOVER_CR:.0f} cr F&O criterion."})
-    target_dist = rr * stop_dist
-    if direction != "NO_TRADE" and target_dist > 0.9 * atr_d:
+    target_dist = (2.0 if ATR_RANGE_MODE == "rr2" else rr) * stop_dist
+    if ATR_RANGE_MODE != "off" and direction != "NO_TRADE" and target_dist > 0.9 * atr_d:
         blockers.append({"code": "ATR_RANGE", "message": f"Required {rr:.0f}R target ({target_dist:.1f}) exceeds 90% of daily ATR ({atr_d:.1f}); insufficient range."})
     if direction == "LONG" and d_up < CIRCUIT_WARN_PCT:
         blockers.append({"code": "UPPER_CIRCUIT", "message": f"LTP within {d_up:.1f}% of upper circuit; long signals suppressed (illiquid lock risk)."})

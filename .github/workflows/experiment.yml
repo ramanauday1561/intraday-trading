@@ -1,0 +1,44 @@
+name: Experiment (compare engine variants)
+
+# Runs engine.experiment: the same backtest once per value of one parameter, judged on TRAIN/TEST
+# by the rule pre-registered in docs/IMPROVEMENT_LOG.md. Results are printed and saved as an artifact;
+# nothing is committed and the live app is not changed.
+on:
+  workflow_dispatch:
+    inputs:
+      param:
+        description: "Environment parameter to vary"
+        default: "ATR_RANGE_MODE"
+      values:
+        description: "Space-separated values"
+        default: "current rr2 off"
+      resolution:
+        description: "5m (60 days + archive) or 1h (2 years)"
+        default: "1h"
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Compare variants
+        env:
+          PARAM: ${{ inputs.param }}
+          VALUES: ${{ inputs.values }}
+          RES: ${{ inputs.resolution }}
+        run: |
+          FLAG=""; [ "$RES" = "1h" ] && FLAG="--hourly"
+          python -W ignore -m engine.experiment --param "$PARAM" --values $VALUES $FLAG --out experiment.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: experiment-${{ inputs.param }}-${{ inputs.resolution }}
+          path: experiment.json
