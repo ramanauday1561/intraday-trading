@@ -91,13 +91,14 @@ def simulate(sig, bars_after, exit_hhmm=exits.EXIT_HHMM):
     sd, rr = ex["stop_distance"], (None if EXIT_TARGET_MODE == "none" else ex["rr"])
     state, entry, exit_px, exit_ts, _ = exits.walk(long_, bars_after, sd, rr, ex.get("breakeven_after_r"), exit_hhmm)
     reason = {"CLOSED_1515": "EOD", "OPEN": "EOD", "STOPPED": "STOP"}.get(state, state)  # TARGET / BREAKEVEN
-    stop, target = (entry - sd, entry + rr * sd) if long_ else (entry + sd, entry - rr * sd)
+    stop = entry - sd if long_ else entry + sd
+    target = None if rr is None else (entry + rr * sd if long_ else entry - rr * sd)
     per_share = (exit_px - entry) if long_ else (entry - exit_px)
     qty = sig["execution"]["qty"]
     cost_ps = cost_per_share(entry, exit_px, sd, long_, sig["risk"]["size_multiplier"])
     return {"cost_r": round(cost_ps / sd, 3), "net_r": round((per_share - cost_ps) / sd, 3), "symbol": sig["symbol"], "direction": sig["direction"], "setup": sig["setup"], "conviction": sig["conviction"],
             "composite": sig.get("composite", 0.0), "exit_time": exit_ts.strftime("%H:%M"),
-            "regime": sig["regime"], "entry": round(entry, 2), "stop": round(stop, 2), "target": round(target, 2),
+            "regime": sig["regime"], "entry": round(entry, 2), "stop": round(stop, 2), "target": None if target is None else round(target, 2),
             "exit": round(exit_px, 2), "reason": reason, "qty": qty, "stop_distance": sd, "size_mult": sig["risk"]["size_multiplier"],
             "r_multiple": round(per_share / sd, 3), "per_share": per_share,
             "gross_pnl": round(per_share * qty, 0), "costs": round(charges.intraday(entry, exit_px, qty, long_), 0),

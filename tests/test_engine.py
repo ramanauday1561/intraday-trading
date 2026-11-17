@@ -562,3 +562,17 @@ def test_zerodha_intraday_charges():
     assert charges.intraday(5000, 5000, 100, True, slippage=False) > 40            # brokerage capped at Rs 20 an order
     assert charges.intraday(1000, 1010, 50, False, slippage=False) != charges.intraday(1000, 1010, 50, True, slippage=False)
     assert charges.sized_qty(1000, 20, 20000, 5) == 50 and charges.sized_qty(100, 0.1, 20000, 5) == 1000   # margin cap
+
+
+def test_simulate_without_target_holds_to_the_time_exit(monkeypatch):
+    import pandas as pd
+    from engine import backtest
+    idx = pd.date_range("2026-11-16 10:05", "2026-11-16 15:10", freq="5min", tz="Asia/Kolkata")
+    up = [100 + 0.2 * i for i in range(len(idx))]                       # steady rise, would pass a 2R target
+    bars = pd.DataFrame({"open": up, "high": [x + 0.1 for x in up], "low": [x - 0.1 for x in up], "close": up, "volume": 1}, index=idx)
+    sig = {"symbol": "X", "direction": "LONG", "setup": "MOMENTUM", "conviction": 50, "composite": 0.5, "regime": "TRENDING",
+           "execution": {"stop_distance": 2.0, "rr": 2.0, "breakeven_after_r": 1.0, "qty": 10}, "risk": {"size_multiplier": 1.0}}
+    assert backtest.simulate(sig, bars)["reason"] == "TARGET"
+    monkeypatch.setattr(backtest, "EXIT_TARGET_MODE", "none")
+    t = backtest.simulate(sig, bars)
+    assert t["reason"] == "EOD" and t["target"] is None and t["exit_time"] == "15:05" and t["r_multiple"] > 2
