@@ -53,19 +53,12 @@ Kite balance, shared with the NIFTY app, is one small line), with **Close now** 
 
 ## Long backtests with Kite history (run on the VPS, after market hours)
 
-Yahoo gives only 60 days of 5-minute data. Kite gives years. After the morning Kite login, once:
+Yahoo gives only 60 days of 5-minute data; Kite gives years. After the morning Kite login and after 15:30, as root:
 
 ```
-cd /opt/intraday-orders && set -a && . /etc/intraday-orders.env && set +a
-ARCHIVE_DIR=/var/lib/intraday-history nice -n 19 venv/bin/python -m engine.download_kite --days 1500
+bash /opt/intraday-orders/server/long_backtest.sh
 ```
 
-Then compare variants on that history (offline: no Yahoo, no news; takes hours, so `nice` keeps the order server
-responsive; run it after 15:30):
-
-```
-ARCHIVE_DIR=/var/lib/intraday-history nice -n 19 venv/bin/python -m engine.experiment \
-  --param EXIT_TARGET_MODE --values 2R none --offline --out /var/lib/intraday-history/exp_target.json
-ARCHIVE_DIR=/var/lib/intraday-history nice -n 19 venv/bin/python -m engine.experiment \
-  --param ATR_RANGE_MODE --values current rr2 off --offline --out /var/lib/intraday-history/exp_atr.json
-```
+It downloads ~4 years of 5-minute candles into `/var/lib/intraday-history`, then runs both pre-registered experiments
+(offline, at the lowest CPU priority so the order server stays responsive). It runs in the background for a few
+hours. Progress: `tail -f /root/backtest.log`. Results: `grep -E "EXPERIMENT|TRAIN|TEST|Error|No Kite" /root/backtest.log`.
