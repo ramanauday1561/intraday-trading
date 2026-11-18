@@ -159,3 +159,25 @@ filter removed the day's only winner (AXISBANK +0.23R); chase did not catch NTPC
 2-year hourly data (the hourly grid ends at 13:15, so there it tests chase and cost only). The filters stay only if
 their TEST mean net R is not worse than `none` on the 4-year data with TRAIN not worse either; otherwise they revert
 to `none`.
+
+## 2026-11-18 — Where it loses: 4-year breakdown (`engine.analyze`, current settings, before entry filters)
+
+2,528 trades, 1,011 sessions. **Gross +0.013R a trade before charges, charges 0.097R, net −0.084R [−0.110, −0.058].**
+The loss is the charges: the signals have no measurable edge before costs.
+
+- **Exits:** 90% of trades (2,284) close at 15:05; 2R target hit 28 times (1.1%), stop 196 (7.8%). In practice each
+  trade is "hold from signal to 15:05", and its direction is right about as often as wrong (EOD trades: gross +0.076R).
+- **No group has a real edge.** Every positive group is small and its two halves disagree. Losses (CI < 0) in both
+  directions, both setups, all regimes, every year 2023–2026, nearly every signal time.
+- **Signal strength doesn't rank trades:** conviction 100 −0.063R, |composite| 0.6–0.8 −0.047R vs 0–0.3 −0.095R:
+  no clear gradient.
+- **Cost:** net loss grows with cost (0.04–0.06R: −0.016; 0.12–0.2R: −0.133) while gross is flat (≈ +0.01), and
+  wider stops cost less (stop ≥ 2% of price: −0.023R). So the `cost` filter removes the most expensive trades for a
+  logical reason; it cannot make the strategy profitable because gross ≈ 0.
+- **Time:** 14:00 is the worst slot (30% win, −0.110R) but 13:30 and 14:30 are better than 10:00–11:30. A blanket
+  13:30 cut-off is not supported by this table; the `late` filter's 4-year test decides.
+- **Stocks:** ICICIBANK, HDFCBANK, HINDUNILVR lose in both halves; with ~30 stocks some extremes are expected by
+  chance, so no stock list is adopted from this.
+
+**Conclusion:** filters can only shrink the loss toward zero by trading less. A profitable version needs a signal with
+an edge before costs that is larger than ~0.1R a trade; the current pillars and blockers don't have one.
