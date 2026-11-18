@@ -215,3 +215,14 @@ Only C has a gross edge larger than its charges over the whole period, but it lo
 year (2022 +0.42, 2023 −0.07, 2024 −0.11, 2025 +0.06, 2026 +0.06). Nothing is adopted; C is not re-tuned (that would
 fit the noise). Structural point: charges ≈ 0.126% of position value, i.e. ≈ 0.1R at a 1.2% stop, so an intraday
 idea needs > 0.1R gross a trade just to break even.
+
+**Entry filters, 4-year result (Kite 5-minute, 2022-10-11..2026-11-17, 1,011 sessions):**
+
+| Variant | TRAIN n, mean [95% CI] | TEST n, mean [95% CI] |
+|---|---|---|
+| none | 1391, −0.067 [−0.100, −0.034] | 1137, −0.106 [−0.149, −0.065] |
+| late,chase,cost | 627, −0.048 [−0.094, −0.002] | 494, −0.078 [−0.130, −0.025] |
+
+**Decision: keep `late,chase,cost`** — not worse than `none` on TEST (better by 0.028R) and TRAIN (better by 0.019R),
+as the rule requires. With 55% fewer trades the total loss drops by about two thirds (TEST −38R vs −120R). It still
+loses money (CI below zero in both halves): the filters trim the loss, they do not create an edge.
