@@ -101,3 +101,13 @@ EXIT_TARGET_MODE = __import__("os").environ.get("EXIT_TARGET_MODE", "2R")
 # 2R target the trades actually use. "off" = no range gate. Env override only for backtest experiments.
 import os as _os
 ATR_RANGE_MODE = _os.environ.get("ATR_RANGE_MODE", "current")
+
+# Entry filters (added 2026-11-18 from the 18 Nov review, docs/IMPROVEMENT_LOG.md). Comma list; "none" disables all.
+#   late  = no new entries on bars after LATE_LAST_BAR (late trades rarely have time to reach 2R before 15:05)
+#   chase = skip a short once price is CHASE_MAX_ATR daily ATRs below the day's high (a long: above the day's low)
+#   cost  = skip when the round-trip charges at the order server's sizing exceed COST_MAX_R of the risk
+# Env override only for backtest experiments.
+ENTRY_FILTERS = {f for f in _os.environ.get("ENTRY_FILTERS", "late,chase,cost").split(",") if f and f != "none"}
+LATE_LAST_BAR = (13, 30)
+CHASE_MAX_ATR = 0.75
+COST_MAX_R = 0.10
