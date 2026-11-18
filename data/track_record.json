@@ -394,7 +394,7 @@
   },
   {
    "date": "2026-11-18",
-   "engine": "f561e05",
+   "engine": "955b248",
    "trades": [
     {
      "symbol": "ONGC",
@@ -451,7 +451,7 @@
      "reason": "STOP",
      "r_multiple": -1.0,
      "net_r": -1.079,
-     "conviction": 60,
+     "conviction": 61,
      "news_bucket": "no_news",
      "stop_distance": 4.64,
      "size_mult": 1.0
