@@ -62,3 +62,15 @@ bash /opt/intraday-orders/server/long_backtest.sh
 It downloads ~4 years of 5-minute candles into `/var/lib/intraday-history`, then runs both pre-registered experiments
 (offline, at the lowest CPU priority so the order server stays responsive). It runs in the background for a few
 hours. Progress: `tail -f /root/backtest.log`. Results: `grep -E "EXPERIMENT|TRAIN|TEST|Error|No Kite" /root/backtest.log`.
+
+## Where does it lose? (after the long backtest)
+
+```
+bash /opt/intraday-orders/server/analyze.sh
+```
+
+Breaks the 4-year backtest's trades down by direction, setup, regime, conviction, signal time, signal strength, exit
+reason, cost, stop width, weekday, year, trade number of the day and stock: mean net R after charges with a 95% CI and
+the TRAIN/TEST halves. Waits for a running experiment, then takes a few hours the first time (seconds afterwards, from
+the cache). Result: `/root/analysis.txt`, also at `<server address>/data/analysis.txt`.
+
