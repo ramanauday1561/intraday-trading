@@ -226,3 +226,20 @@ idea needs > 0.1R gross a trade just to break even.
 **Decision: keep `late,chase,cost`** — not worse than `none` on TEST (better by 0.028R) and TRAIN (better by 0.019R),
 as the rule requires. With 55% fewer trades the total loss drops by about two thirds (TEST −38R vs −120R). It still
 loses money (CI below zero in both halves): the filters trim the loss, they do not create an edge.
+
+## 2026-11-19 — New signal ideas, round 2 (pre-registered before any 4-year result)
+
+Owner chose another round of intraday ideas. Same lab, charges, sizing, 15:05 exit, split and pass mark as round 1.
+Picked for fewer trades with wider stops (lower cost in R) and effects documented in intraday research:
+
+- **E — Stock-specific overreaction fade:** at 11:00, 11:30 … 14:00, NIFTY within 0.3% of its open and the stock
+  ≥ 1.0 daily ATR from its own open: trade back toward the session VWAP (target); stop 0.5 daily ATR.
+- **F — NR7 breakout:** yesterday's range is the narrowest of the last 7 sessions; first 5-min close beyond
+  yesterday's high/low between 09:30 and 13:00; stop = yesterday's range (≥ 0.5% of price); exit 15:05.
+- **G — Gap and go with the market:** stock gap ≥ 1% with NIFTY gapping the same way; at the 09:25 bar close price
+  still beyond the open in the gap's direction: trade with the gap; stop at the opposite extreme so far (≥ 0.5%).
+- **H — Opening drive on unusual volume:** first-15-minute volume ≥ 2× its 20-session average and a ≥ 0.5% move
+  from the open by the 09:25 close: follow it; stop at the opposite end of the first 15 minutes (≥ 0.4%).
+
+Smoke run on the repo's 77-day archive (not decisive): E −0.25R (n=73), F −0.10R (n=269), G −0.05R (n=106),
+H −0.05R (n=127); all fail.
