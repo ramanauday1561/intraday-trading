@@ -243,3 +243,16 @@ Picked for fewer trades with wider stops (lower cost in R) and effects documente
 
 Smoke run on the repo's 77-day archive (not decisive): E −0.25R (n=73), F −0.10R (n=269), G −0.05R (n=106),
 H −0.05R (n=127); all fail.
+
+**Round 2, 4-year results (2022-10-10..2026-11-17, 1,012 sessions): all four fail.**
+
+| Idea | Trades | Gross R | Cost R | TRAIN net | TEST net [95% CI] |
+|---|---|---|---|---|---|
+| E Overreaction fade | 1,506 | −0.035 | 0.115 | −0.158 | −0.139 [−0.199, −0.081] |
+| F NR7 breakout | 3,656 | −0.002 | 0.100 | −0.086 | −0.126 [−0.169, −0.081] |
+| G Gap and go | 1,033 | +0.064 | 0.112 | −0.086 | −0.009 [−0.183, +0.198] |
+| H Opening drive, high volume | 1,775 | +0.029 | 0.084 | −0.055 | −0.055 [−0.122, +0.012] |
+
+**Summary after two rounds (8 ideas + the current engine, 4 years, real charges):** no rule has a gross edge that
+reliably exceeds the ~0.1R charges. The largest gross edges (C +0.114, G +0.064) are unstable year to year. Nothing
+adopted; no idea is re-tuned on these results.
