@@ -201,3 +201,17 @@ The 4-year breakdown shows no edge before costs, so these are new rules, not fil
 
 Smoke run on the repo's 77-day archive (not decisive, too few trades): A −0.07R (n=1192), B +0.15R (n=87),
 C +0.23R (n=51), all fail the CI test.
+
+**4-year results (Kite history, 2022-10-10..2026-11-17, 1,012 sessions, TRAIN to 2025-03-25): all four fail.**
+
+| Idea | Trades | Gross R | Cost R | TRAIN net | TEST net [95% CI] | Verdict |
+|---|---|---|---|---|---|---|
+| A ORB + NIFTY | 15,088 | +0.024 | 0.115 | −0.095 | −0.085 [−0.121, −0.046] | fail |
+| B Relative strength | 1,323 | +0.058 | 0.100 | −0.043 | −0.039 [−0.127, +0.043] | fail |
+| C Failed-gap fade | 819 | +0.114 | 0.098 | −0.044 | +0.070 [−0.027, +0.173] | fail (TRAIN < 0) |
+| D Current, NIFTY-aligned | 1,686 | +0.018 | 0.095 | −0.065 | −0.093 [−0.146, −0.042] | fail |
+
+Only C has a gross edge larger than its charges over the whole period, but it loses in TRAIN and swings year to
+year (2022 +0.42, 2023 −0.07, 2024 −0.11, 2025 +0.06, 2026 +0.06). Nothing is adopted; C is not re-tuned (that would
+fit the noise). Structural point: charges ≈ 0.126% of position value, i.e. ≈ 0.1R at a 1.2% stop, so an intraday
+idea needs > 0.1R gross a trade just to break even.
