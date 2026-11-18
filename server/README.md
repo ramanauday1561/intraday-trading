@@ -74,3 +74,12 @@ reason, cost, stop width, weekday, year, trade number of the day and stock: mean
 the TRAIN/TEST halves. Waits for a running experiment, then takes a few hours the first time (seconds afterwards, from
 the cache). Result: `/root/analysis.txt`, also at `<server address>/data/analysis.txt`.
 
+## Experiments on the 4-year history
+
+```
+bash /opt/intraday-orders/server/experiment.sh ENTRY_FILTERS none late,chase,cost
+```
+
+Waits for a running experiment or analysis, then compares the values (hours). Result:
+`grep -E "EXPERIMENT|TRAIN|TEST|Error" /root/experiment_ENTRY_FILTERS.log`.
+

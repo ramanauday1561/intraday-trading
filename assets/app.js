@@ -277,10 +277,10 @@ function dayFacts(L, replay) {
   return out.length ? h("div", { class: "facts" }, out) : null;
 }
 
-const BLOCK_SHORT = { ATR_RANGE: "range", STRUCTURE: "no breakout", HAWKES: "weak flow", LOW_CONVICTION: "weak", DAY_DIRECTION: "against day",
+const BLOCK_SHORT = { LATE_ENTRY: "late", CHASE: "chasing", COST: "costs", ATR_RANGE: "range", STRUCTURE: "no breakout", HAWKES: "weak flow", LOW_CONVICTION: "weak", DAY_DIRECTION: "against day",
   DAY_LOSS_LIMIT: "loss limit", LIQUIDITY: "illiquid", UPPER_CIRCUIT: "circuit", LOWER_CIRCUIT: "circuit", SESSION_LATE: "late", SESSION_CLOSED: "closed",
   SESSION_PRE_OPEN: "pre-open", SESSION_MORATORIUM: "too early" };
-const BLOCK_WORDS = { ATR_RANGE: "not enough range left", STRUCTURE: "no clean breakout", HAWKES: "weak order flow", LOW_CONVICTION: "weak override",
+const BLOCK_WORDS = { LATE_ENTRY: "too late in the day", CHASE: "move already done", COST: "charges too high", ATR_RANGE: "not enough range left", STRUCTURE: "no clean breakout", HAWKES: "weak order flow", LOW_CONVICTION: "weak override",
   DAY_DIRECTION: "against today's direction", DAY_LOSS_LIMIT: "daily loss limit", LIQUIDITY: "low liquidity", UPPER_CIRCUIT: "near upper circuit", LOWER_CIRCUIT: "near lower circuit" };
 
 const STATE_SHORT = { OPEN: ["clock", "Open"], TARGET: ["target", "Target"], STOPPED: ["x", "Stopped"], BREAKEVEN: ["shield", "Breakeven"],

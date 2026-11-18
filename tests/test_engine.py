@@ -333,10 +333,12 @@ def test_daily_from_intraday_and_fetch_retry(monkeypatch):
     assert out["A"] is not None and out["B"] is not None and calls["B"] == 2
 
 
-def test_adopted_exit_policy_in_engine_and_simulation():
+def test_adopted_exit_policy_in_engine_and_simulation(monkeypatch):
     from datetime import datetime as dt
+    from engine import scoring
     from engine.backtest import simulate
     from engine.config import EXIT_STOP_MULT, EXIT_TARGET_R
+    monkeypatch.setattr(scoring, "ENTRY_FILTERS", set())  # demo data's moves are exaggerated: test exit geometry only
     payload = build(now=dt(2025, 1, 6, 11, 30, tzinfo=IST), force_demo=True)
     live = [x for x in payload["signals"] if x["direction"] != "NO_TRADE"]
     assert live
@@ -576,3 +578,24 @@ def test_simulate_without_target_holds_to_the_time_exit(monkeypatch):
     monkeypatch.setattr(backtest, "EXIT_TARGET_MODE", "none")
     t = backtest.simulate(sig, bars)
     assert t["reason"] == "EOD" and t["target"] is None and t["exit_time"] == "15:05" and t["r_multiple"] > 2
+
+
+def _blocker_codes(now, filters, monkeypatch):
+    from engine import scoring
+    from engine.pipeline import build
+    monkeypatch.setattr(scoring, "ENTRY_FILTERS", filters)
+    p = build(now=now, force_demo=True)
+    return {x["symbol"]: [b["code"] for b in x["risk"]["blockers"]] for x in p["signals"] if x["bias"] != "NO_TRADE"}
+
+
+def test_entry_filters_block_late_chase_and_costly(monkeypatch):
+    from datetime import datetime as dt
+    off = _blocker_codes(dt(2025, 1, 6, 11, 30, tzinfo=IST), set(), monkeypatch)
+    on = _blocker_codes(dt(2025, 1, 6, 11, 30, tzinfo=IST), {"late", "chase", "cost"}, monkeypatch)
+    assert not any(c in ("LATE_ENTRY", "CHASE", "COST") for v in off.values() for c in v)
+    assert any("CHASE" in v for v in on.values()) and any("COST" in v for v in on.values())
+    assert not any("LATE_ENTRY" in v for v in on.values())               # 11:30 is before the 13:30 cut-off
+    from engine import scoring
+    monkeypatch.setattr(scoring, "LATE_LAST_BAR", (11, 0))              # demo bars end ~11:25: all are now "late"
+    late = _blocker_codes(dt(2025, 1, 6, 11, 30, tzinfo=IST), {"late"}, monkeypatch)
+    assert late and all("LATE_ENTRY" in v for v in late.values())

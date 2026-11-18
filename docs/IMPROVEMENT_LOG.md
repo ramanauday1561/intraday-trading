@@ -140,3 +140,22 @@ Kite history on the VPS (`server/README.md`, "Long backtests with Kite history")
 `current`. B — `none` is better by ≤0.007R on 4 years but tied on the 60-day data named in the rule; keep `2R`.
 Neither knob matters: every variant loses about 0.07–0.11R a trade after charges over 4 years, with the CI below zero
 in both halves. The next step is to find *where* it loses (`engine.analyze`, `server/analyze.sh`), not to tune exits.
+
+## 2026-11-18 — Entry filters (owner's decision, adopted before testing)
+
+**Trigger:** 18 Nov live: four momentum shorts, −1.33R gross (≈ −1.6R net). Entries came after most of the morning
+fall (NTPC, BEL near their day lows), one at 14:00 with an hour left (AXISBANK), and costs of ~0.085R a trade.
+
+**Change (`ENTRY_FILTERS`, default `late,chase,cost`), adopted on the owner's instruction before the 4-year test:**
+- `late`: no new entries on bars after 13:30.
+- `chase`: no short once price is more than 0.75 daily ATR below the day's high (long: above the day's low). 0.75 is
+  about the 80th percentile of that distance at checkpoints in the 5-minute archive.
+- `cost`: no entry when the round trip's charges at the server's sizing exceed 0.10R.
+
+**Replay of 18 Nov (archive):** off 5 trades −0.44R net each (−2.19R); on 4 trades −0.58R each (−2.33R). The late
+filter removed the day's only winner (AXISBANK +0.23R); chase did not catch NTPC/BEL. One day is anecdotal.
+
+**Test (rule fixed now):** `ENTRY_FILTERS` none vs `late,chase,cost` on the 4-year Kite 5-minute history and the
+2-year hourly data (the hourly grid ends at 13:15, so there it tests chase and cost only). The filters stay only if
+their TEST mean net R is not worse than `none` on the 4-year data with TRAIN not worse either; otherwise they revert
+to `none`.

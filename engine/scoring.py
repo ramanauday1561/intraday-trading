@@ -7,7 +7,8 @@ import pandas as pd
 from . import indicators as ind
 from . import lpp as lppmod
 from . import options_idea
-from .config import (ATR_RANGE_MODE, BAR_MINUTES, ENTRY_FIRST_BAR, ENTRY_LAST_BAR, EXIT_BREAKEVEN_R, EXIT_STOP_MULT, EXIT_TARGET_R, LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
+from . import charges
+from .config import (ATR_RANGE_MODE, CHASE_MAX_ATR, COST_CAPITAL, COST_MAX_R, COST_RISK_PCT, ENTRY_FILTERS, LATE_LAST_BAR, BAR_MINUTES, ENTRY_FIRST_BAR, ENTRY_LAST_BAR, EXIT_BREAKEVEN_R, EXIT_STOP_MULT, EXIT_TARGET_R, LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
                      SCORE_THRESHOLD, VPIN_TOXIC)
 from .market import oi_quadrant
 
@@ -171,6 +172,20 @@ def analyse_stock(c):
     target_dist = (2.0 if ATR_RANGE_MODE == "rr2" else rr) * stop_dist
     if ATR_RANGE_MODE != "off" and direction != "NO_TRADE" and target_dist > 0.9 * atr_d:
         blockers.append({"code": "ATR_RANGE", "message": f"Required {rr:.0f}R target ({target_dist:.1f}) exceeds 90% of daily ATR ({atr_d:.1f}); insufficient range."})
+    if direction != "NO_TRADE" and ENTRY_FILTERS:
+        bar = today.index[-1]
+        if "late" in ENTRY_FILTERS and phase == "ACTIVE" and (bar.hour, bar.minute) > LATE_LAST_BAR:
+            blockers.append({"code": "LATE_ENTRY", "message": f"No new entries after the {LATE_LAST_BAR[0]:02d}:{LATE_LAST_BAR[1]:02d} bar: too little time left to reach the target before 15:05."})
+        day_hi, day_lo = float(today["high"].max()), float(today["low"].min())
+        moved = (day_hi - ltp if direction == "SHORT" else ltp - day_lo) / atr_d if atr_d else 0.0
+        if "chase" in ENTRY_FILTERS and moved > CHASE_MAX_ATR:
+            blockers.append({"code": "CHASE", "message": f"Price already {moved:.2f} daily ATRs from the day's {'high' if direction == 'SHORT' else 'low'} (limit {CHASE_MAX_ATR}): most of the move is done."})
+        if "cost" in ENTRY_FILTERS:
+            sd_eff = stop_dist * EXIT_STOP_MULT
+            q = charges.sized_qty(ltp, sd_eff, COST_CAPITAL, COST_RISK_PCT, size_mult)
+            cost_r = charges.intraday(ltp, ltp, q, direction == "LONG") / (q * sd_eff) if q else 0.0
+            if cost_r > COST_MAX_R:
+                blockers.append({"code": "COST", "message": f"Charges ~{cost_r:.2f}R a round trip (limit {COST_MAX_R}R): the stop is too tight for the costs."})
     if direction == "LONG" and d_up < CIRCUIT_WARN_PCT:
         blockers.append({"code": "UPPER_CIRCUIT", "message": f"LTP within {d_up:.1f}% of upper circuit; long signals suppressed (illiquid lock risk)."})
     if direction == "SHORT" and d_dn < CIRCUIT_WARN_PCT:
