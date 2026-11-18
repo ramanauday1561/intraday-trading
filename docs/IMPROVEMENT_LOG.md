@@ -125,3 +125,18 @@ the forward test.
 0.08–0.12R a trade and the 5-minute TRAIN period loses 0.15R, with confidence intervals below zero. Live paper so far
 (2–16 Nov, 20 trades) is +0.165R a trade but its CI still includes zero. Next evidence: a multi-year 5-minute test from
 Kite history on the VPS (`server/README.md`, "Long backtests with Kite history").
+
+**4-year 5-minute results (Kite history on the VPS, 2022-10-11..2026-11-17, 1,011 sessions, 606 TRAIN):**
+
+| Experiment | Variant | TRAIN mean R [95% CI] | TEST mean R [95% CI] |
+|---|---|---|---|
+| B | 2R | −0.067 [−0.100, −0.034] (n=1391) | −0.106 [−0.149, −0.065] (n=1137) |
+| B | none | −0.065 [−0.099, −0.032] | −0.099 [−0.145, −0.057] |
+| A | current | −0.067 [−0.100, −0.034] | −0.106 [−0.149, −0.065] |
+| A | rr2 | −0.069 [−0.101, −0.040] (n=1451) | −0.107 [−0.149, −0.069] |
+| A | off | −0.069 [−0.101, −0.035] (n=1478) | −0.104 [−0.143, −0.065] (n=1226) |
+
+**Decisions unchanged:** A — `off` edges `current` on TEST by 0.002R but is worse on TRAIN, so it fails the rule; keep
+`current`. B — `none` is better by ≤0.007R on 4 years but tied on the 60-day data named in the rule; keep `2R`.
+Neither knob matters: every variant loses about 0.07–0.11R a trade after charges over 4 years, with the CI below zero
+in both halves. The next step is to find *where* it loses (`engine.analyze`, `server/analyze.sh`), not to tune exits.
