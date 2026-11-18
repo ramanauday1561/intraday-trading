@@ -599,3 +599,13 @@ def test_entry_filters_block_late_chase_and_costly(monkeypatch):
     monkeypatch.setattr(scoring, "LATE_LAST_BAR", (11, 0))              # demo bars end ~11:25: all are now "late"
     late = _blocker_codes(dt(2025, 1, 6, 11, 30, tzinfo=IST), {"late"}, monkeypatch)
     assert late and all("LATE_ENTRY" in v for v in late.values())
+
+
+def test_signals_lab_simulate_stop_target_eod():
+    from engine.signals_lab import simulate
+    idx = pd.date_range("2026-11-02 14:45", periods=5, freq="5min", tz=IST)   # 14:45 .. 15:05
+    day = pd.DataFrame({"open": 100.0, "high": [100, 101, 101, 101, 101], "low": [100, 99.5, 99.5, 99.5, 99.5],
+                        "close": [100, 100.5, 100.6, 100.7, 100.8], "volume": 1}, index=idx)
+    assert simulate(day, 0, True, 1.0) == (100.7, "EOD")                     # 15:00 bar's close = the 15:05 exit
+    assert simulate(day, 0, True, 0.4) == (99.6, "STOP")                     # 99.5 low breaks the 99.6 stop
+    assert simulate(day, 0, False, 2.0, target_r=0.25) == (99.5, "TARGET")   # short target 99.5 touched
