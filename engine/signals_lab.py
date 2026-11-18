@@ -207,6 +207,126 @@ def current_with_nifty(cache, nifty):
     return out
 
 
+# ---------------- round 2 (parameters fixed 2026-11-19, before any result) ----------------
+def _prev_days(days, d, n):
+    """The n sessions before d (oldest first), from this stock's own history."""
+    keys = sorted(days)
+    k = keys.index(d)
+    return [days[x] for x in keys[max(0, k - n):k]]
+
+
+def idio_reversal(data, nifty):
+    """E. Fade a stock-specific overreaction. At the 11:00, 11:30 ... 14:00 bar closes, NIFTY within 0.3% of its
+    open and the stock at least 1.0 daily ATR away from its own open: trade back toward the session VWAP (target),
+    stop 0.5 daily ATR, else exit 15:05. First qualifying checkpoint per stock per day."""
+    out = []
+    checks = [(11, 0), (11, 30), (12, 0), (12, 30), (13, 0), (13, 30), (14, 0)]
+    for sym, (days, atr) in data.items():
+        for d, day in days.items():
+            nd, a = nifty.get(d), atr.get(d, (np.nan,))[0]
+            if nd is None or not np.isfinite(a):
+                continue
+            tp = (day["high"] + day["low"] + day["close"]) / 3
+            vwap = (tp * day["volume"]).cumsum() / day["volume"].cumsum().replace(0, np.nan)
+            opn, n_open = day["open"].iloc[0], nd["open"].iloc[0]
+            for hm in checks:
+                i, j = _idx(day, hm), _idx(nd, hm)
+                if i is None or j is None or abs(nd["close"].iloc[j] / n_open - 1) >= 0.003:
+                    continue
+                c, v = day["close"].iloc[i], vwap.iloc[i]
+                m = (c - opn) / a
+                if m <= -1.0 and v > c:
+                    t = trade(d, sym, day, i, True, 0.5 * a, "E_idio_reversal", target_px=float(v))
+                elif m >= 1.0 and v < c:
+                    t = trade(d, sym, day, i, False, 0.5 * a, "E_idio_reversal", target_px=float(v))
+                else:
+                    continue
+                if t:
+                    out.append(t)
+                break
+    return out
+
+
+def nr7_breakout(data, nifty):
+    """F. Volatility expansion after contraction. Yesterday's range (high - low) is the narrowest of the last 7
+    sessions. From the 09:30 bar to the 13:00 bar, the first close above yesterday's high (long) or below
+    yesterday's low (short). Stop = yesterday's range (skip if < 0.5% of price). No target; exit 15:05."""
+    out = []
+    for sym, (days, _) in data.items():
+        for d, day in days.items():
+            prev = _prev_days(days, d, 7)
+            if len(prev) < 7:
+                continue
+            ranges = [p["high"].max() - p["low"].min() for p in prev]
+            if ranges[-1] > min(ranges):
+                continue
+            ph, pl, rng = prev[-1]["high"].max(), prev[-1]["low"].min(), ranges[-1]
+            i0, i1 = _idx(day, (9, 30)), _idx(day, (13, 0))
+            if i0 is None or i1 is None or rng < 0.005 * day["close"].iloc[i0]:
+                continue
+            for i in range(i0, i1 + 1):
+                c = day["close"].iloc[i]
+                if c > ph or c < pl:
+                    t = trade(d, sym, day, i, c > ph, rng, "F_nr7_breakout")
+                    if t:
+                        out.append(t)
+                    break
+    return out
+
+
+def gap_and_go(data, nifty):
+    """G. Gap continuation with the market. Stock gap >= 1% and NIFTY gapped the same way. At the 09:25 bar close,
+    if price is still beyond the open in the gap's direction, trade with the gap. Stop = distance to the session's
+    opposite extreme so far (at least 0.5% of price). No target; exit 15:05."""
+    out = []
+    for sym, (days, atr) in data.items():
+        for d, day in days.items():
+            prev, nd = atr.get(d, (None, None))[1], nifty.get(d)
+            i = _idx(day, (9, 25))
+            if not prev or not np.isfinite(prev) or nd is None or i is None:
+                continue
+            nprev = _prev_days(nifty, d, 1)
+            if not nprev:
+                continue
+            gap, ngap = day["open"].iloc[0] / prev - 1, nd["open"].iloc[0] / nprev[0]["close"].iloc[-1] - 1
+            if abs(gap) < 0.01 or gap * ngap <= 0:
+                continue
+            c, opn = day["close"].iloc[i], day["open"].iloc[0]
+            long_ = gap > 0
+            if (c <= opn) if long_ else (c >= opn):
+                continue
+            ext = c - day["low"].iloc[:i + 1].min() if long_ else day["high"].iloc[:i + 1].max() - c
+            t = trade(d, sym, day, i, long_, max(ext, 0.005 * c), "G_gap_and_go")
+            if t:
+                out.append(t)
+    return out
+
+
+def rvol_drive(data, nifty):
+    """H. Opening drive on unusual volume. First 15 minutes (09:15-09:25 bars): volume >= 2x the average of the same
+    window over the previous 20 sessions, and the move from the open to the 09:25 close >= 0.5%. Trade in that
+    direction at the 09:25 close; stop at the opposite end of the first 15 minutes (at least 0.4%). Exit 15:05."""
+    out = []
+    for sym, (days, _) in data.items():
+        for d, day in days.items():
+            i = _idx(day, (9, 25))
+            prev = _prev_days(days, d, 20)
+            if i is None or len(prev) < 20:
+                continue
+            base = np.mean([p["volume"].iloc[:3].sum() for p in prev])
+            vol = day["volume"].iloc[:i + 1].sum()
+            c, opn = day["close"].iloc[i], day["open"].iloc[0]
+            mv = c / opn - 1
+            if base <= 0 or vol < 2 * base or abs(mv) < 0.005:
+                continue
+            long_ = mv > 0
+            ext = c - day["low"].iloc[:i + 1].min() if long_ else day["high"].iloc[:i + 1].max() - c
+            t = trade(d, sym, day, i, long_, max(ext, 0.004 * c), "H_rvol_drive")
+            if t:
+                out.append(t)
+    return out
+
+
 def report(name, trades, train):
     if not trades:
         print(f"  {name:24s} no trades"); return
@@ -227,6 +347,7 @@ def report(name, trades, train):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cache", help="engine.analyze trades cache, for idea D")
+    ap.add_argument("--only", help="letters of the ideas to run, e.g. EFGH (default: all)")
     a = ap.parse_args()
     nifty_raw = archive.load_bars(INDEX_SYMBOLS["NIFTY"])
     if nifty_raw is None:
@@ -242,9 +363,14 @@ def main():
     train = {d.isoformat() for d in sessions[:int(len(sessions) * evaluate.TRAIN_FRACTION)]}
     print(f"SIGNALS LAB · {sessions[0]}..{sessions[-1]} · {len(sessions)} sessions · {len(data)} stocks · "
           f"TRAIN to {max(train)} · pass = TRAIN>0, TEST>0, TEST CI low>0, n>=150")
-    for name, fn in (("A_orb_trend", orb_trend), ("B_rel_strength", rel_strength), ("C_gap_fade", gap_fade)):
-        report(name, fn(data, nifty), train)
-    report("D_current_nifty_aligned", current_with_nifty(a.cache, nifty), train)
+    ideas = {"A_orb_trend": orb_trend, "B_rel_strength": rel_strength, "C_gap_fade": gap_fade,
+             "E_idio_reversal": idio_reversal, "F_nr7_breakout": nr7_breakout, "G_gap_and_go": gap_and_go,
+             "H_rvol_drive": rvol_drive}
+    for name, fn in ideas.items():
+        if not a.only or name[0] in a.only:
+            report(name, fn(data, nifty), train)
+    if not a.only or "D" in a.only:
+        report("D_current_nifty_aligned", current_with_nifty(a.cache, nifty), train)
 
 
 if __name__ == "__main__":
