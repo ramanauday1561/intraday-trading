@@ -83,3 +83,12 @@ bash /opt/intraday-orders/server/experiment.sh ENTRY_FILTERS none late,chase,cos
 Waits for a running experiment or analysis, then compares the values (hours). Result:
 `grep -E "EXPERIMENT|TRAIN|TEST|Error" /root/experiment_ENTRY_FILTERS.log`.
 
+## New signal ideas (after the long backtest and analysis)
+
+```
+bash /opt/intraday-orders/server/signals_lab.sh
+```
+
+Tests the pre-registered ideas in `engine/signals_lab.py` on the 4-year history (a few minutes) and prints one line
+per idea with PASS/fail. Also published at `<server address>/data/signals_lab.txt`.
+

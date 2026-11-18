@@ -181,3 +181,23 @@ The loss is the charges: the signals have no measurable edge before costs.
 
 **Conclusion:** filters can only shrink the loss toward zero by trading less. A profitable version needs a signal with
 an edge before costs that is larger than ~0.1R a trade; the current pillars and blockers don't have one.
+
+## 2026-11-18 — New signal ideas (pre-registered before any 4-year result)
+
+The 4-year breakdown shows no edge before costs, so these are new rules, not filters. Code: `engine/signals_lab.py`
+(same Zerodha charges and 20,000 / 5% sizing as live; exit 15:05; one trade per stock per day; 60/40 date split).
+
+- **A — ORB with NIFTY:** 30-min opening range (09:15–09:40 bars); first 5-min close beyond it between 09:45 and
+  13:00, only if NIFTY is on the same side of its open; stop = range width (range 0.4–2.5% of price); target 2R.
+- **B — Relative strength on trend days:** at the 10:15 bar close, if NIFTY is ≥ 0.25% up (down) from its open, long
+  (short) the 3 strongest (weakest) stocks since their open; stop 0.5 × daily ATR; exit 15:05.
+- **C — Failed-gap fade:** |gap| ≥ 1.5%; if at the 09:45 bar close price is back through the open, trade toward the
+  previous close; stop at the session extreme so far (≥ 0.4%); target = previous close.
+- **D — Current engine, NIFTY-aligned:** the current engine's 4-year trades, kept only when they agree with NIFTY's
+  direction since its open at the signal bar.
+
+**Pass mark (fixed now):** mean net R > 0 in TRAIN and in TEST, TEST 95% CI lower bound > 0, ≥ 150 trades on the
+4-year data. Only an idea that passes is built into the live engine; nothing is tuned after seeing results.
+
+Smoke run on the repo's 77-day archive (not decisive, too few trades): A −0.07R (n=1192), B +0.15R (n=87),
+C +0.23R (n=51), all fail the CI test.
