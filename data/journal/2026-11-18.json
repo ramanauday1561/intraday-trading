@@ -1,0 +1,756 @@
+{
+ "date": "2026-11-18",
+ "mode": "live",
+ "updated": "2026-11-18T15:36:02+05:30",
+ "entries": [
+  {
+   "symbol": "NTPC",
+   "name": "NTPC",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 51,
+   "signal_bar": "2026-11-18T10:30:00+05:30",
+   "signal_time": "10:30",
+   "ref_price": 318.0,
+   "stop_distance": 4.82,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 317.5,
+    "type": "PE",
+    "expiry": "2026-11-23",
+    "days_to_expiry": 5,
+    "premium_est": 2.9,
+    "premium_stop_est": 0.49,
+    "premium_target_est": 7.72,
+    "live": true,
+    "note": "Real listed contract and last traded premium from Zerodha Kite. 1 lot = 1500 shares. Exit levels are estimates (delta ~0.5; time decay and IV changes ignored).",
+    "tradingsymbol": "NTPC26NOV317.5PE",
+    "lot_size": 1500,
+    "lot_cost": 4350.0
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 318.0,
+    "stop": 322.82,
+    "stop_now": 322.82,
+    "target": 308.36,
+    "price": 319.95,
+    "at": "15:05",
+    "r": -0.4
+   }
+  },
+  {
+   "symbol": "BEL",
+   "name": "Bharat Electronics",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 76,
+   "signal_bar": "2026-11-18T11:00:00+05:30",
+   "signal_time": "11:00",
+   "ref_price": 394.2,
+   "stop_distance": 5.68,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 395,
+    "type": "PE",
+    "expiry": "2026-11-23",
+    "days_to_expiry": 5,
+    "premium_est": 4.85,
+    "premium_stop_est": 2.01,
+    "premium_target_est": 10.53,
+    "live": true,
+    "note": "Real listed contract and last traded premium from Zerodha Kite. 1 lot = 1425 shares. Exit levels are estimates (delta ~0.5; time decay and IV changes ignored).",
+    "tradingsymbol": "BEL26NOV395PE",
+    "lot_size": 1425,
+    "lot_cost": 6911.0
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 394.2,
+    "stop": 399.88,
+    "stop_now": 399.88,
+    "target": 382.84,
+    "price": 395.15,
+    "at": "15:05",
+    "r": -0.17
+   }
+  },
+  {
+   "symbol": "ITC",
+   "name": "ITC",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 59,
+   "signal_bar": "2026-11-18T12:00:00+05:30",
+   "signal_time": "12:00",
+   "ref_price": 290.25,
+   "stop_distance": 4.48,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 290,
+    "type": "PE",
+    "expiry": "2026-11-23",
+    "days_to_expiry": 5,
+    "premium_est": 2.6,
+    "premium_stop_est": 0.36,
+    "premium_target_est": 7.08,
+    "live": true,
+    "note": "Real listed contract and last traded premium from Zerodha Kite. 1 lot = 1725 shares. Exit levels are estimates (delta ~0.5; time decay and IV changes ignored).",
+    "tradingsymbol": "ITC26NOV290PE",
+    "lot_size": 1725,
+    "lot_cost": 4485.0
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "STOPPED",
+    "fill": 290.3,
+    "stop": 294.78,
+    "stop_now": 294.78,
+    "target": 281.34,
+    "price": 294.78,
+    "at": "14:15",
+    "r": -1.0
+   }
+  },
+  {
+   "symbol": "AXISBANK",
+   "name": "Axis Bank",
+   "direction": "SHORT",
+   "setup": "MOMENTUM",
+   "conviction": 61,
+   "signal_bar": "2026-11-18T14:00:00+05:30",
+   "signal_time": "14:00",
+   "ref_price": 1361.6,
+   "stop_distance": 19.44,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY PE",
+    "strike": 1360,
+    "type": "PE",
+    "expiry": "2026-11-23",
+    "days_to_expiry": 5,
+    "premium_est": 9.5,
+    "premium_stop_est": 0.05,
+    "premium_target_est": 28.94,
+    "live": true,
+    "note": "Real listed contract and last traded premium from Zerodha Kite. 1 lot = 625 shares. Exit levels are estimates (delta ~0.5; time decay and IV changes ignored).",
+    "tradingsymbol": "AXISBANK26NOV1360PE",
+    "lot_size": 625,
+    "lot_cost": 5938.0
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 1361.6,
+    "stop": 1381.04,
+    "stop_now": 1381.04,
+    "target": 1322.72,
+    "price": 1357.0,
+    "at": "15:05",
+    "r": 0.24
+   }
+  }
+ ],
+ "checks": {
+  "10:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "M&M",
+     "bias": "SHORT",
+     "composite": -0.312,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ITC",
+     "bias": "SHORT",
+     "composite": -0.284,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BEL",
+     "bias": "SHORT",
+     "composite": -0.281,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "10:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.458,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BHARTIARTL",
+     "bias": "SHORT",
+     "composite": -0.42,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BEL",
+     "bias": "SHORT",
+     "composite": -0.353,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "10:30": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "BEL",
+     "bias": "SHORT",
+     "composite": -0.466,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "MARUTI",
+     "bias": "SHORT",
+     "composite": -0.401,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BHARTIARTL",
+     "bias": "SHORT",
+     "composite": -0.396,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "10:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "M&M",
+     "bias": "SHORT",
+     "composite": -0.402,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BHARTIARTL",
+     "bias": "SHORT",
+     "composite": -0.363,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.28,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "11:00": {
+   "signals": 2,
+   "closest": [
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.427,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BHARTIARTL",
+     "bias": "SHORT",
+     "composite": -0.426,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BEL",
+     "bias": "SHORT",
+     "composite": -0.399,
+     "blockers": []
+    }
+   ]
+  },
+  "11:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "CIPLA",
+     "bias": "LONG",
+     "composite": 0.461,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "LONG",
+     "composite": 0.434,
+     "blockers": [
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SBIN",
+     "bias": "LONG",
+     "composite": 0.381,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "11:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "LONG",
+     "composite": 0.488,
+     "blockers": [
+      "DAY_DIRECTION"
+     ]
+    },
+    {
+     "symbol": "CIPLA",
+     "bias": "LONG",
+     "composite": 0.453,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "BAJFINANCE",
+     "bias": "SHORT",
+     "composite": -0.424,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "11:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "LONG",
+     "composite": 0.464,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "CIPLA",
+     "bias": "LONG",
+     "composite": 0.448,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "HINDALCO",
+     "bias": "SHORT",
+     "composite": -0.403,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:00": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "CIPLA",
+     "bias": "LONG",
+     "composite": 0.435,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "BAJFINANCE",
+     "bias": "SHORT",
+     "composite": -0.381,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HAL",
+     "bias": "SHORT",
+     "composite": -0.36,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "LT",
+     "bias": "SHORT",
+     "composite": -0.409,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "KOTAKBANK",
+     "bias": "LONG",
+     "composite": 0.379,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "M&M",
+     "bias": "SHORT",
+     "composite": -0.369,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "ITC",
+     "bias": "SHORT",
+     "composite": -0.472,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "KOTAKBANK",
+     "bias": "LONG",
+     "composite": 0.447,
+     "blockers": [
+      "DAY_DIRECTION"
+     ]
+    },
+    {
+     "symbol": "M&M",
+     "bias": "SHORT",
+     "composite": -0.428,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "ITC",
+     "bias": "SHORT",
+     "composite": -0.479,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "BEL",
+     "bias": "SHORT",
+     "composite": -0.476,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "BAJFINANCE",
+     "bias": "SHORT",
+     "composite": -0.457,
+     "blockers": [
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "BAJFINANCE",
+     "bias": "SHORT",
+     "composite": -0.477,
+     "blockers": [
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HINDALCO",
+     "bias": "SHORT",
+     "composite": -0.453,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "M&M",
+     "bias": "SHORT",
+     "composite": -0.436,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:15": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "HINDALCO",
+     "bias": "SHORT",
+     "composite": -0.437,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.429,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "M&M",
+     "bias": "SHORT",
+     "composite": -0.402,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:30": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "BAJFINANCE",
+     "bias": "SHORT",
+     "composite": -0.476,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "INFY",
+     "bias": "SHORT",
+     "composite": -0.416,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.393,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "INFY",
+     "bias": "SHORT",
+     "composite": -0.399,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "BAJFINANCE",
+     "bias": "SHORT",
+     "composite": -0.395,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ITC",
+     "bias": "LONG",
+     "composite": 0.386,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "14:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "ITC",
+     "bias": "LONG",
+     "composite": 0.384,
+     "blockers": [
+      "DAY_DIRECTION"
+     ]
+    },
+    {
+     "symbol": "SBIN",
+     "bias": "LONG",
+     "composite": 0.335,
+     "blockers": [
+      "DAY_DIRECTION"
+     ]
+    },
+    {
+     "symbol": "RELIANCE",
+     "bias": "LONG",
+     "composite": 0.301,
+     "blockers": [
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "14:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "ITC",
+     "bias": "LONG",
+     "composite": 0.485,
+     "blockers": [
+      "DAY_DIRECTION"
+     ]
+    },
+    {
+     "symbol": "SBIN",
+     "bias": "LONG",
+     "composite": 0.463,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "POWERGRID",
+     "bias": "LONG",
+     "composite": 0.316,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "14:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "ITC",
+     "bias": "LONG",
+     "composite": 0.497,
+     "blockers": [
+      "DAY_DIRECTION"
+     ]
+    },
+    {
+     "symbol": "SBIN",
+     "bias": "LONG",
+     "composite": 0.423,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "POWERGRID",
+     "bias": "LONG",
+     "composite": 0.317,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  }
+ },
+ "summary": {
+  "signals": 4,
+  "net_r_gross": -1.33,
+  "open": 0
+ }
+}

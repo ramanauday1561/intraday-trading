@@ -391,22 +391,89 @@
     }
    ],
    "net_r": 0.017
+  },
+  {
+   "date": "2026-11-18",
+   "engine": "f561e05",
+   "trades": [
+    {
+     "symbol": "ONGC",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "10:15",
+     "entry": 223.25,
+     "exit": 224.6,
+     "reason": "EOD",
+     "r_multiple": -0.408,
+     "net_r": -0.493,
+     "conviction": 62,
+     "news_bucket": "news_opposed",
+     "stop_distance": 3.31,
+     "size_mult": 0.5
+    },
+    {
+     "symbol": "NTPC",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "10:30",
+     "entry": 318.0,
+     "exit": 320.0,
+     "reason": "EOD",
+     "r_multiple": -0.405,
+     "net_r": -0.486,
+     "conviction": 62,
+     "news_bucket": "no_news",
+     "stop_distance": 4.94,
+     "size_mult": 1.0
+    },
+    {
+     "symbol": "BEL",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "11:00",
+     "entry": 394.2,
+     "exit": 395.1,
+     "reason": "EOD",
+     "r_multiple": -0.154,
+     "net_r": -0.239,
+     "conviction": 75,
+     "news_bucket": "no_news",
+     "stop_distance": 5.83,
+     "size_mult": 1.0
+    },
+    {
+     "symbol": "ITC",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "13:00",
+     "entry": 290.15,
+     "exit": 294.79,
+     "reason": "STOP",
+     "r_multiple": -1.0,
+     "net_r": -1.079,
+     "conviction": 60,
+     "news_bucket": "no_news",
+     "stop_distance": 4.64,
+     "size_mult": 1.0
+    }
+   ],
+   "net_r": -2.297
   }
  ],
  "summary": {
-  "trades": 21,
-  "win_rate_pct": 61.9,
-  "avg_net_r": 0.158,
-  "total_net_r": 3.3,
-  "profit_factor": 3.1,
-  "sessions": 11,
-  "sessions_with_trades": 11,
+  "trades": 25,
+  "win_rate_pct": 52.0,
+  "avg_net_r": 0.04,
+  "total_net_r": 1.0,
+  "profit_factor": 1.26,
+  "sessions": 12,
+  "sessions_with_trades": 12,
   "net_r_ci95": [
-   -0.022,
-   0.36
+   -0.213,
+   0.298
   ],
   "from": "2026-11-02",
-  "to": "2026-11-17"
+  "to": "2026-11-18"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }
