@@ -9,7 +9,7 @@ import pandas as pd
 
 from . import demo as demomod
 from . import news as newsmod
-from .config import CHECKPOINT_MINUTES, DEFAULT_RISK_PCT, INDEX_SYMBOLS, IST, REGIME_WEIGHTS, UNIVERSE
+from .config import CHECKPOINT_MINUTES, DEFAULT_RISK_PCT, INDEX_SYMBOLS, IST, REGIME_WEIGHTS, SCORING_INPUTS, UNIVERSE
 from . import archive
 from . import kite as kitemod
 import os
@@ -214,7 +214,7 @@ def build(now=None, force_demo=False, capital=100000.0, risk_pct=DEFAULT_RISK_PC
             print(f"{sym}: analysis failed: {e!r}", file=sys.stderr)
     signals.sort(key=lambda s: (s["direction"] == "NO_TRADE", -abs(s["composite"])))  # strongest first (day rules use this order)
     bank_t = idx_data.get("^NSEBANK")
-    regime = detect_regime(vix, ind.adx(nd), index_gex, corr, False)
+    regime = detect_regime(vix, ind.adx(nd), None if SCORING_INPUTS == "tested" else index_gex, corr, False)
     macro = {"nifty": {"ltp": round(float(nt["close"].iloc[-1]), 2), "chg_pct": round(nifty_chg, 2)},
              "banknifty": {"ltp": round(float(bank_t[0]["close"].iloc[-1]), 2),
                            "chg_pct": round(_chg(bank_t[0], float(bank_t[2]["close"].iloc[-1])), 2)} if bank_t else None,

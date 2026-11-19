@@ -8,7 +8,7 @@ from . import indicators as ind
 from . import lpp as lppmod
 from . import options_idea
 from . import charges
-from .config import (ATR_RANGE_MODE, CHASE_MAX_ATR, COST_CAPITAL, COST_MAX_R, COST_RISK_PCT, ENTRY_FILTERS, LATE_LAST_BAR, BAR_MINUTES, ENTRY_FIRST_BAR, ENTRY_LAST_BAR, EXIT_BREAKEVEN_R, EXIT_STOP_MULT, EXIT_TARGET_R, LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
+from .config import (SCORING_INPUTS, ATR_RANGE_MODE, CHASE_MAX_ATR, COST_CAPITAL, COST_MAX_R, COST_RISK_PCT, ENTRY_FILTERS, LATE_LAST_BAR, BAR_MINUTES, ENTRY_FIRST_BAR, ENTRY_LAST_BAR, EXIT_BREAKEVEN_R, EXIT_STOP_MULT, EXIT_TARGET_R, LEVERAGE, CIRCUIT_WARN_PCT, DEFAULT_BAND_PCT, IST, MIN_TURNOVER_CR, OVERRIDE_MIN_CONVICTION, REGIME_WEIGHTS,
                      SCORE_THRESHOLD, VPIN_TOXIC)
 from .market import oi_quadrant
 
@@ -78,6 +78,10 @@ def vix_multiplier(vix):
     return 0.8 if vix < 12 else 1.0 if vix < 16 else 1.25 if vix < 20 else 1.5
 
 
+NEUTRAL_NEWS = {"score": 0.0, "items": [], "event": None, "tier1_earnings": False, "positive_catalyst": 0.0,
+                "sue_proxy": 0.0, "divergence": 0.0, "engine": "none"}
+
+
 def analyse_stock(c):
     """c: context dict (see pipeline). Returns the per-ticker payload of the JSON schema."""
     sym, today, hist, daily = c["symbol"], c["today"], c["hist"], c["daily"]
@@ -98,14 +102,18 @@ def analyse_stock(c):
     vol_exp = ind.volume_expanding(today, recent=1, min_prior=2) if hr else ind.volume_expanding(today)
     sig_d = daily_sigma_pct(vix)
     turnover_cr = float((daily["close"] * daily["volume"]).tail(20).mean() / 1e7)
-    opt, fut_oi = c.get("options"), c.get("fut_oi_chg_pct")
+    tested = SCORING_INPUTS == "tested"  # score only on inputs the 4-year backtest has (see config)
+    opt_full, news_full = c.get("options"), c["news"]  # still used for the option contract idea and the headlines
+    opt = None if tested else opt_full
+    fut_oi = None if tested else c.get("fut_oi_chg_pct")
+    gex = None if tested else c.get("index_gex")
     quad = oi_quadrant(chg, fut_oi)
-    news = c["news"]
+    news = NEUTRAL_NEWS if tested else news_full
     daily_ret = daily["close"].pct_change().dropna()
     prior_rally = 100 * (daily["close"].iloc[-1] / daily["close"].iloc[-4] - 1) if len(daily) > 4 else 0.0
     extension = (ltp - daily["close"].tail(20).mean()) / atr_d if atr_d else 0.0
 
-    regime = detect_regime(vix, adx_v, c.get("index_gex"), c["index_corr"], news["tier1_earnings"])
+    regime = detect_regime(vix, adx_v, gex, c["index_corr"], news["tier1_earnings"])
     w = REGIME_WEIGHTS[regime]
 
     # ---- pillars (each in [-1, 1]) ----
@@ -213,7 +221,7 @@ def analyse_stock(c):
         warnings.append({"level": "medium", "code": "MEDIA_DIVERGENCE", "message": "Cross-media sentiment divergence: spreads/slippage risk; stops widened, size cut."})
     if vix > 20:
         warnings.append({"level": "medium", "code": "HIGH_VIX", "message": f"India VIX {vix:.1f}: stops widened, size reduced."})
-    gf = c.get("index_gex") and c["index_gex"].get("gamma_flip")
+    gf = gex and gex.get("gamma_flip")
     if gf and ((c["nifty"] > gf) != (c["nifty_open"] > gf)):
         warnings.append({"level": "medium", "code": "GAMMA_FLIP", "message": f"Nifty crossed the gamma flip ({gf:.0f}): destabilising regime, widen risk."})
         stop_dist *= 1.2
@@ -246,11 +254,11 @@ def analyse_stock(c):
     if final != "NO_TRADE":
         sess_day = today.index[-1].date()
         T = max((options_idea.monthly_expiry(sess_day) - sess_day).days, 1) / 365.0
-        sigma = (opt or {}).get("atm_iv")
+        sigma = (opt_full or {}).get("atm_iv")
         sigma = sigma / 100 if sigma else float(daily_ret.tail(20).std() * math.sqrt(252))
         kind = "Call" if direction == "LONG" else "Put"
-        rows = [o for o in (opt or {}).get("_rows", []) if o["type"] == kind and o["ltp"] > 0]
-        contract = dict(min(rows, key=lambda o: abs(o["k"] - ltp)), lot=(opt or {}).get("lot")) if rows else None
+        rows = [o for o in (opt_full or {}).get("_rows", []) if o["type"] == kind and o["ltp"] > 0]
+        contract = dict(min(rows, key=lambda o: abs(o["k"] - ltp)), lot=(opt_full or {}).get("lot")) if rows else None
         premium = contract["ltp"] if contract else 0.4 * ltp * sigma * math.sqrt(T)
         ref = premium - 0.5 * sign * (ltp - float(today["close"].iloc[-2] if len(today) > 1 else ltp)) * 30 / 300
         limit = lppmod.clamp(premium * 1.005, ref, premium)
@@ -290,7 +298,7 @@ def analyse_stock(c):
                   "turnover_cr": round(turnover_cr, 0)},
         "pillars": {k2: {"score": round(v, 3), "weight": w[k2]} for k2, v in pillars.items()},
         "fundamental": {"engine": news["engine"], "event": news["event"], "sue_proxy": news["sue_proxy"],
-                        "divergence": news["divergence"], "headlines": news["items"]},
+                        "divergence": news["divergence"], "headlines": news_full["items"]},
         "microstructure": {"ofi": round(ofi_v, 3), "vpin": round(vpin_v, 3), "toxic": toxic,
                            "hawkes_buy": round(hk["buy"], 2), "hawkes_sell": round(hk["sell"], 2),
                            "hawkes_surge": hk["surge_buy"] if direction == "LONG" else hk["surge_sell"],

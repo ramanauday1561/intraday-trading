@@ -82,7 +82,9 @@ def test_volume_profile_and_vwap():
     assert 99 < ind.vwap(df) < 102
 
 
-def test_demo_payload_schema_and_json_safe():
+def test_demo_payload_schema_and_json_safe(monkeypatch):
+    from engine import scoring
+    monkeypatch.setattr(scoring, "SCORING_INPUTS", "all")  # the news-driven trap override needs news in the score
     payload = build(now=datetime(2025, 1, 6, 11, 30, tzinfo=IST), force_demo=True)
     js = json.loads(to_json(payload))  # allow_nan=False -> raises on NaN
     assert js["meta"]["mode"] == "demo" and js["signals"]
@@ -609,3 +611,31 @@ def test_signals_lab_simulate_stop_target_eod():
     assert simulate(day, 0, True, 1.0) == (100.7, "EOD")                     # 15:00 bar's close = the 15:05 exit
     assert simulate(day, 0, True, 0.4) == (99.6, "STOP")                     # 99.5 low breaks the 99.6 stop
     assert simulate(day, 0, False, 2.0, target_r=0.25) == (99.5, "TARGET")   # short target 99.5 touched
+
+
+def test_tested_inputs_ignore_options_news_and_oi(monkeypatch):
+    """Live scores only on what the 4-year backtest sees: adding option chains, futures OI, GEX and news to the
+    context must not change direction, composite, regime or blockers (they still feed the option idea/headlines)."""
+    from datetime import datetime as dt
+    from engine import scoring
+    from engine.pipeline import build
+    monkeypatch.setattr(scoring, "SCORING_INPUTS", "tested")
+    seen = {}
+    real = scoring.analyse_stock
+
+    def spy(c):
+        seen[c["symbol"]] = c
+        return real(c)
+    monkeypatch.setattr("engine.pipeline.analyse_stock", spy)
+    build(now=dt(2025, 1, 6, 11, 30, tzinfo=IST), force_demo=True)
+    news = {"score": 0.9, "items": [{"title": "x"}], "event": "EARNINGS", "tier1_earnings": True,
+            "positive_catalyst": 0.9, "sue_proxy": 1.0, "divergence": 0.6, "engine": "lexicon"}
+    opt = {"iv_skew": 8.0, "call_writing_otm": True, "atm_iv": 30.0, "_rows": [], "lot": 100}
+    gex = {"gamma_flip": 1.0, "net_gex": -5.0, "gex_norm": -1.0}
+    for sym, c in list(seen.items())[:8]:
+        a = real(c)
+        b = real({**c, "news": news, "options": opt, "fut_oi_chg_pct": 12.0, "index_gex": gex})
+        key = lambda x: (x["direction"], x["bias"], x["composite"], x["regime"], x["setup"],
+                         [k["code"] for k in x["risk"]["blockers"]], x["execution"]["stop_distance"])
+        assert key(a) == key(b), sym
+        assert b["fundamental"]["headlines"] == news["items"]   # shown, not scored

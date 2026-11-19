@@ -280,3 +280,12 @@ drives STRUCTURE and HAWKES) explains 3 of the 4 replay trades. The remaining ga
 from inputs only live has: option chains and futures OI in the institutional pillar. The 4-year Kite backtests
 therefore match live's bars but not those inputs; Yahoo-based runs (GitHub 60-day, 2-year hourly) are less
 representative of live than the 4-year Kite runs.
+
+## 2026-11-19 — Live scores only on tested inputs (owner approved)
+
+`SCORING_INPUTS` (default `tested`): option chains, futures OI, NIFTY GEX and news no longer change direction, regime,
+stops or blockers, live. They are still fetched and shown (option contract idea, lot size, headlines). Live now runs
+the engine the 4-year Kite backtests measured (offline: bars, NIFTY, sector, VIX only), so those results apply to it.
+Consequence: news-driven contradiction overrides (e.g. the distribution-trap fade) and the gamma-flip stop widening
+are off live. On 19 Nov the Kite-bar replay of this engine took 1 trade (NTPC +0.31R net) where live took none.
+`SCORING_INPUTS=all` restores the old behaviour. A test checks that adding those inputs leaves the score unchanged.
