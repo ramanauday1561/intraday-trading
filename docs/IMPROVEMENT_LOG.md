@@ -256,3 +256,19 @@ H −0.05R (n=127); all fail.
 **Summary after two rounds (8 ideas + the current engine, 4 years, real charges):** no rule has a gross edge that
 reliably exceeds the ~0.1R charges. The largest gross edges (C +0.114, G +0.064) are unstable year to year. Nothing
 adopted; no idea is re-tuned on these results.
+
+## 2026-11-19 — Review: no live trades, but the replay finds four
+
+**Live:** 19 checks, Kite connected, 28/28 prices, 0 signals. A bullish day (NIFTY 25,187 → 25,471 at 15:00,
++1.1%); 50 of the 57 closest candidates were longs. Most frequent blockers among them: STRUCTURE 45, ATR_RANGE 38,
+CHASE 37, HAWKES 34, LATE_ENTRY 12 (after 13:30). Closest call: HINDUNILVR long at 11:30, blocked only by CHASE.
+
+**Replay of the same day (repo archive = Yahoo bars, current rules):** 4 trades — NTPC +0.39R, TCS −0.28R,
+INFY +0.25R, ONGC +0.15R: +0.062R net a trade (+0.25R). Filters off: 5 trades (adds HCLTECH 14:15, −0.32R),
+−0.025R a trade. Same with archived news. So the late rule helped today; chase and cost changed nothing.
+
+**Finding:** live and the replay disagree on the same rules. The replay lacks live inputs (Kite bars instead of
+Yahoo's, option chains, futures OI), which feed the institutional pillar and STRUCTURE/HAWKES (volume). Added
+`backtest --offline` and `server/replay_day.sh DATE` to replay a day on the VPS with Kite's own bars, to tell whether
+the gap is the bars or the option/OI inputs. No trading rule changed: one day is not evidence, and no change from
+today's review passes the 4-year bar.

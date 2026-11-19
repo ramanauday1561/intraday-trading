@@ -336,8 +336,13 @@ def main():
     ap.add_argument("--no-news-fetch", action="store_true")
     ap.add_argument("--diag", action="store_true", help="print data-span diagnostics and exit")
     ap.add_argument("--after", help="forward test: only sessions after this date (YYYY-MM-DD)")
+    ap.add_argument("--offline", action="store_true", help="archive bars only (ARCHIVE_DIR), no Yahoo, no news")
     ap.add_argument("--out", default="data/backtest.json")
     a = ap.parse_args()
+    if a.offline:
+        from . import market
+        market.fetch_many = lambda *x, **k: {}
+        a.no_news_fetch = True
     asof = tuple(map(int, a.time.split(":"))) if a.time else None
     only = datetime.strptime(a.date, "%Y-%m-%d").date() if a.date else None
     after = datetime.strptime(a.after, "%Y-%m-%d").date() if a.after else None
