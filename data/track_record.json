@@ -461,7 +461,7 @@
   },
   {
    "date": "2026-11-19",
-   "engine": "380999f",
+   "engine": "535300c",
    "trades": [
     {
      "symbol": "NTPC",
@@ -473,10 +473,25 @@
      "reason": "EOD",
      "r_multiple": 0.382,
      "net_r": 0.314,
-     "conviction": 75,
+     "conviction": 70,
      "news_bucket": "no_news",
      "stop_distance": 6.02,
      "size_mult": 0.5
+    },
+    {
+     "symbol": "TCS",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "11:00",
+     "entry": 2356.4,
+     "exit": 2341.1,
+     "reason": "EOD",
+     "r_multiple": -0.275,
+     "net_r": -0.328,
+     "conviction": 61,
+     "news_bucket": "no_news",
+     "stop_distance": 55.67,
+     "size_mult": 1.0
     },
     {
      "symbol": "INFY",
@@ -488,7 +503,7 @@
      "reason": "EOD",
      "r_multiple": 0.226,
      "net_r": 0.18,
-     "conviction": 40,
+     "conviction": 42,
      "news_bucket": "no_news",
      "stop_distance": 29.66,
      "size_mult": 1.0
@@ -509,20 +524,20 @@
      "size_mult": 1.0
     }
    ],
-   "net_r": 0.555
+   "net_r": 0.227
   }
  ],
  "summary": {
-  "trades": 28,
-  "win_rate_pct": 57.1,
-  "avg_net_r": 0.056,
-  "total_net_r": 1.6,
-  "profit_factor": 1.4,
+  "trades": 29,
+  "win_rate_pct": 55.2,
+  "avg_net_r": 0.043,
+  "total_net_r": 1.2,
+  "profit_factor": 1.29,
   "sessions": 13,
   "sessions_with_trades": 13,
   "net_r_ci95": [
-   -0.174,
-   0.29
+   -0.175,
+   0.276
   ],
   "from": "2026-11-02",
   "to": "2026-11-19"
