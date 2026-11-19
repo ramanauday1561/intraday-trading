@@ -272,3 +272,11 @@ Yahoo's, option chains, futures OI), which feed the institutional pillar and STR
 `backtest --offline` and `server/replay_day.sh DATE` to replay a day on the VPS with Kite's own bars, to tell whether
 the gap is the bars or the option/OI inputs. No trading rule changed: one day is not evidence, and no change from
 today's review passes the 4-year bar.
+
+**Kite-bar replay of 19 Nov (VPS, `server/replay_day.sh`):** 2 signals, 1 trade — NTPC long 10:30, +0.38R gross,
++0.31R net. Blockers: STRUCTURE 294, HAWKES 231, CHASE 135, LATE_ENTRY 87, ATR_RANGE 60.
+So with Kite's bars TCS, INFY and ONGC are no longer signals: the Yahoo/Kite bar difference (mostly volume, which
+drives STRUCTURE and HAWKES) explains 3 of the 4 replay trades. The remaining gap (live 0 vs replay 1, NTPC) comes
+from inputs only live has: option chains and futures OI in the institutional pillar. The 4-year Kite backtests
+therefore match live's bars but not those inputs; Yahoo-based runs (GitHub 60-day, 2-year hourly) are less
+representative of live than the 4-year Kite runs.
