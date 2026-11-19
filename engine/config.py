@@ -111,3 +111,8 @@ ENTRY_FILTERS = {f for f in _os.environ.get("ENTRY_FILTERS", "late,chase,cost").
 LATE_LAST_BAR = (13, 30)
 CHASE_MAX_ATR = 0.75
 COST_MAX_R = 0.10
+
+# Scoring inputs (2026-11-19, docs/IMPROVEMENT_LOG.md). "tested" = score only on what the 4-year Kite backtest can
+# see (bars, NIFTY/sector/VIX): live option chains, futures OI, NIFTY GEX and news are still fetched and shown, but
+# do not change direction, regime, stops or blockers, so live trades the engine that was tested. "all" = as before.
+SCORING_INPUTS = _os.environ.get("SCORING_INPUTS", "tested")
