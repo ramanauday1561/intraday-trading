@@ -639,3 +639,37 @@ def test_tested_inputs_ignore_options_news_and_oi(monkeypatch):
                          [k["code"] for k in x["risk"]["blockers"]], x["execution"]["stop_distance"])
         assert key(a) == key(b), sym
         assert b["fundamental"]["headlines"] == news["items"]   # shown, not scored
+
+
+def test_nifty_filter_blocks_trades_against_the_market():
+    from engine.scoring import analyse_stock
+    from engine import scoring
+    from datetime import datetime as dt
+    from engine.pipeline import build
+    seen = {}
+    real = analyse_stock
+
+    def spy(c):
+        seen[c["symbol"]] = c
+        return real(c)
+    import engine.pipeline as pl
+    orig, pl.analyse_stock = pl.analyse_stock, spy
+    try:
+        build(now=dt(2025, 1, 6, 11, 30, tzinfo=IST), force_demo=True)
+    finally:
+        pl.analyse_stock = orig
+    old = scoring.ENTRY_FILTERS
+    scoring.ENTRY_FILTERS = {"nifty"}
+    try:
+        checked = 0
+        for c in seen.values():
+            for n_up in (True, False):   # same stock, NIFTY above / below its open
+                x = real({**c, "nifty": c["nifty_open"] * (1.01 if n_up else 0.99)})
+                if x["bias"] == "NO_TRADE":
+                    continue
+                against = (x["bias"] == "LONG") != n_up
+                assert ("AGAINST_NIFTY" in [b["code"] for b in x["risk"]["blockers"]]) == against
+                checked += 1
+        assert checked
+    finally:
+        scoring.ENTRY_FILTERS = old
