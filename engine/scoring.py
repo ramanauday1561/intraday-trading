@@ -188,6 +188,10 @@ def analyse_stock(c):
         moved = (day_hi - ltp if direction == "SHORT" else ltp - day_lo) / atr_d if atr_d else 0.0
         if "chase" in ENTRY_FILTERS and moved > CHASE_MAX_ATR:
             blockers.append({"code": "CHASE", "message": f"Price already {moved:.2f} daily ATRs from the day's {'high' if direction == 'SHORT' else 'low'} (limit {CHASE_MAX_ATR}): most of the move is done."})
+        if "nifty" in ENTRY_FILTERS and c.get("nifty") and c.get("nifty_open"):
+            n_up = c["nifty"] > c["nifty_open"]
+            if (direction == "LONG") != n_up:
+                blockers.append({"code": "AGAINST_NIFTY", "message": f"NIFTY is {'above' if n_up else 'below'} its open ({c['nifty']:.0f} vs {c['nifty_open']:.0f}): {direction.lower()} signals are taken only with the market."})
         if "cost" in ENTRY_FILTERS:
             sd_eff = stop_dist * EXIT_STOP_MULT
             q = charges.sized_qty(ltp, sd_eff, COST_CAPITAL, COST_RISK_PCT, size_mult)

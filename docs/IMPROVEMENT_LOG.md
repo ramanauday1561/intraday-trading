@@ -289,3 +289,20 @@ the engine the 4-year Kite backtests measured (offline: bars, NIFTY, sector, VIX
 Consequence: news-driven contradiction overrides (e.g. the distribution-trap fade) and the gamma-flip stop widening
 are off live. On 19 Nov the Kite-bar replay of this engine took 1 trade (NTPC +0.31R net) where live took none.
 `SCORING_INPUTS=all` restores the old behaviour. A test checks that adding those inputs leaves the score unchanged.
+
+## 2026-11-20 — Review: two shorts on a strong up day; NIFTY-direction filter added
+
+**Live:** 2 trades, both MOMENTUM shorts while NIFTY rallied +1.7% (25,368 → 25,799 at 15:00): ONGC 10:30
+(conviction 100) −0.50R, SUNPHARMA 10:45 −0.10R gross, both closed at 15:05. 50 of the 57 closest candidates were
+longs (banks: ICICI, AXIS, KOTAK, HDFC, SBIN), blocked mostly by HAWKES, CHASE and ATR_RANGE.
+
+**Replay matches live now:** the offline replay of today with the live rules gives the same two trades at the same
+prices (ONGC −0.44R, SUNPHARMA −0.09R; −0.67R net), confirming the 19 Nov tested-inputs change.
+
+**Change:** new entry filter `nifty` (default on): long only if NIFTY is above its open at the signal bar, short only
+if below (blocker `AGAINST_NIFTY`). Evidence: 4-year idea D (same rule on the unfiltered engine) was better than
+without in both halves (TRAIN −0.065 vs −0.067, TEST −0.093 vs −0.106), though still negative.
+**Replay of 20 Nov:** 1 trade (SUNPHARMA long 11:15, −0.08R; −0.15R net) instead of −0.67R.
+
+**4-year check (rule fixed now):** `ENTRY_FILTERS` `late,chase,cost` vs `late,chase,cost,nifty` on the Kite history.
+`nifty` stays only if TEST and TRAIN mean net R are both not worse than without it; otherwise it is removed.
