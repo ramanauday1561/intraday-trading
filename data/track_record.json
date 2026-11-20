@@ -525,22 +525,59 @@
     }
    ],
    "net_r": 0.227
+  },
+  {
+   "date": "2026-11-20",
+   "engine": "01e4468",
+   "trades": [
+    {
+     "symbol": "ONGC",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "10:30",
+     "entry": 222.29,
+     "exit": 223.94,
+     "reason": "EOD",
+     "r_multiple": -0.43,
+     "net_r": -0.503,
+     "conviction": 100,
+     "news_bucket": "no_news",
+     "stop_distance": 3.84,
+     "size_mult": 0.5
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "direction": "SHORT",
+     "setup": "MOMENTUM",
+     "signal_time": "10:45",
+     "entry": 1886.8,
+     "exit": 1889.8,
+     "reason": "EOD",
+     "r_multiple": -0.082,
+     "net_r": -0.147,
+     "conviction": 50,
+     "news_bucket": "no_news",
+     "stop_distance": 36.65,
+     "size_mult": 1.0
+    }
+   ],
+   "net_r": -0.65
   }
  ],
  "summary": {
-  "trades": 29,
-  "win_rate_pct": 55.2,
-  "avg_net_r": 0.043,
-  "total_net_r": 1.2,
-  "profit_factor": 1.29,
-  "sessions": 13,
-  "sessions_with_trades": 13,
+  "trades": 31,
+  "win_rate_pct": 51.6,
+  "avg_net_r": 0.019,
+  "total_net_r": 0.6,
+  "profit_factor": 1.12,
+  "sessions": 14,
+  "sessions_with_trades": 14,
   "net_r_ci95": [
-   -0.175,
-   0.276
+   -0.183,
+   0.223
   ],
   "from": "2026-11-02",
-  "to": "2026-11-19"
+  "to": "2026-11-20"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }
