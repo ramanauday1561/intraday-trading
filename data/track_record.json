@@ -528,53 +528,38 @@
   },
   {
    "date": "2026-11-20",
-   "engine": "01e4468",
+   "engine": "215a439",
    "trades": [
     {
-     "symbol": "ONGC",
-     "direction": "SHORT",
-     "setup": "MOMENTUM",
-     "signal_time": "10:30",
-     "entry": 222.29,
-     "exit": 223.94,
-     "reason": "EOD",
-     "r_multiple": -0.43,
-     "net_r": -0.503,
-     "conviction": 100,
-     "news_bucket": "no_news",
-     "stop_distance": 3.84,
-     "size_mult": 0.5
-    },
-    {
      "symbol": "SUNPHARMA",
-     "direction": "SHORT",
+     "direction": "LONG",
      "setup": "MOMENTUM",
-     "signal_time": "10:45",
-     "entry": 1886.8,
+     "signal_time": "11:15",
+     "entry": 1892.6,
      "exit": 1889.8,
      "reason": "EOD",
-     "r_multiple": -0.082,
-     "net_r": -0.147,
-     "conviction": 50,
+     "r_multiple": -0.076,
+     "net_r": -0.141,
+     "conviction": 41,
      "news_bucket": "no_news",
      "stop_distance": 36.65,
      "size_mult": 1.0
     }
    ],
-   "net_r": -0.65
+   "net_r": -0.141
   }
  ],
  "summary": {
-  "trades": 31,
-  "win_rate_pct": 51.6,
-  "avg_net_r": 0.019,
-  "total_net_r": 0.6,
-  "profit_factor": 1.12,
+  "trades": 30,
+  "win_rate_pct": 53.3,
+  "avg_net_r": 0.037,
+  "total_net_r": 1.1,
+  "profit_factor": 1.25,
   "sessions": 14,
   "sessions_with_trades": 14,
   "net_r_ci95": [
-   -0.183,
-   0.223
+   -0.164,
+   0.245
   ],
   "from": "2026-11-02",
   "to": "2026-11-20"
