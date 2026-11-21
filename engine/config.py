@@ -108,8 +108,8 @@ ATR_RANGE_MODE = _os.environ.get("ATR_RANGE_MODE", "current")
 #   cost  = skip when the round-trip charges at the order server's sizing exceed COST_MAX_R of the risk
 # Env override only for backtest experiments.
 #   nifty = trade only with NIFTY: long only if NIFTY is above its open at the signal bar, short only if below
-#           (added 2026-11-20; 4-year idea D: slightly better than without in both halves)
-ENTRY_FILTERS = {f for f in _os.environ.get("ENTRY_FILTERS", "late,chase,cost,nifty").split(",") if f and f != "none"}
+#           (added 2026-11-20; off by default since 2026-11-21: failed its pre-registered 4-year check)
+ENTRY_FILTERS = {f for f in _os.environ.get("ENTRY_FILTERS", "late,chase,cost").split(",") if f and f != "none"}
 LATE_LAST_BAR = (13, 30)
 CHASE_MAX_ATR = 0.75
 COST_MAX_R = 0.10

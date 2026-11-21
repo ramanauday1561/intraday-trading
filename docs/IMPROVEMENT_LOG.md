@@ -306,3 +306,14 @@ without in both halves (TRAIN −0.065 vs −0.067, TEST −0.093 vs −0.106), 
 
 **4-year check (rule fixed now):** `ENTRY_FILTERS` `late,chase,cost` vs `late,chase,cost,nifty` on the Kite history.
 `nifty` stays only if TEST and TRAIN mean net R are both not worse than without it; otherwise it is removed.
+
+**NIFTY filter, 4-year check (Kite 5-minute, 2022-10-11..2026-11-19, 1,013 sessions, 607 TRAIN):**
+
+| ENTRY_FILTERS | TRAIN n, mean [95% CI] | TEST n, mean [95% CI] |
+|---|---|---|
+| late,chase,cost | 629, −0.049 [−0.093, −0.004] | 497, −0.079 [−0.131, −0.027] |
+| late,chase,cost,nifty | 468, −0.022 [−0.073, +0.026] | 365, −0.080 [−0.142, −0.023] |
+
+**Decision: remove `nifty` (default back to `late,chase,cost`).** Better on TRAIN by 0.027R but worse on TEST by
+0.001R, and the rule required not worse in both. The TEST difference is noise-sized, but the rule was fixed before
+the result and is applied as written. The filter stays in the code (`ENTRY_FILTERS=...,nifty` turns it on).
