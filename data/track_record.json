@@ -550,23 +550,8 @@
   },
   {
    "date": "2026-11-23",
-   "engine": "afceb66",
+   "engine": "d8e2a3a",
    "trades": [
-    {
-     "symbol": "HCLTECH",
-     "direction": "LONG",
-     "setup": "MOMENTUM",
-     "signal_time": "10:15",
-     "entry": 1375.9,
-     "exit": 1362.1,
-     "reason": "EOD",
-     "r_multiple": -0.421,
-     "net_r": -0.473,
-     "conviction": 99,
-     "news_bucket": "no_news",
-     "stop_distance": 32.81,
-     "size_mult": 0.5
-    },
     {
      "symbol": "POWERGRID",
      "direction": "LONG",
@@ -592,26 +577,41 @@
      "reason": "EOD",
      "r_multiple": -0.834,
      "net_r": -0.9,
-     "conviction": 71,
+     "conviction": 73,
      "news_bucket": "no_news",
      "stop_distance": 35.72,
      "size_mult": 1.0
+    },
+    {
+     "symbol": "HCLTECH",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "13:30",
+     "entry": 1368.2,
+     "exit": 1362.1,
+     "reason": "EOD",
+     "r_multiple": -0.186,
+     "net_r": -0.238,
+     "conviction": 90,
+     "news_bucket": "no_news",
+     "stop_distance": 32.81,
+     "size_mult": 1.0
     }
    ],
-   "net_r": -2.278
+   "net_r": -2.043
   }
  ],
  "summary": {
   "trades": 33,
   "win_rate_pct": 48.5,
-  "avg_net_r": -0.036,
-  "total_net_r": -1.2,
-  "profit_factor": 0.82,
+  "avg_net_r": -0.029,
+  "total_net_r": -0.9,
+  "profit_factor": 0.85,
   "sessions": 15,
   "sessions_with_trades": 15,
   "net_r_ci95": [
-   -0.256,
-   0.201
+   -0.245,
+   0.202
   ],
   "from": "2026-11-02",
   "to": "2026-11-23"
