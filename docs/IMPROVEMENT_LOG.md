@@ -317,3 +317,16 @@ without in both halves (TRAIN −0.065 vs −0.067, TEST −0.093 vs −0.106), 
 **Decision: remove `nifty` (default back to `late,chase,cost`).** Better on TRAIN by 0.027R but worse on TEST by
 0.001R, and the rule required not worse in both. The TEST difference is noise-sized, but the rule was fixed before
 the result and is applied as written. The filter stays in the code (`ENTRY_FILTERS=...,nifty` turns it on).
+
+## 2026-11-23 — Review: two longs on a −2.2% day
+
+**Live:** 2 trades, both MOMENTUM longs while NIFTY fell 2.2% (25,929 → 25,364 at 15:00): SUNPHARMA 11:15
+(conviction 70) −0.82R, HCLTECH 13:30 (conviction 94) −0.18R gross; both closed at 15:05. 54 of the 57 closest
+candidates were shorts (banks, TATASTEEL, NTPC), blocked mostly by STRUCTURE, CHASE, HAWKES and ATR_RANGE.
+
+**Replay (archive bars):** live rules 3 trades (adds POWERGRID long −0.87R), −0.71R net a trade (−2.13R). With the
+`nifty` filter: 0 trades. Second day running where every trade went against NIFTY (20 Nov: shorts on +1.7%).
+
+**No change merged.** The `nifty` filter failed its pre-registered 4-year check on 21 Nov (TEST 0.001R a trade worse,
+TRAIN 0.027R better, ~25% fewer trades). Two days in its favour do not override a 4-year test chosen in advance;
+switching it on is the owner's call (`ENTRY_FILTERS=late,chase,cost,nifty` in `/etc/intraday-orders.env`).
