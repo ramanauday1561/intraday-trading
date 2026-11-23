@@ -547,22 +547,74 @@
     }
    ],
    "net_r": -0.141
+  },
+  {
+   "date": "2026-11-23",
+   "engine": "afceb66",
+   "trades": [
+    {
+     "symbol": "HCLTECH",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "10:15",
+     "entry": 1375.9,
+     "exit": 1362.1,
+     "reason": "EOD",
+     "r_multiple": -0.421,
+     "net_r": -0.473,
+     "conviction": 99,
+     "news_bucket": "no_news",
+     "stop_distance": 32.81,
+     "size_mult": 0.5
+    },
+    {
+     "symbol": "POWERGRID",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "11:15",
+     "entry": 268.85,
+     "exit": 264.1,
+     "reason": "EOD",
+     "r_multiple": -0.845,
+     "net_r": -0.905,
+     "conviction": 77,
+     "news_bucket": "no_news",
+     "stop_distance": 5.62,
+     "size_mult": 0.5
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "11:15",
+     "entry": 1885.2,
+     "exit": 1855.4,
+     "reason": "EOD",
+     "r_multiple": -0.834,
+     "net_r": -0.9,
+     "conviction": 71,
+     "news_bucket": "no_news",
+     "stop_distance": 35.72,
+     "size_mult": 1.0
+    }
+   ],
+   "net_r": -2.278
   }
  ],
  "summary": {
-  "trades": 30,
-  "win_rate_pct": 53.3,
-  "avg_net_r": 0.037,
-  "total_net_r": 1.1,
-  "profit_factor": 1.25,
-  "sessions": 14,
-  "sessions_with_trades": 14,
+  "trades": 33,
+  "win_rate_pct": 48.5,
+  "avg_net_r": -0.036,
+  "total_net_r": -1.2,
+  "profit_factor": 0.82,
+  "sessions": 15,
+  "sessions_with_trades": 15,
   "net_r_ci95": [
-   -0.164,
-   0.245
+   -0.256,
+   0.201
   ],
   "from": "2026-11-02",
-  "to": "2026-11-20"
+  "to": "2026-11-23"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }

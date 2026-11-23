@@ -1,0 +1,777 @@
+{
+ "date": "2026-11-23",
+ "mode": "live",
+ "updated": "2026-11-23T15:28:02+05:30",
+ "entries": [
+  {
+   "symbol": "SUNPHARMA",
+   "name": "Sun Pharma",
+   "direction": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 70,
+   "signal_bar": "2026-11-23T11:15:00+05:30",
+   "signal_time": "11:15",
+   "ref_price": 1885.2,
+   "stop_distance": 35.22,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY CE",
+    "strike": 1880,
+    "type": "CE",
+    "expiry": "2026-12-29",
+    "days_to_expiry": 36,
+    "premium_est": 57.95,
+    "premium_stop_est": 40.34,
+    "premium_target_est": 93.17,
+    "live": true,
+    "note": "Real listed contract and last traded premium from Zerodha Kite. 1 lot = 350 shares. Exit levels are estimates (delta ~0.5; time decay and IV changes ignored).",
+    "tradingsymbol": "SUNPHARMA26DEC1880CE",
+    "lot_size": 350,
+    "lot_cost": 20282.0
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 1885.2,
+    "stop": 1849.98,
+    "stop_now": 1849.98,
+    "target": 1955.64,
+    "price": 1856.4,
+    "at": "15:05",
+    "r": -0.82
+   }
+  },
+  {
+   "symbol": "HCLTECH",
+   "name": "HCL Technologies",
+   "direction": "LONG",
+   "setup": "MOMENTUM",
+   "conviction": 94,
+   "signal_bar": "2026-11-23T13:30:00+05:30",
+   "signal_time": "13:30",
+   "ref_price": 1368.3,
+   "stop_distance": 31.9,
+   "rr": 2.0,
+   "option_idea": {
+    "action": "BUY CE",
+    "strike": 1360,
+    "type": "CE",
+    "expiry": "2026-12-29",
+    "days_to_expiry": 36,
+    "premium_est": 58.85,
+    "premium_stop_est": 42.9,
+    "premium_target_est": 90.75,
+    "live": true,
+    "note": "Real listed contract and last traded premium from Zerodha Kite. 1 lot = 400 shares. Exit levels are estimates (delta ~0.5; time decay and IV changes ignored).",
+    "tradingsymbol": "HCLTECH26DEC1360CE",
+    "lot_size": 400,
+    "lot_cost": 23540.0
+   },
+   "breakeven_after_r": 1.0,
+   "size_mult": 1.0,
+   "contradiction": null,
+   "status": {
+    "state": "CLOSED_1515",
+    "fill": 1368.2,
+    "stop": 1336.3,
+    "stop_now": 1336.3,
+    "target": 1432.0,
+    "price": 1362.4,
+    "at": "15:05",
+    "r": -0.18
+   }
+  }
+ ],
+ "checks": {
+  "10:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "BHARTIARTL",
+     "bias": "SHORT",
+     "composite": -0.592,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HDFCBANK",
+     "bias": "SHORT",
+     "composite": -0.573,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "LT",
+     "bias": "SHORT",
+     "composite": -0.512,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "10:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "LT",
+     "bias": "SHORT",
+     "composite": -0.66,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.647,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "BHARTIARTL",
+     "bias": "SHORT",
+     "composite": -0.63,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "10:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.606,
+     "blockers": [
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HCLTECH",
+     "bias": "LONG",
+     "composite": 0.556,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "INFY",
+     "bias": "LONG",
+     "composite": 0.552,
+     "blockers": [
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "10:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.705,
+     "blockers": [
+      "CHASE"
+     ]
+    },
+    {
+     "symbol": "LT",
+     "bias": "SHORT",
+     "composite": -0.623,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.559,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "11:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.723,
+     "blockers": [
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "HDFCBANK",
+     "bias": "SHORT",
+     "composite": -0.632,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SBIN",
+     "bias": "SHORT",
+     "composite": -0.591,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "11:15": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.707,
+     "blockers": [
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.544,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "LT",
+     "bias": "SHORT",
+     "composite": -0.484,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "11:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.669,
+     "blockers": [
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.491,
+     "blockers": [
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "LONG",
+     "composite": 0.455,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "11:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "HDFCBANK",
+     "bias": "SHORT",
+     "composite": -0.53,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.505,
+     "blockers": [
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.474,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "AXISBANK",
+     "bias": "SHORT",
+     "composite": -0.506,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.487,
+     "blockers": [
+      "CHASE",
+      "LOWER_CIRCUIT",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "M&M",
+     "bias": "SHORT",
+     "composite": -0.469,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "HDFCBANK",
+     "bias": "SHORT",
+     "composite": -0.536,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.522,
+     "blockers": [
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.505,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.616,
+     "blockers": [
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HDFCBANK",
+     "bias": "SHORT",
+     "composite": -0.549,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.54,
+     "blockers": [
+      "CHASE",
+      "LOWER_CIRCUIT",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "12:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.649,
+     "blockers": [
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.572,
+     "blockers": [
+      "CHASE",
+      "LOWER_CIRCUIT",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "AXISBANK",
+     "bias": "SHORT",
+     "composite": -0.564,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "13:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.601,
+     "blockers": [
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "KOTAKBANK",
+     "bias": "SHORT",
+     "composite": -0.556,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "TATASTEEL",
+     "bias": "SHORT",
+     "composite": -0.548,
+     "blockers": [
+      "CHASE",
+      "LOWER_CIRCUIT",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.635,
+     "blockers": [
+      "CHASE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.575,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "HINDALCO",
+     "bias": "SHORT",
+     "composite": -0.567,
+     "blockers": [
+      "ATR_RANGE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:30": {
+   "signals": 1,
+   "closest": [
+    {
+     "symbol": "JSWSTEEL",
+     "bias": "SHORT",
+     "composite": -0.623,
+     "blockers": [
+      "CHASE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.574,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.571,
+     "blockers": [
+      "ATR_RANGE",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "13:45": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "NTPC",
+     "bias": "SHORT",
+     "composite": -0.609,
+     "blockers": [
+      "LATE_ENTRY",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.575,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HINDALCO",
+     "bias": "SHORT",
+     "composite": -0.563,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "14:00": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "AXISBANK",
+     "bias": "SHORT",
+     "composite": -0.566,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "ICICIBANK",
+     "bias": "SHORT",
+     "composite": -0.562,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "CHASE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "SUNPHARMA",
+     "bias": "SHORT",
+     "composite": -0.524,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    }
+   ]
+  },
+  "14:15": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "AXISBANK",
+     "bias": "SHORT",
+     "composite": -0.598,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "RELIANCE",
+     "bias": "SHORT",
+     "composite": -0.523,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HDFCBANK",
+     "bias": "SHORT",
+     "composite": -0.517,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  },
+  "14:30": {
+   "signals": 0,
+   "closest": [
+    {
+     "symbol": "AXISBANK",
+     "bias": "SHORT",
+     "composite": -0.576,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "CHASE",
+      "STRUCTURE"
+     ]
+    },
+    {
+     "symbol": "RELIANCE",
+     "bias": "SHORT",
+     "composite": -0.554,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "CHASE",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    },
+    {
+     "symbol": "HINDALCO",
+     "bias": "SHORT",
+     "composite": -0.52,
+     "blockers": [
+      "ATR_RANGE",
+      "LATE_ENTRY",
+      "STRUCTURE",
+      "HAWKES"
+     ]
+    }
+   ]
+  }
+ },
+ "summary": {
+  "signals": 2,
+  "net_r_gross": -1.0,
+  "open": 0
+ }
+}
