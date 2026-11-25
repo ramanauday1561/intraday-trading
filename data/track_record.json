@@ -599,22 +599,74 @@
     }
    ],
    "net_r": -2.043
+  },
+  {
+   "date": "2026-11-25",
+   "engine": "b779433",
+   "trades": [
+    {
+     "symbol": "BEL",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "10:45",
+     "entry": 399.6,
+     "exit": 404.05,
+     "reason": "EOD",
+     "r_multiple": 0.634,
+     "net_r": 0.562,
+     "conviction": 97,
+     "news_bucket": "no_news",
+     "stop_distance": 7.02,
+     "size_mult": 0.5
+    },
+    {
+     "symbol": "NTPC",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "10:45",
+     "entry": 317.65,
+     "exit": 317.6,
+     "reason": "EOD",
+     "r_multiple": -0.008,
+     "net_r": -0.073,
+     "conviction": 89,
+     "news_bucket": "no_news",
+     "stop_distance": 6.15,
+     "size_mult": 0.5
+    },
+    {
+     "symbol": "KOTAKBANK",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "11:00",
+     "entry": 511.8,
+     "exit": 509.75,
+     "reason": "EOD",
+     "r_multiple": -0.206,
+     "net_r": -0.271,
+     "conviction": 77,
+     "news_bucket": "no_news",
+     "stop_distance": 9.93,
+     "size_mult": 1.0
+    }
+   ],
+   "net_r": 0.218
   }
  ],
  "summary": {
-  "trades": 33,
-  "win_rate_pct": 48.5,
-  "avg_net_r": -0.029,
-  "total_net_r": -0.9,
-  "profit_factor": 0.85,
-  "sessions": 15,
-  "sessions_with_trades": 15,
+  "trades": 36,
+  "win_rate_pct": 47.2,
+  "avg_net_r": -0.02,
+  "total_net_r": -0.7,
+  "profit_factor": 0.89,
+  "sessions": 16,
+  "sessions_with_trades": 16,
   "net_r_ci95": [
-   -0.245,
-   0.202
+   -0.22,
+   0.188
   ],
   "from": "2026-11-02",
-  "to": "2026-11-23"
+  "to": "2026-11-25"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }
