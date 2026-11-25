@@ -40,7 +40,8 @@ OVERRIDE_MIN_CONVICTION = 40
 # stop moved to entry after +1R. Entry filters still use the base stop.
 EXIT_STOP_MULT = 2.0
 EXIT_TARGET_R = 2.0
-EXIT_BREAKEVEN_R = 1.0    # contradiction-matrix overrides must still reach this conviction (0-100)
+# Breakeven trigger in R. Env override only for backtest experiments (2026-11-25, docs/IMPROVEMENT_LOG.md).
+EXIT_BREAKEVEN_R = float(__import__("os").environ.get("EXIT_BREAKEVEN_R", "1.0"))
 VPIN_TOXIC = 0.55
 MIN_TURNOVER_CR = 75.0          # avg daily turnover proxy (INR crore) - SEBI F&O criterion
 CIRCUIT_WARN_PCT = 2.0

@@ -330,3 +330,18 @@ candidates were shorts (banks, TATASTEEL, NTPC), blocked mostly by STRUCTURE, CH
 **No change merged.** The `nifty` filter failed its pre-registered 4-year check on 21 Nov (TEST 0.001R a trade worse,
 TRAIN 0.027R better, ~25% fewer trades). Two days in its favour do not override a 4-year test chosen in advance;
 switching it on is the owner's call (`ENTRY_FILTERS=late,chase,cost,nifty` in `/etc/intraday-orders.env`).
+
+## 2026-11-25 — Review: three longs with NIFTY, small gain; breakeven experiment registered
+
+**24 Nov:** no live journal — the VPS was still serving 23 Nov's at 02:22 IST on the 25th, so the engine did not run
+or record on the 24th (most likely no Kite login that morning).
+
+**25 Nov live:** 19/19 checks. 3 MOMENTUM longs on an up day (NIFTY 25,658 → 25,773, high 25,952 at ~11:30):
+BEL 10:45 +0.65R, NTPC 10:45 −0.02R, KOTAKBANK 11:30 −0.18R gross; ≈ +0.45R gross, ≈ +0.24R net. Replay matches
+live (KOTAKBANK at 11:00 instead of 11:30). The `nifty` filter would not have changed anything today.
+**What went wrong:** NTPC was +0.45R at 11:30 and gave it all back when NIFTY faded after 11:30; the stop only moves
+to entry at +1R, which it never reached.
+
+**Experiment (rule fixed now):** `EXIT_BREAKEVEN_R` 1.0 (current) vs 0.5 on the 4-year Kite history. 0.5 is adopted
+only if its TEST and TRAIN mean net R are both not worse than 1.0. Replay of 25 Nov: 1.0 +0.074R/trade, 0.5 +0.077R
+(NTPC exits at breakeven) — one day, not evidence. Live keeps 1.0 until the test.
