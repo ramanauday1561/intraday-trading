@@ -345,3 +345,14 @@ to entry at +1R, which it never reached.
 **Experiment (rule fixed now):** `EXIT_BREAKEVEN_R` 1.0 (current) vs 0.5 on the 4-year Kite history. 0.5 is adopted
 only if its TEST and TRAIN mean net R are both not worse than 1.0. Replay of 25 Nov: 1.0 +0.074R/trade, 0.5 +0.077R
 (NTPC exits at breakeven) — one day, not evidence. Live keeps 1.0 until the test.
+
+**Breakeven, 4-year result (Kite 5-minute, 2022-10-11..2026-11-19, 1,013 sessions):**
+
+| EXIT_BREAKEVEN_R | TRAIN (n=629) mean [95% CI] | TEST (n=497) mean [95% CI] |
+|---|---|---|
+| 1.0 | −0.049 [−0.093, −0.004] | −0.079 [−0.131, −0.027] |
+| 0.5 | −0.054 [−0.096, −0.010] | −0.078 [−0.129, −0.027] |
+
+**Decision: keep 1.0.** 0.5 is 0.001R better on TEST but 0.005R worse on TRAIN; the rule required not worse in both.
+The exit level barely matters (same trades, differences of a few thousandths of R), consistent with the earlier
+target and time-exit tests: exits cannot fix an entry signal with no edge.
