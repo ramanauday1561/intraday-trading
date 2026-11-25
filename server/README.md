@@ -92,3 +92,11 @@ bash /opt/intraday-orders/server/signals_lab.sh
 Tests the pre-registered ideas in `engine/signals_lab.py` on the 4-year history (a few minutes) and prints one line
 per idea with PASS/fail. Also published at `<server address>/data/signals_lab.txt`.
 
+## Capital carries forward (since 25 Nov 2026)
+
+Each day's trading capital is `INTRADAY_CAPITAL` plus the net result (after Zerodha's charges) of every earlier day
+since `INTRADAY_CAPITAL_FROM` (a date, `YYYY-MM-DD`; empty = all recorded days). It is fixed for the whole day: today's
+trades change tomorrow's capital. Money added to the Kite account does not change it. Sizing (risk % of it), the
+margin cap and the Money tab all use it; `INTRADAY_MAX_LOSS_DAY` stays a fixed rupee amount. To restart from
+`INTRADAY_CAPITAL`, set `INTRADAY_CAPITAL_FROM` to the first day of the new run and `systemctl restart intraday-orders`.
+
