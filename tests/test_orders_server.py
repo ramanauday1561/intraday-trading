@@ -256,7 +256,7 @@ def test_money_is_this_apps_own_and_guard(eng):
               open(eng.history_path, "w"))                  # a whole-account row from the first version is ignored
     m = eng.money()
     assert m["today"] == {"v": 2, "pnl": 0.0, "charges": 0.0, "net": 0.0, "trades": 0, "start": 20300.0, "now": 20300.0}
-    assert m["free"] == 20000.0 and m["kite_free"] == 39000.0 and [d["d"] for d in m["history"]] == ["2026-11-13", "2026-11-17"]
+    assert m["capital"] == 20300.0 and m["free"] == 20300.0 and m["kite_free"] == 39000.0 and [d["d"] for d in m["history"]] == ["2026-11-13", "2026-11-17"]
     t = enter(eng)
     eng.kite.px["INFY"] = (1041.0, 1040.9, 1041.1)
     eng.tick()
@@ -280,3 +280,37 @@ def test_shared_session(tmp_path):
     p.write_text(json.dumps({"at": "2026-11-17T08:30", "until": "2026-11-18T06:00+05:30", "token": f.encrypt(b"tok").decode()}))
     assert shared_session.load([str(tmp_path / "none"), str(p)], "sec", DAY) == "tok"
     assert shared_session.load([str(p)], "sec", DAY + timedelta(days=1)) is None and shared_session.load([str(p)], "other", DAY) is None
+
+
+def test_capital_carries_each_days_result_forward(eng):
+    """Day 1 starts at INTRADAY_CAPITAL; each next day starts at the previous start +/- that day's net (after charges)."""
+    assert eng.capital() == 20000.0
+    t = enter(eng)                                          # 50 shares: Rs1,000 risk on Rs20,000
+    assert t["qty"] == 50
+    eng.kite.px["INFY"] = (1041.0, 1040.9, 1041.1)
+    eng.tick()
+    eng.kite.fill(t["exit_id"], 1040.9)
+    eng.tick()
+    assert eng.capital() == 20000.0                         # today's result counts from tomorrow
+    eng.c["now"] = DAY + timedelta(days=1)                  # next morning, Money tab never opened: still recorded
+    eng.kite = FakeKite()
+    eng._new_day()
+    gain = t["net"]
+    assert gain > 0 and eng.capital() == round(20000 + gain, 2)
+    t2 = enter(eng, {**SIG, "stop_distance": 10.0})         # 5% of the new capital / Rs10 stop
+    assert t2["qty"] == int((20000 + gain) * 0.05 / 10.0)
+    assert eng.money()["today"]["start"] == eng.capital()
+
+
+def test_capital_from_ignores_earlier_days_and_stops_at_zero(eng):
+    json.dump({"2026-11-13": {"v": 2, "net": 500.0, "pnl": 520.0, "charges": 20.0, "trades": 1},
+               "2026-11-16": {"v": 2, "net": -700.0, "pnl": -680.0, "charges": 20.0, "trades": 1}}, open(eng.history_path, "w"))
+    assert eng.capital() == 19800.0
+    eng.limits["capital_from"] = "2026-11-16"                # "back to 20k" from the 16th: only later days count
+    assert eng.capital() == 19300.0
+    eng.limits["capital_from"] = "2026-11-17"
+    assert eng.capital() == 20000.0
+    json.dump({"2026-11-16": {"v": 2, "net": -25000.0, "pnl": -25000.0, "charges": 0.0, "trades": 1}}, open(eng.history_path, "w"))
+    eng.limits["capital_from"] = ""
+    with pytest.raises(ValueError, match="capital is used up"):
+        eng.add(SIG)

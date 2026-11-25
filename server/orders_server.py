@@ -16,7 +16,8 @@ journal (today_log.json). For each NEW journal entry made in the last few minute
      Stocks stop trading normally at 15:15 (the closing auction, since 3 Aug 2026), so EXIT_T is 15:05, not the
      paper record's 15:15.
 Each journal entry is tried once, also when it is refused. Hard limits live on this server only
-(/etc/intraday-orders.env): the capital, the risk a trade and INTRADAY_MAX_LOSS_DAY: when today's realised plus open
+(/etc/intraday-orders.env): the capital (INTRADAY_CAPITAL plus every earlier day's net result since
+INTRADAY_CAPITAL_FROM, fixed for the day), the risk a trade and INTRADAY_MAX_LOSS_DAY: when today's realised plus open
 loss after charges reaches it, everything is closed and nothing new is taken until tomorrow. "Stop everything" on the
 phone does the same at once. INTRADAY_MODE=practice does everything except send orders (fills at Kite's live bid and
 ask), =off takes nothing.
@@ -183,8 +184,41 @@ class Engine:
             for t in self.state["trades"]:                    # MIS: Zerodha squared off anything left yesterday
                 if t["status"] in LIVE:
                     print(f"trade {t['id']} was still {t['status']} at the end of {self.state.get('day')}: check Kite", flush=True)
+            if self.state.get("day"):
+                self._record_day()                            # the day's result counts even if the Money tab was never opened
             self.state = {"day": today, "locked": None, "trades": [], "done": []}
             self.save()
+
+    def _history(self):
+        """{day: {"v": 2, "net", "pnl", "charges", "trades"}}: one row of this app's own totals a day (money.json)."""
+        if not self.history_path:
+            return {}
+        try:
+            return {d: v for d, v in json.load(open(self.history_path)).items() if isinstance(v, dict) and v.get("v") == 2}
+        except (OSError, ValueError, AttributeError):
+            return {}
+
+    def _record_day(self):
+        """Write today's row (real trades only, net after charges) and return (row, history)."""
+        mine = [t for t in self.state["trades"] if t.get("avg_in") and not t.get("practice")]
+        net = round(sum(self._pnl(t) for t in mine), 2)
+        ch = round(sum(t.get("charges", t.get("charges_est", 0)) for t in mine), 2)
+        day = {"v": 2, "pnl": round(net + ch, 2), "charges": ch, "net": net, "trades": len(mine)}
+        hist = self._history()
+        if self.history_path:
+            hist[self.state["day"]] = day
+            with open(self.history_path + ".tmp", "w") as fh:
+                json.dump(hist, fh)
+            os.replace(self.history_path + ".tmp", self.history_path)
+        return day, hist
+
+    def capital(self, hist=None):
+        """Today's capital (25 Nov 2026, asked by the owner: "that day's amount + or - that day's trade"): INTRADAY_CAPITAL
+        plus the net result after charges of every earlier day since INTRADAY_CAPITAL_FROM. Fixed for the whole day;
+        today's own trades count from tomorrow. Sizing, the margin cap and the Money tab all use it."""
+        hist = self._history() if hist is None else hist
+        since, today = self.limits.get("capital_from") or "", self.state["day"]
+        return round(self.limits["capital"] + sum(v["net"] for d, v in hist.items() if since <= d < today), 2)
 
     def save(self):
         tmp = self.path + ".tmp"
@@ -262,10 +296,13 @@ class Engine:
             if abs(ref - ref0) > MAX_DRIFT * sd:
                 raise ValueError(f"the price has moved more than {MAX_DRIFT} stop distances since the signal")
             side = "BUY" if long_ else "SELL"
-            qty = min(int(L["capital"] * L["risk_pct"] / 100 * mult / sd), int(L["capital"] * LEVERAGE / ref))
+            cap = self.capital()
+            if cap <= 0:
+                raise ValueError("this app's capital is used up (INTRADAY_CAPITAL plus the results so far)")
+            qty = min(int(cap * L["risk_pct"] / 100 * mult / sd), int(cap * LEVERAGE / ref))
             if qty < 1:
                 raise ValueError("the stop is too wide for even one share at this risk")
-            margin, left = self._margin(sym, side, qty, ref), L["capital"] - self.used()
+            margin, left = self._margin(sym, side, qty, ref), cap - self.used()
             if margin > left:
                 fit = int(qty * left / margin) if margin > 0 else 0
                 if fit < 1 or fit < MIN_FIT * qty:
@@ -344,24 +381,11 @@ class Engine:
         kept on this server."""
         with self.lock:
             self._new_day()
-            mine = [t for t in self.state["trades"] if t.get("avg_in") and not t.get("practice")]
-            net = round(sum(self._pnl(t) for t in mine), 2)
-            ch = round(sum(t.get("charges", t.get("charges_est", 0)) for t in mine), 2)
-            day = {"v": 2, "pnl": round(net + ch, 2), "charges": ch, "net": net, "trades": len(mine)}
-            hist = {}
-            if self.history_path:
-                try:
-                    hist = {d: v for d, v in json.load(open(self.history_path)).items() if v.get("v") == 2}   # older rows were the whole account
-                except (OSError, ValueError, AttributeError):
-                    pass
-                hist[self.state["day"]] = day
-                with open(self.history_path + ".tmp", "w") as fh:
-                    json.dump(hist, fh)
-                os.replace(self.history_path + ".tmp", self.history_path)
-            cap, used = self.limits["capital"], round(self.used(), 2)
-            start = round(cap + sum(v["net"] for d, v in hist.items() if d != self.state["day"]), 2)
-            out = {"day": self.state["day"], "now": self.now().isoformat(timespec="seconds"), "capital": cap, "used": used,
-                   "today": {**day, "start": start, "now": round(start + net, 2)}, "free": round(max(0.0, cap - used), 2),
+            day, hist = self._record_day()
+            start, used = self.capital(hist), round(self.used(), 2)
+            out = {"day": self.state["day"], "now": self.now().isoformat(timespec="seconds"), "capital": start, "used": used,
+                   "base": self.limits["capital"], "since": self.limits.get("capital_from") or None,
+                   "today": {**day, "start": start, "now": round(start + day["net"], 2)}, "free": round(max(0.0, start - used), 2),
                    "kite_free": None, "history": [{"d": d, **v} for d, v in sorted(hist.items())[-90:]]}
             k = self.kite
         if k:                                                           # outside the lock: a slow Kite must not hold the loop
@@ -720,7 +744,8 @@ def handler(engine, guard, origin):
 def limits_from_env():
     e = os.environ.get
     return {"capital": float(e("INTRADAY_CAPITAL", "20000")), "risk_pct": float(e("INTRADAY_RISK_PCT", "5")),
-            "max_loss_day": float(e("INTRADAY_MAX_LOSS_DAY", "5000")), "max_open": int(e("INTRADAY_MAX_OPEN", "0"))}
+            "max_loss_day": float(e("INTRADAY_MAX_LOSS_DAY", "5000")), "max_open": int(e("INTRADAY_MAX_OPEN", "0")),
+            "capital_from": e("INTRADAY_CAPITAL_FROM", "").strip()}
 
 
 def write_status(path, engine):
