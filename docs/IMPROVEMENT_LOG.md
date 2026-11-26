@@ -356,3 +356,13 @@ only if its TEST and TRAIN mean net R are both not worse than 1.0. Replay of 25 
 **Decision: keep 1.0.** 0.5 is 0.001R better on TEST but 0.005R worse on TRAIN; the rule required not worse in both.
 The exit level barely matters (same trades, differences of a few thousandths of R), consistent with the earlier
 target and time-exit tests: exits cannot fix an entry signal with no edge.
+
+## 2026-11-26 — Review: no trades on a choppy day
+
+**Live:** 19/19 checks, 0 signals. NIFTY chopped in a 0.9% range (25,873 open, 25,975 high ~11:00, 25,734 low ~14:00,
+25,895 at 15:00). 45 of 57 closest candidates were longs early (HDFCBANK, HINDALCO, POWERGRID, CIPLA) turning to shorts
+after 13:30 (ITC, LT, BAJFINANCE, ICICIBANK); blocked mostly by STRUCTURE 45, HAWKES 43, CHASE 33, ATR_RANGE 23.
+**Replay (archive Yahoo bars):** 1 trade, POWERGRID long 10:30, −0.08R gross, −0.14R net; live (Kite bars) blocked it
+on STRUCTURE. Not trading a directionless day was the right outcome. First day of the carried-forward capital
+(INTRADAY_CAPITAL_FROM=2026-11-26): no trades, so 27 Nov also starts at Rs20,000.
+**No change:** nothing in today's data points to a rule that the 4-year tests have not already covered.
