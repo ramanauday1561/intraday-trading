@@ -55,7 +55,7 @@ COST_CAPITAL, COST_RISK_PCT = 20000.0, 5.0   # account the charges are modelled 
 
 # Approximate market caps (INR crore) for order-value materiality. Static: refresh periodically.
 # (symbol, name, sector, sector_index, mcap_cr)
-UNIVERSE = [
+UNIVERSE_CORE = [
     ("RELIANCE", "Reliance Industries", "Energy", "^CNXENERGY", 1900000),
     ("TCS", "Tata Consultancy Services", "IT", "^CNXIT", 1350000),
     ("HDFCBANK", "HDFC Bank", "Banking", "^NSEBANK", 1450000),
@@ -85,6 +85,37 @@ UNIVERSE = [
     ("WIPRO", "Wipro", "IT", "^CNXIT", 280000),
     ("HCLTECH", "HCL Technologies", "IT", "^CNXIT", 450000),
 ]
+# The rest of the NIFTY 50 (as last known: Kite skips any symbol it no longer lists). All F&O stocks: no fixed
+# circuit band, full intraday leverage, tight spreads. Tata Motors is left out (its 2025 demerger breaks the history).
+NIFTY50_EXTRA = [
+    ("ADANIENT", "Adani Enterprises", "Infrastructure", "^NSEI", 280000),
+    ("ADANIPORTS", "Adani Ports", "Infrastructure", "^NSEI", 300000),
+    ("APOLLOHOSP", "Apollo Hospitals", "Pharma", "^CNXPHARMA", 100000),
+    ("ASIANPAINT", "Asian Paints", "FMCG", "^CNXFMCG", 230000),
+    ("BAJAJ-AUTO", "Bajaj Auto", "Auto", "^CNXAUTO", 240000),
+    ("BAJAJFINSV", "Bajaj Finserv", "Financials", "^NSEBANK", 320000),
+    ("BRITANNIA", "Britannia", "FMCG", "^CNXFMCG", 130000),
+    ("COALINDIA", "Coal India", "Energy", "^CNXENERGY", 240000),
+    ("EICHERMOT", "Eicher Motors", "Auto", "^CNXAUTO", 150000),
+    ("ETERNAL", "Eternal (Zomato)", "Consumer", "^NSEI", 280000),
+    ("GRASIM", "Grasim", "Materials", "^NSEI", 180000),
+    ("HDFCLIFE", "HDFC Life", "Financials", "^NSEBANK", 160000),
+    ("HEROMOTOCO", "Hero MotoCorp", "Auto", "^CNXAUTO", 100000),
+    ("INDUSINDBK", "IndusInd Bank", "Banking", "^NSEBANK", 70000),
+    ("JIOFIN", "Jio Financial", "Financials", "^NSEBANK", 200000),
+    ("NESTLEIND", "Nestle India", "FMCG", "^CNXFMCG", 230000),
+    ("SBILIFE", "SBI Life", "Financials", "^NSEBANK", 180000),
+    ("SHRIRAMFIN", "Shriram Finance", "Financials", "^NSEBANK", 120000),
+    ("TATACONSUM", "Tata Consumer", "FMCG", "^CNXFMCG", 110000),
+    ("TECHM", "Tech Mahindra", "IT", "^CNXIT", 150000),
+    ("TITAN", "Titan", "Consumer", "^NSEI", 320000),
+    ("TRENT", "Trent", "Consumer", "^NSEI", 180000),
+    ("ULTRACEMCO", "UltraTech Cement", "Materials", "^NSEI", 340000),
+]
+# Which stocks the engine scans (2026-11-26, docs/IMPROVEMENT_LOG.md). "core" = the 28 tested so far (live default);
+# "nifty50" = core + the rest of the NIFTY 50. Env override for the pre-registered experiment.
+UNIVERSE_SET = __import__("os").environ.get("UNIVERSE_SET", "core").strip().lower()
+UNIVERSE = UNIVERSE_CORE + (NIFTY50_EXTRA if UNIVERSE_SET == "nifty50" else [])
 
 INDEX_SYMBOLS = {"NIFTY": "^NSEI", "BANKNIFTY": "^NSEBANK", "VIX": "^INDIAVIX"}
 

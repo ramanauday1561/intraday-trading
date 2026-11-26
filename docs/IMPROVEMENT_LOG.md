@@ -366,3 +366,20 @@ after 13:30 (ITC, LT, BAJFINANCE, ICICIBANK); blocked mostly by STRUCTURE 45, HA
 on STRUCTURE. Not trading a directionless day was the right outcome. First day of the carried-forward capital
 (INTRADAY_CAPITAL_FROM=2026-11-26): no trades, so 27 Nov also starts at Rs20,000.
 **No change:** nothing in today's data points to a rule that the 4-year tests have not already covered.
+
+## 2026-11-26 — Wider stock list: experiment registered (owner chose the recommended rule)
+
+**Question:** would scanning more stocks help? The owner's screener showed small/mid caps up 5–13% that the engine
+never scans. Reasoning for a rule rather than 100–200 stocks: at Rs20,000 and 5% risk one trade uses ~Rs16,600 of
+margin, so more stocks mostly change *which* trade is taken, not how many; non-F&O stocks have fixed 5–20% circuit
+bands (stops can't fill in a freeze), less MIS leverage and wider spreads than the cost model assumes; and each live
+run scales with the list (42 s for 28 stocks on the 1-CPU VPS). So: F&O stocks only, the most liquid first.
+
+**Change:** `UNIVERSE_SET` — `core` (the 28 tested so far; live default, unchanged) or `nifty50` (core + the other
+23 NIFTY 50 stocks known, 51 in all; Tata Motors left out because of its 2025 demerger).
+`server/download_universe.sh nifty50` adds their 4-year Kite history on the VPS.
+
+**Test (rule fixed now):** `UNIVERSE_SET` core vs nifty50 on the 4-year Kite history with the live rules.
+`nifty50` is adopted only if its TEST and TRAIN mean net R a trade are both not worse than `core`. If it passes,
+a next step of ~80 F&O stocks by turnover is tested the same way; if it fails, a wider list is not pursued.
+Caveat: the backtest takes every qualifying signal, while live margin allows about one open trade at a time.
