@@ -100,3 +100,13 @@ trades change tomorrow's capital. Money added to the Kite account does not chang
 margin cap and the Money tab all use it; `INTRADAY_MAX_LOSS_DAY` stays a fixed rupee amount. To restart from
 `INTRADAY_CAPITAL`, set `INTRADAY_CAPITAL_FROM` to the first day of the new run and `systemctl restart intraday-orders`.
 
+## Wider stock list experiment
+
+```
+bash /opt/intraday-orders/server/download_universe.sh nifty50
+bash /opt/intraday-orders/server/experiment.sh UNIVERSE_SET core nifty50
+```
+
+The first adds 4 years of Kite bars for the other NIFTY 50 stocks (needs today's Kite login, 5-10 minutes); the second
+compares the 28-stock list with the 51-stock one (hours). Live keeps `core` unless the test passes.
+
