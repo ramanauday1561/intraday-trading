@@ -651,22 +651,44 @@
     }
    ],
    "net_r": 0.218
+  },
+  {
+   "date": "2026-11-26",
+   "engine": "6265484",
+   "trades": [
+    {
+     "symbol": "POWERGRID",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "10:30",
+     "entry": 268.25,
+     "exit": 267.8,
+     "reason": "EOD",
+     "r_multiple": -0.076,
+     "net_r": -0.133,
+     "conviction": 93,
+     "news_bucket": "no_news",
+     "stop_distance": 5.94,
+     "size_mult": 0.5
+    }
+   ],
+   "net_r": -0.133
   }
  ],
  "summary": {
-  "trades": 36,
-  "win_rate_pct": 47.2,
-  "avg_net_r": -0.02,
-  "total_net_r": -0.7,
-  "profit_factor": 0.89,
-  "sessions": 16,
-  "sessions_with_trades": 16,
+  "trades": 37,
+  "win_rate_pct": 45.9,
+  "avg_net_r": -0.023,
+  "total_net_r": -0.9,
+  "profit_factor": 0.87,
+  "sessions": 17,
+  "sessions_with_trades": 17,
   "net_r_ci95": [
-   -0.22,
-   0.188
+   -0.221,
+   0.174
   ],
   "from": "2026-11-02",
-  "to": "2026-11-25"
+  "to": "2026-11-26"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }
