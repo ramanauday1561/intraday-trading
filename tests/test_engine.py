@@ -395,10 +395,11 @@ def test_kite_session_checksum_encryption_and_expiry(tmp_path):
     from engine import kite
     assert kite.checksum("key", "req", "sec") == hashlib.sha256(b"keyreqsec").hexdigest()
     path = str(tmp_path / "s.enc")
-    kite.save_session({"access_token": "AT", "created": "2026-11-05T09:01:00+05:30"}, "secret1", path)
-    assert kite.read_session("secret1", path)["access_token"] == "AT"
+    tok = "plain-access-token-0123456789"                            # 29 characters: cannot occur in the ciphertext by chance
+    kite.save_session({"access_token": tok, "created": "2026-11-05T09:01:00+05:30"}, "secret1", path)
+    assert kite.read_session("secret1", path)["access_token"] == tok
     assert kite.read_session("other-secret", path) is None          # cannot be read without the repo secret
-    assert b"AT" not in open(path, "rb").read()                       # stored encrypted
+    assert tok.encode() not in open(path, "rb").read()                # stored encrypted
     s = lambda created: {"created": created}
     assert kite.session_fresh(s("2026-11-05T07:00:00+05:30"), dt(2026, 11, 5, 10, 0, tzinfo=IST))
     assert not kite.session_fresh(s("2026-11-04T20:00:00+05:30"), dt(2026, 11, 5, 10, 0, tzinfo=IST))  # expired at 06:00
