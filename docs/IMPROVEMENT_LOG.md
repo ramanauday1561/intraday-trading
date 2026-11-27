@@ -394,3 +394,15 @@ Caveat: the backtest takes every qualifying signal, while live margin allows abo
 **Decision: keep `core`; a wider list is not pursued.** The 23 extra stocks add ~75% more trades at the same TEST
 loss a trade and a worse TRAIN loss (−0.062 vs −0.052), so the rule fails. More stocks give the engine more of the
 same trades, not better ones: the limit is the signal, not the list.
+
+## 2026-11-27 — Review: one short, with the market but on the wrong stock
+
+**Live:** 19/19 checks, 1 trade: ONGC short 10:30 (conviction 37) at 222.93, closed 15:05 at 224.16, −0.36R gross
+(≈ −0.44R net). NIFTY fell steadily all day (25,839 open → 25,597 at 15:00, −0.9%); 47 of 57 closest candidates were
+shorts (INFY, KOTAKBANK, ICICIBANK, BHARTIARTL, SUNPHARMA, MARUTI), blocked mostly by HAWKES 53, STRUCTURE 43,
+ATR_RANGE 34. ONGC drifted up against the market after 10:30 (222.9 → 224.2).
+**Replay (archive Yahoo bars):** no ONGC short at 10:30; an ONGC long at 11:00 (+0.26R gross, +0.18R net) instead —
+the same small Yahoo/Kite bar differences as before, on a stock that barely moved (range 1%).
+**No change:** the direction was right (short on a down day), the stock choice was not; low conviction does not rank
+trades in the 4-year breakdown, and no other rule here is untested. Capital: 26 Nov had no trades, so Monday 30 Nov
+starts at Rs20,000 minus today's ONGC result.
