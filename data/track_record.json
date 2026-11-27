@@ -673,22 +673,44 @@
     }
    ],
    "net_r": -0.133
+  },
+  {
+   "date": "2026-11-27",
+   "engine": "a2a1ad4",
+   "trades": [
+    {
+     "symbol": "ONGC",
+     "direction": "LONG",
+     "setup": "MOMENTUM",
+     "signal_time": "11:00",
+     "entry": 223.26,
+     "exit": 224.16,
+     "reason": "EOD",
+     "r_multiple": 0.25,
+     "net_r": 0.172,
+     "conviction": 46,
+     "news_bucket": "no_news",
+     "stop_distance": 3.6,
+     "size_mult": 0.5
+    }
+   ],
+   "net_r": 0.172
   }
  ],
  "summary": {
-  "trades": 37,
-  "win_rate_pct": 45.9,
-  "avg_net_r": -0.023,
-  "total_net_r": -0.9,
-  "profit_factor": 0.87,
-  "sessions": 17,
-  "sessions_with_trades": 17,
+  "trades": 38,
+  "win_rate_pct": 47.4,
+  "avg_net_r": -0.018,
+  "total_net_r": -0.7,
+  "profit_factor": 0.9,
+  "sessions": 18,
+  "sessions_with_trades": 18,
   "net_r_ci95": [
-   -0.221,
-   0.174
+   -0.212,
+   0.178
   ],
   "from": "2026-11-02",
-  "to": "2026-11-26"
+  "to": "2026-11-27"
  },
  "note": "Replayed after each close with the rules in force that day (see 'engine'); net R includes 0.06% round-trip costs. Not a broker statement."
 }
