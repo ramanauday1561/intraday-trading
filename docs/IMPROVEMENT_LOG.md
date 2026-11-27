@@ -383,3 +383,14 @@ run scales with the list (42 s for 28 stocks on the 1-CPU VPS). So: F&O stocks o
 `nifty50` is adopted only if its TEST and TRAIN mean net R a trade are both not worse than `core`. If it passes,
 a next step of ~80 F&O stocks by turnover is tested the same way; if it fails, a wider list is not pursued.
 Caveat: the backtest takes every qualifying signal, while live margin allows about one open trade at a time.
+
+**Wider stock list, 4-year result (Kite 5-minute, 2022-10-11..2026-11-26, 1,017 sessions, 610 TRAIN):**
+
+| UNIVERSE_SET | TRAIN n, mean [95% CI] | TEST n, mean [95% CI] |
+|---|---|---|
+| core (28) | 632, −0.052 [−0.096, −0.009] | 501, −0.079 [−0.131, −0.027] |
+| nifty50 (51) | 1096, −0.062 [−0.100, −0.025] | 896, −0.079 [−0.120, −0.041] |
+
+**Decision: keep `core`; a wider list is not pursued.** The 23 extra stocks add ~75% more trades at the same TEST
+loss a trade and a worse TRAIN loss (−0.062 vs −0.052), so the rule fails. More stocks give the engine more of the
+same trades, not better ones: the limit is the signal, not the list.
